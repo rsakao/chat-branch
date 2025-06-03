@@ -17,16 +17,25 @@ interface ReactFlowTreeProps {
   onSelectMessage: (messageId: string) => void
 }
 
+// 会話ペア（ユーザー+AI）を表現するインターface
+interface ConversationPair {
+  id: string
+  userMessage: Message
+  aiMessage?: Message
+  children: string[] // 次の会話ペアのID
+  level: number
+}
+
 // ノードタイプを判定する関数
-const getNodeType = (messageId: string, messages: Record<string, Message>): 'root' | 'branch' | 'leaf' => {
-  const message = messages[messageId]
-  if (!message) return 'leaf'
+const getNodeType = (pairId: string, pairs: Record<string, ConversationPair>): 'root' | 'branch' | 'leaf' => {
+  const pair = pairs[pairId]
+  if (!pair) return 'leaf'
   
-  // 親がない場合はルート
-  if (!message.parentId) return 'root'
+  // レベル0の場合はルート
+  if (pair.level === 0) return 'root'
   
   // 子がない場合はリーフ
-  if (!message.children || message.children.length === 0) return 'leaf'
+  if (!pair.children || pair.children.length === 0) return 'leaf'
   
   // それ以外はブランチ
   return 'branch'
@@ -35,10 +44,10 @@ const getNodeType = (messageId: string, messages: Record<string, Message>): 'roo
 // ノードタイプ別のスタイル
 const getNodeStyle = (nodeType: 'root' | 'branch' | 'leaf', isActive: boolean) => {
   const baseStyle = {
-    width: 120,
-    height: 80,
+    width: 180,
+    height: 120,
     border: 'none',
-    borderRadius: '50%',
+    borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -82,91 +91,170 @@ export default function ReactFlowTree({
     [currentMessages]
   )
 
-  // 新しいノードとエッジを計算
-  const nodesAndEdges = useMemo(() => {
-    // 強制的に再計算
-    const nodes: Node[] = [];
-    const edges: Edge[] = [];
-
-    // レベル計算用の一時データ構造
-    const levels = new Map<string, number>();
-    const levelNodes = new Map<number, string[]>();
+  // 会話ペアを作成する関数
+  const createConversationPairs = (messages: Record<string, Message>) => {
+    const pairs: Record<string, ConversationPair> = {};
+    const processedMessages = new Set<string>();
     
-    // ノードのレベル（深さ）を計算
-    const calculateLevel = (messageId: string, level = 0) => {
-      if (levels.has(messageId)) return;
+    // ユーザーメッセージから会話ペアを作成
+    const userMessages = Object.values(messages).filter(m => m.role === 'user');
+    
+    userMessages.forEach((userMsg, index) => {
+      if (processedMessages.has(userMsg.id)) return;
       
-      levels.set(messageId, level);
+      // 対応するAIメッセージを探す
+      const aiMessage = userMsg.children
+        ?.map(childId => messages[childId])
+        .find(child => child?.role === 'assistant');
       
-      if (!levelNodes.has(level)) {
-        levelNodes.set(level, []);
-      }
-      levelNodes.get(level)!.push(messageId);
+      const pairId = `pair-${userMsg.id}`;
       
-      const message = messages[messageId];
-      if (message?.children) {
-        message.children.forEach(childId => {
-          calculateLevel(childId, level + 1);
+      // 分岐は常にAIメッセージの子から発生
+      const children: string[] = [];
+      if (aiMessage?.children) {
+        aiMessage.children.forEach(childId => {
+          const childMsg = messages[childId];
+          if (childMsg?.role === 'user') {
+            children.push(`pair-${childId}`);
+          }
         });
       }
-    };
-
-    // ルートメッセージを見つけてレベル計算開始
-    Object.values(messages).forEach(message => {
-      if (!message.parentId) {
-        calculateLevel(message.id);
+      
+      // レベル計算（ユーザーメッセージの親から判定）
+      let level = 0;
+      if (userMsg.parentId) {
+        const parentMsg = messages[userMsg.parentId];
+        if (parentMsg?.role === 'assistant') {
+          // 親のAIメッセージに対応するユーザーメッセージを探す
+          const grandParentUserMsg = Object.values(messages).find(m => 
+            m.role === 'user' && m.children?.includes(parentMsg.id)
+          );
+          if (grandParentUserMsg) {
+            const parentPair = pairs[`pair-${grandParentUserMsg.id}`];
+            level = (parentPair?.level || 0) + 1;
+          }
+        }
+      }
+      
+      pairs[pairId] = {
+        id: pairId,
+        userMessage: userMsg,
+        aiMessage,
+        children,
+        level
+      };
+      
+      processedMessages.add(userMsg.id);
+      if (aiMessage) {
+        processedMessages.add(aiMessage.id);
       }
     });
+    
+    return pairs;
+  };
 
-    // ノード作成
-    Object.entries(messages).forEach(([messageId, message]) => {
-      const level = levels.get(messageId) || 0;
-      const nodesAtLevel = levelNodes.get(level) || [];
-      const indexAtLevel = nodesAtLevel.indexOf(messageId);
+  // 新しいノードとエッジを計算
+  const nodesAndEdges = useMemo(() => {
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+    
+    // 会話ペアを作成
+    const pairs = createConversationPairs(messages);
+    
+    // レベル別にペアを整理
+    const levelPairs = new Map<number, string[]>();
+    Object.values(pairs).forEach(pair => {
+      if (!levelPairs.has(pair.level)) {
+        levelPairs.set(pair.level, []);
+      }
+      levelPairs.get(pair.level)!.push(pair.id);
+    });
+
+    // ノード作成（会話ペア単位）
+    Object.entries(pairs).forEach(([pairId, pair]) => {
+      const pairsAtLevel = levelPairs.get(pair.level) || [];
+      const indexAtLevel = pairsAtLevel.indexOf(pairId);
       
       // 水平間隔を調整
-      const horizontalSpacing = 250;
-      const verticalSpacing = 150;
-      const centerOffset = (nodesAtLevel.length - 1) * horizontalSpacing / 2;
+      const horizontalSpacing = 300;
+      const verticalSpacing = 180;
+      const centerOffset = (pairsAtLevel.length - 1) * horizontalSpacing / 2;
       
       const x = indexAtLevel * horizontalSpacing - centerOffset;
-      const y = level * verticalSpacing;
+      const y = pair.level * verticalSpacing;
       
-      const nodeType = getNodeType(messageId, messages);
-      const isActive = currentMessageIds.has(messageId);
+      const nodeType = getNodeType(pairId, pairs);
+      const isActive = currentMessageIds.has(pair.userMessage.id) || 
+                      (pair.aiMessage && currentMessageIds.has(pair.aiMessage.id));
       
       nodes.push({
-        id: messageId,
+        id: pairId,
         type: 'default',
         position: { x, y },
         data: {
           label: (
             <div style={{
               textAlign: 'center',
-              padding: '8px',
+              padding: '12px',
               width: '100%',
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center',
+              justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <div style={{ 
-                fontSize: '16px', 
-                marginBottom: '4px',
-                fontWeight: 'bold'
+              {/* ユーザーメッセージ部分 */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '8px',
+                width: '100%'
               }}>
-                {message.role === 'user' ? '👤' : '🤖'}
+                <div style={{ 
+                  fontSize: '14px', 
+                  marginRight: '6px',
+                  fontWeight: 'bold'
+                }}>
+                  👤
+                </div>
+                <div style={{ 
+                  fontSize: '10px', 
+                  lineHeight: '1.2',
+                  textAlign: 'left',
+                  wordBreak: 'break-word',
+                  overflow: 'hidden',
+                  flex: 1
+                }}>
+                  {truncateText(pair.userMessage.content, 15)}
+                </div>
               </div>
-              <div style={{ 
-                fontSize: '11px', 
-                lineHeight: '1.2',
-                textAlign: 'center',
-                wordBreak: 'break-word',
-                overflow: 'hidden'
-              }}>
-                {truncateText(message.content, 20)}
-              </div>
+              
+              {/* AIメッセージ部分 */}
+              {pair.aiMessage && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%'
+                }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    marginRight: '6px',
+                    fontWeight: 'bold'
+                  }}>
+                    🤖
+                  </div>
+                  <div style={{ 
+                    fontSize: '10px', 
+                    lineHeight: '1.2',
+                    textAlign: 'left',
+                    wordBreak: 'break-word',
+                    overflow: 'hidden',
+                    flex: 1
+                  }}>
+                    {truncateText(pair.aiMessage.content, 15)}
+                  </div>
+                </div>
+              )}
             </div>
           )
         },
@@ -174,14 +262,14 @@ export default function ReactFlowTree({
       });
     });
 
-    // エッジ作成
-    Object.entries(messages).forEach(([messageId, message]) => {
-      if (message.children) {
-        message.children.forEach((childId, index) => {
+    // エッジ作成（会話ペア間の接続）
+    Object.entries(pairs).forEach(([pairId, pair]) => {
+      if (pair.children && pair.children.length > 0) {
+        pair.children.forEach((childPairId, index) => {
           edges.push({
-            id: `${messageId}-${childId}`,
-            source: messageId,
-            target: childId,
+            id: `${pairId}-${childPairId}`,
+            source: pairId,
+            target: childPairId,
             type: 'smoothstep',
             style: {
               stroke: '#64748b',
@@ -208,8 +296,16 @@ export default function ReactFlowTree({
   }, [messages, currentMessages]);
 
   const onNodeClick = useCallback((_: any, node: Node) => {
-    onSelectMessage(node.id);
-  }, [onSelectMessage]);
+    // ペアIDからAIメッセージのIDを取得（ユーザー+AI対話の最後まで表示）
+    const pairId = node.id;
+    const pairs = createConversationPairs(messages);
+    const pair = pairs[pairId];
+    if (pair) {
+      // AIメッセージがあればそれを、なければユーザーメッセージを選択
+      const targetMessageId = pair.aiMessage ? pair.aiMessage.id : pair.userMessage.id;
+      onSelectMessage(targetMessageId);
+    }
+  }, [onSelectMessage, messages]);
 
   return (
     <div style={{ height: '100%', width: '100%', background: '#f8fafc' }}>

@@ -264,6 +264,15 @@ interface SimpleTreeProps {
   onSelectMessage: (messageId: string) => void
 }
 
+// 会話ペアを表現するインターface（SimpleTree用）
+interface SimpleConversationPair {
+  id: string
+  userMessage: Message
+  aiMessage?: Message
+  children: string[] // 次の会話ペアのID
+  level: number
+}
+
 const SimpleTree: React.FC<SimpleTreeProps> = ({ messages, currentMessages, onSelectMessage }) => {
   // メモ化された現在のメッセージIDセット
   const currentMessageIds = useMemo(() => 
@@ -271,36 +280,118 @@ const SimpleTree: React.FC<SimpleTreeProps> = ({ messages, currentMessages, onSe
     [currentMessages]
   );
 
+  // 会話ペアを作成する関数（SimpleTree用）
+  const createSimpleConversationPairs = useCallback((messages: Record<string, Message>) => {
+    const pairs: Record<string, SimpleConversationPair> = {};
+    const processedMessages = new Set<string>();
+    
+    // ユーザーメッセージから会話ペアを作成
+    const userMessages = Object.values(messages).filter(m => m.role === 'user');
+    
+    userMessages.forEach(userMsg => {
+      if (processedMessages.has(userMsg.id)) return;
+      
+      // 対応するAIメッセージを探す
+      const aiMessage = userMsg.children
+        ?.map(childId => messages[childId])
+        .find(child => child?.role === 'assistant');
+      
+      const pairId = `pair-${userMsg.id}`;
+      
+      // 分岐は常にAIメッセージの子から発生
+      const children: string[] = [];
+      if (aiMessage?.children) {
+        aiMessage.children.forEach(childId => {
+          const childMsg = messages[childId];
+          if (childMsg?.role === 'user') {
+            children.push(`pair-${childId}`);
+          }
+        });
+      }
+      
+      // レベル計算（ユーザーメッセージの親から判定）
+      let level = 0;
+      if (userMsg.parentId) {
+        const parentMsg = messages[userMsg.parentId];
+        if (parentMsg?.role === 'assistant') {
+          // 親のAIメッセージに対応するユーザーメッセージを探す
+          const grandParentUserMsg = Object.values(messages).find(m => 
+            m.role === 'user' && m.children?.includes(parentMsg.id)
+          );
+          if (grandParentUserMsg) {
+            const parentPair = pairs[`pair-${grandParentUserMsg.id}`];
+            level = (parentPair?.level || 0) + 1;
+          }
+        }
+      }
+      
+      pairs[pairId] = {
+        id: pairId,
+        userMessage: userMsg,
+        aiMessage,
+        children,
+        level
+      };
+      
+      processedMessages.add(userMsg.id);
+      if (aiMessage) {
+        processedMessages.add(aiMessage.id);
+      }
+    });
+    
+    return pairs;
+  }, []);
+
   // メモ化されたツリー構造のレンダリング関数
   const renderTree = useMemo(() => {
-    // ノードをレンダリングする関数
-    const renderNode = (messageId: string, depth = 0): JSX.Element | null => {
-      const message = messages[messageId];
-      if (!message) return null;
+    const pairs = createSimpleConversationPairs(messages);
+    
+    // ペアをレンダリングする関数
+    const renderPair = (pairId: string, depth = 0): JSX.Element | null => {
+      const pair = pairs[pairId];
+      if (!pair) return null;
       
-      const isActive = currentMessageIds.has(messageId);
+      const isActive = currentMessageIds.has(pair.userMessage.id) || 
+                      (pair.aiMessage && currentMessageIds.has(pair.aiMessage.id));
       const indent = depth * 20;
       
+      const handleClick = () => {
+        // AIメッセージがあればそれを、なければユーザーメッセージを選択
+        const targetMessageId = pair.aiMessage ? pair.aiMessage.id : pair.userMessage.id;
+        onSelectMessage(targetMessageId);
+      };
+      
       return (
-        <div key={`node-${messageId}`} className="node-container">
+        <div key={`pair-${pairId}`} className="node-container">
           <div
-            className={`tree-node ${message.role} ${isActive ? 'active' : ''}`}
+            className={`tree-node conversation-pair ${isActive ? 'active' : ''}`}
             style={{ marginLeft: `${indent}px` }}
-            onClick={() => onSelectMessage(messageId)}
+            onClick={handleClick}
           >
-            <span className="tree-node-prefix">
-              {message.role === 'user' ? '👤' : '🤖'}
-            </span>
-            <span className="tree-node-content">
-              {truncateText(message.content, 40)}
-            </span>
+            {/* ユーザーメッセージ部分 */}
+            <div className="pair-user-message">
+              <span className="tree-node-prefix">👤</span>
+              <span className="tree-node-content">
+                {truncateText(pair.userMessage.content, 35)}
+              </span>
+            </div>
+            
+            {/* AIメッセージ部分 */}
+            {pair.aiMessage && (
+              <div className="pair-ai-message">
+                <span className="tree-node-prefix">🤖</span>
+                <span className="tree-node-content">
+                  {truncateText(pair.aiMessage.content, 35)}
+                </span>
+              </div>
+            )}
           </div>
           
-          {/* 子ノード */}
-          {message.children && message.children.length > 0 && (
+          {/* 子ペア */}
+          {pair.children && pair.children.length > 0 && (
             <div className="children-container">
-              {message.children.map(childId => 
-                renderNode(childId, depth + 1)
+              {pair.children.map(childPairId => 
+                renderPair(childPairId, depth + 1)
               )}
             </div>
           )}
@@ -308,17 +399,17 @@ const SimpleTree: React.FC<SimpleTreeProps> = ({ messages, currentMessages, onSe
       );
     };
     
-    // ルートメッセージを見つける
-    const rootMessages = Object.values(messages).filter(m => !m.parentId);
+    // ルートペア（レベル0）を見つける
+    const rootPairs = Object.values(pairs).filter(p => p.level === 0);
     
     return (
       <>
-        {rootMessages.map(rootMessage => 
-          renderNode(rootMessage.id, 0)
+        {rootPairs.map(rootPair => 
+          renderPair(rootPair.id, 0)
         )}
       </>
     );
-  }, [messages, currentMessageIds, onSelectMessage]);
+  }, [messages, currentMessageIds, onSelectMessage, createSimpleConversationPairs]);
   
   return (
     <div className="simple-tree-container">
