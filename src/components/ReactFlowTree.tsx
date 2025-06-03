@@ -342,7 +342,7 @@ export default function ReactFlowTree({
         key={Object.keys(messages).length} // キーを使って強制的に再レンダリング
       >
         <Background color={backgroundGridColor} />
-        <Controls />
+        <Controls showInteractive={false} />
         
         {/* グラフ内に凡例を配置 */}
         <div
