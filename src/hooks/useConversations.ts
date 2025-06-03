@@ -12,24 +12,17 @@ export function useConversations() {
       if (response.ok) {
         const data = await response.json()
         setConversations(data.conversations || [])
-        if (data.conversations && data.conversations.length > 0) {
+        
+        // 最後に使用した会話IDをlocalStorageから取得
+        const lastConversationId = localStorage.getItem('lastConversationId')
+        if (lastConversationId && data.conversations?.some((c: Conversation) => c.id === lastConversationId)) {
+          setCurrentConversationId(lastConversationId)
+        } else if (data.conversations && data.conversations.length > 0) {
           setCurrentConversationId(data.conversations[0].id)
         }
       }
     } catch (error) {
       console.error('Failed to load conversations:', error)
-      // サンプルデータで初期化
-      const sampleConversation: Conversation = {
-        id: 'conv_1',
-        title: '人工知能の基礎',
-        messages: {},
-        rootMessageId: undefined,
-        currentPath: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-      setConversations([sampleConversation])
-      setCurrentConversationId(sampleConversation.id)
     }
   }, [])
 
@@ -55,6 +48,10 @@ export function useConversations() {
         const savedConversation = await response.json()
         setConversations(prev => [savedConversation, ...prev])
         setCurrentConversationId(savedConversation.id)
+        
+        // localStorageに保存
+        localStorage.setItem('lastConversationId', savedConversation.id)
+        
         return savedConversation
       }
     } catch (error) {
@@ -64,11 +61,14 @@ export function useConversations() {
     // フォールバック：ローカルに追加
     setConversations(prev => [newConversation, ...prev])
     setCurrentConversationId(newConversation.id)
+    localStorage.setItem('lastConversationId', newConversation.id)
     return newConversation
   }, [])
 
   const switchConversation = useCallback((conversationId: string) => {
     setCurrentConversationId(conversationId)
+    // 最後に使用した会話IDを保存
+    localStorage.setItem('lastConversationId', conversationId)
   }, [])
 
   const updateConversation = useCallback((conversationId: string, updates: Partial<Conversation>) => {

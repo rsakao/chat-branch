@@ -47,6 +47,23 @@ export function useChat(conversationId: string | null) {
     }
   }, [conversationId])
 
+  const saveMessages = useCallback(async (messagesToSave: Message[], newPath: string[]) => {
+    if (!conversationId) return
+
+    try {
+      await fetch(`/api/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: messagesToSave,
+          currentPath: newPath
+        })
+      })
+    } catch (error) {
+      console.error('Failed to save messages:', error)
+    }
+  }, [conversationId])
+
   useEffect(() => {
     loadMessages()
   }, [loadMessages])
@@ -71,21 +88,18 @@ export function useChat(conversationId: string | null) {
 
       // 親メッセージを更新（子を追加）
       const parentId = userMessage.parentId
-      if (parentId) {
-        setMessages(prev => ({
-          ...prev,
-          [parentId]: {
-            ...prev[parentId],
-            children: [...prev[parentId].children, userMessage.id]
-          }
-        }))
+      const updatedMessages = { ...messages }
+      
+      if (parentId && updatedMessages[parentId]) {
+        updatedMessages[parentId] = {
+          ...updatedMessages[parentId],
+          children: [...updatedMessages[parentId].children, userMessage.id]
+        }
       }
 
       // ユーザーメッセージを追加
-      setMessages(prev => ({
-        ...prev,
-        [userMessage.id]: userMessage
-      }))
+      updatedMessages[userMessage.id] = userMessage
+      setMessages(updatedMessages)
 
       // パスを更新
       const newPath = [...currentPath, userMessage.id]
@@ -116,17 +130,23 @@ export function useChat(conversationId: string | null) {
         }
 
         // ユーザーメッセージに子を追加
-        setMessages(prev => ({
-          ...prev,
+        const finalMessages = {
+          ...updatedMessages,
           [userMessage.id]: {
-            ...prev[userMessage.id],
+            ...updatedMessages[userMessage.id],
             children: [aiMessage.id]
           },
           [aiMessage.id]: aiMessage
-        }))
+        }
+
+        setMessages(finalMessages)
 
         // パスを更新
-        setCurrentPath([...newPath, aiMessage.id])
+        const finalPath = [...newPath, aiMessage.id]
+        setCurrentPath(finalPath)
+
+        // データベースに保存
+        await saveMessages([userMessage, aiMessage], finalPath)
       }
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -142,14 +162,18 @@ export function useChat(conversationId: string | null) {
         timestamp: new Date().toISOString()
       }
 
-      setMessages(prev => ({
-        ...prev,
-        [aiMessage.id]: aiMessage
-      }))
+      const updatedMessages = { ...messages, [aiMessage.id]: aiMessage }
+      setMessages(updatedMessages)
+      
+      const finalPath = [...currentPath, aiMessage.id]
+      setCurrentPath(finalPath)
+      
+      // フォールバック応答もデータベースに保存
+      await saveMessages([aiMessage], finalPath)
     } finally {
       setIsLoading(false)
     }
-  }, [conversationId, currentPath, isLoading])
+  }, [conversationId, currentPath, isLoading, messages, saveMessages])
 
   const createBranch = useCallback(async (fromMessageId: string) => {
     if (!conversationId) return
@@ -159,20 +183,36 @@ export function useChat(conversationId: string | null) {
     setCurrentPath(newPath)
 
     try {
-      await fetch(`/api/conversations/${conversationId}/branch`, {
+      // パスの更新をデータベースに保存
+      await fetch(`/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId: fromMessageId })
+        body: JSON.stringify({
+          currentPath: newPath
+        })
       })
     } catch (error) {
       console.error('Failed to create branch:', error)
     }
   }, [conversationId, messages])
 
-  const selectMessage = useCallback((messageId: string) => {
+  const selectMessage = useCallback(async (messageId: string) => {
     const newPath = buildPathToMessage(messageId, messages)
     setCurrentPath(newPath)
-  }, [messages])
+
+    try {
+      // パスの更新をデータベースに保存
+      await fetch(`/api/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPath: newPath
+        })
+      })
+    } catch (error) {
+      console.error('Failed to select message:', error)
+    }
+  }, [messages, conversationId])
 
   // 現在のパスに沿ったメッセージを取得
   const currentMessages = currentPath

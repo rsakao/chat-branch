@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,6 +42,27 @@ export async function POST(request: NextRequest) {
     })
 
     const content = completion.choices[0]?.message?.content || '申し訳ございませんが、応答を生成できませんでした。'
+
+    // 会話のタイトルを自動更新（最初のメッセージの場合）
+    if (conversationId) {
+      try {
+        const conversation = await prisma.conversation.findUnique({
+          where: { id: conversationId },
+          include: { messages: true }
+        })
+
+        // メッセージが1つもない、または「新しい会話」のままの場合はタイトルを更新
+        if (conversation && (conversation.messages.length === 0 || conversation.title === '新しい会話')) {
+          const title = message.length > 30 ? message.substring(0, 30) + '...' : message
+          await prisma.conversation.update({
+            where: { id: conversationId },
+            data: { title }
+          })
+        }
+      } catch (error) {
+        console.error('Failed to update conversation title:', error)
+      }
+    }
 
     return NextResponse.json({
       content,
