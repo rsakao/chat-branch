@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { 
   ReactFlow, 
   Node, 
@@ -84,6 +84,22 @@ export default function ReactFlowTree({
 }: ReactFlowTreeProps) {
   // キーを使用して強制的に再レンダリング
   const [, forceUpdate] = useState(0);
+  
+  // ダークモード検出
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(isDark);
+    };
+    
+    checkDarkMode();
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', checkDarkMode);
+    
+    return () => mediaQuery.removeEventListener('change', checkDarkMode);
+  }, []);
 
   // 現在選択されているメッセージのIDセット
   const currentMessageIds = useMemo(
@@ -272,14 +288,14 @@ export default function ReactFlowTree({
             target: childPairId,
             type: 'smoothstep',
             style: {
-              stroke: '#64748b',
+              stroke: isDarkMode ? '#94a3b8' : '#64748b',
               strokeWidth: 2,
               strokeDasharray: '0'
             },
             labelStyle: {
               fontSize: '10px',
               fontWeight: 'bold',
-              fill: '#64748b'
+              fill: isDarkMode ? '#94a3b8' : '#64748b'
             },
             label: `分岐${index + 1}`
           });
@@ -288,7 +304,7 @@ export default function ReactFlowTree({
     });
 
     return { nodes, edges };
-  }, [messages, currentMessageIds]);
+  }, [messages, currentMessageIds, isDarkMode]);
 
   // メッセージが変わったときに強制再レンダリング
   React.useEffect(() => {
@@ -307,9 +323,14 @@ export default function ReactFlowTree({
     }
   }, [onSelectMessage, messages]);
 
-  return (
-    <div style={{ height: '100%', width: '100%', background: '#f8fafc' }}>
+  const backgroundStyle = isDarkMode ? '#1e293b' : '#f8fafc';
+  const backgroundGridColor = isDarkMode ? '#334155' : '#e2e8f0';
+  const legendBg = isDarkMode ? '#334155' : 'white';
+  const legendTextColor = isDarkMode ? '#f1f5f9' : '#1e293b';
+  const legendShadow = isDarkMode ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
 
+  return (
+    <div style={{ height: '100%', width: '100%', background: backgroundStyle }}>
       <ReactFlow
         nodes={nodesAndEdges.nodes}
         edges={nodesAndEdges.edges}
@@ -317,10 +338,10 @@ export default function ReactFlowTree({
         connectionMode={ConnectionMode.Loose}
         fitView
         fitViewOptions={{ padding: 0.3 }}
-        style={{ background: '#f8fafc' }}
+        style={{ background: backgroundStyle }}
         key={Object.keys(messages).length} // キーを使って強制的に再レンダリング
       >
-        <Background color="#e2e8f0" />
+        <Background color={backgroundGridColor} />
         <Controls />
         
         {/* グラフ内に凡例を配置 */}
@@ -329,10 +350,11 @@ export default function ReactFlowTree({
             position: 'absolute',
             bottom: '20px',
             right: '20px',
-            background: 'white',
+            background: legendBg,
+            color: legendTextColor,
             padding: '12px',
             borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            boxShadow: legendShadow,
             fontSize: '12px',
             zIndex: 5
           }}

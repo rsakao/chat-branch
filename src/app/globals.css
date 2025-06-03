@@ -65,25 +65,25 @@
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: rgba(31, 33, 33, 1);
-    --color-surface: rgba(38, 40, 40, 1);
-    --color-text: rgba(245, 245, 245, 1);
-    --color-text-secondary: rgba(167, 169, 169, 0.7);
+    --color-background: rgba(18, 20, 22, 1);
+    --color-surface: rgba(25, 28, 31, 1);
+    --color-text: rgba(255, 255, 255, 0.95);
+    --color-text-secondary: rgba(200, 202, 204, 0.85);
     --color-primary: rgba(50, 184, 198, 1);
     --color-primary-hover: rgba(45, 166, 178, 1);
     --color-primary-active: rgba(41, 150, 161, 1);
-    --color-secondary: rgba(119, 124, 124, 0.15);
-    --color-secondary-hover: rgba(119, 124, 124, 0.25);
-    --color-secondary-active: rgba(119, 124, 124, 0.3);
-    --color-border: rgba(119, 124, 124, 0.3);
-    --color-error: rgba(255, 84, 89, 1);
+    --color-secondary: rgba(119, 124, 124, 0.2);
+    --color-secondary-hover: rgba(119, 124, 124, 0.35);
+    --color-secondary-active: rgba(119, 124, 124, 0.45);
+    --color-border: rgba(119, 124, 124, 0.45);
+    --color-error: rgba(255, 100, 105, 1);
     --color-success: rgba(50, 184, 198, 1);
-    --color-warning: rgba(230, 129, 97, 1);
-    --color-info: rgba(167, 169, 169, 1);
-    --color-focus-ring: rgba(50, 184, 198, 0.4);
-    --color-btn-primary-text: rgba(19, 52, 59, 1);
-    --color-card-border: rgba(119, 124, 124, 0.2);
-    --color-card-border-inner: rgba(119, 124, 124, 0.15);
+    --color-warning: rgba(255, 165, 100, 1);
+    --color-info: rgba(200, 202, 204, 1);
+    --color-focus-ring: rgba(50, 184, 198, 0.5);
+    --color-btn-primary-text: rgba(255, 255, 255, 1);
+    --color-card-border: rgba(119, 124, 124, 0.35);
+    --color-card-border-inner: rgba(119, 124, 124, 0.25);
   }
 }
 
@@ -308,6 +308,13 @@ body {
   background-color: rgba(192, 21, 47, 0.1);
 }
 
+@media (prefers-color-scheme: dark) {
+  .delete-button:hover {
+    color: var(--color-error);
+    background-color: rgba(255, 100, 105, 0.15);
+  }
+}
+
 .conversation-title {
   font-weight: var(--font-weight-medium);
   margin-bottom: var(--space-4);
@@ -452,6 +459,13 @@ body {
   background-color: rgba(33, 128, 141, 0.1);
 }
 
+@media (prefers-color-scheme: dark) {
+  .quote-btn:hover,
+  .quote-selected-btn:hover {
+    background-color: rgba(50, 184, 198, 0.2);
+  }
+}
+
 .quote-selected-btn {
   background-color: var(--color-primary);
   color: var(--color-btn-primary-text);
@@ -527,6 +541,17 @@ body {
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .clear-quote-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .quoted-message-content {
+    color: var(--color-text-secondary);
+    background-color: rgba(119, 124, 124, 0.1);
+  }
 }
 
 /* Tree area */
@@ -635,6 +660,33 @@ body {
   height: 100%;
 }
 
+/* ReactFlow ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .react-flow__controls {
+    background-color: rgba(51, 65, 85, 0.95) !important;
+    border: 1px solid rgba(119, 124, 124, 0.45) !important;
+  }
+  
+  .react-flow__controls-button {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
+  }
+  
+  .react-flow__controls-button:hover {
+    background-color: rgba(119, 124, 124, 0.3) !important;
+  }
+  
+  .react-flow__controls-button:last-child {
+    border-bottom: none !important;
+  }
+  
+  /* ReactFlowのズーム表示テキスト */
+  .react-flow__controls-zoom {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+}
+
 /* Loading spinner */
 .loading-spinner {
   width: 16px;
@@ -643,6 +695,13 @@ body {
   border-top: 2px solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loading-spinner {
+    border: 2px solid rgba(119, 124, 124, 0.3);
+    border-top: 2px solid var(--color-primary);
+  }
 }
 
 @keyframes spin {
@@ -762,6 +821,12 @@ body {
 
 .modal-close:hover {
   background-color: var(--color-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-close:hover {
+    background-color: rgba(119, 124, 124, 0.3);
+  }
 }
 
 .modal-body {
