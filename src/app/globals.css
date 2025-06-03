@@ -393,7 +393,35 @@ body {
   margin-right: 10%;
 }
 
-.branch-btn {
+.message.clickable {
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.message.clickable:hover {
+  opacity: 0.9;
+}
+
+.message-content {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.message-content::selection {
+  background-color: var(--color-primary);
+  color: var(--color-btn-primary-text);
+}
+
+.message-content::-moz-selection {
+  background-color: var(--color-primary);
+  color: var(--color-btn-primary-text);
+}
+
+.branch-btn,
+.quote-btn,
+.quote-selected-btn {
   padding: var(--space-4) var(--space-8);
   font-size: var(--font-size-sm);
   background-color: var(--color-secondary);
@@ -401,10 +429,37 @@ body {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--duration-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--color-text);
+  margin-left: var(--space-8);
 }
 
-.branch-btn:hover {
+.branch-btn:hover,
+.quote-btn:hover,
+.quote-selected-btn:hover {
   background-color: var(--color-secondary-hover);
+}
+
+.quote-btn,
+.quote-selected-btn {
+  color: var(--color-primary);
+}
+
+.quote-btn:hover,
+.quote-selected-btn:hover {
+  background-color: rgba(33, 128, 141, 0.1);
+}
+
+.quote-selected-btn {
+  background-color: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-color: var(--color-primary);
+}
+
+.quote-selected-btn:hover {
+  background-color: var(--color-primary-hover);
 }
 
 .chat-input-container {
@@ -423,6 +478,55 @@ body {
   flex: 1;
   min-height: 60px;
   resize: none;
+}
+
+/* 引用メッセージ表示 */
+.quoted-message {
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--space-12);
+  overflow: hidden;
+}
+
+.quoted-message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-8) var(--space-12);
+  background-color: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  gap: var(--space-8);
+}
+
+.quoted-message-header span {
+  flex: 1;
+}
+
+.clear-quote-btn {
+  background: none;
+  border: none;
+  color: var(--color-btn-primary-text);
+  cursor: pointer;
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-quote-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.quoted-message-content {
+  padding: var(--space-12);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
 }
 
 /* Tree area */

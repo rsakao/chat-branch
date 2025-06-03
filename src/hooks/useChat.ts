@@ -68,26 +68,38 @@ export function useChat(conversationId: string | null) {
     loadMessages()
   }, [loadMessages])
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, branchFromMessageId?: string) => {
     if (!conversationId || isLoading) return
 
     setIsLoading(true)
     
     try {
+      // 分岐元が指定されている場合は、そのメッセージを親にする
+      let parentId: string | undefined
+      let newPath: string[]
+      
+      if (branchFromMessageId) {
+        parentId = branchFromMessageId
+        newPath = buildPathToMessage(branchFromMessageId, messages)
+        setCurrentPath(newPath)
+      } else {
+        parentId = currentPath[currentPath.length - 1] || undefined
+        newPath = currentPath
+      }
+
       // ユーザーメッセージを作成
       const userMessage: Message = {
         id: generateId('msg'),
         role: 'user',
         content,
         conversationId,
-        parentId: currentPath[currentPath.length - 1] || undefined,
+        parentId,
         children: [],
         branchIndex: 0,
         timestamp: new Date().toISOString()
       }
 
       // 親メッセージを更新（子を追加）
-      const parentId = userMessage.parentId
       const updatedMessages = { ...messages }
       
       if (parentId && updatedMessages[parentId]) {
@@ -102,8 +114,8 @@ export function useChat(conversationId: string | null) {
       setMessages(updatedMessages)
 
       // パスを更新
-      const newPath = [...currentPath, userMessage.id]
-      setCurrentPath(newPath)
+      const updatedPath = [...newPath, userMessage.id]
+      setCurrentPath(updatedPath)
 
       // AI応答を生成
       const response = await fetch('/api/chat', {
@@ -142,7 +154,7 @@ export function useChat(conversationId: string | null) {
         setMessages(finalMessages)
 
         // パスを更新
-        const finalPath = [...newPath, aiMessage.id]
+        const finalPath = [...updatedPath, aiMessage.id]
         setCurrentPath(finalPath)
 
         // データベースに保存
@@ -156,7 +168,7 @@ export function useChat(conversationId: string | null) {
         role: 'assistant',
         content: '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。',
         conversationId,
-        parentId: currentPath[currentPath.length - 1],
+        parentId: updatedPath[updatedPath.length - 1],
         children: [],
         branchIndex: 0,
         timestamp: new Date().toISOString()
@@ -165,7 +177,7 @@ export function useChat(conversationId: string | null) {
       const updatedMessages = { ...messages, [aiMessage.id]: aiMessage }
       setMessages(updatedMessages)
       
-      const finalPath = [...currentPath, aiMessage.id]
+      const finalPath = [...updatedPath, aiMessage.id]
       setCurrentPath(finalPath)
       
       // フォールバック応答もデータベースに保存

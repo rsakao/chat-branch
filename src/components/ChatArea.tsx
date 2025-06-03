@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, GitBranch, Eye, EyeOff } from 'lucide-react'
+import { Send, GitBranch, Eye, EyeOff, Quote, X } from 'lucide-react'
 import { Conversation, Message } from '@/types'
 
 interface ChatAreaProps {
   conversation?: Conversation
   messages: Message[]
   isLoading: boolean
-  onSendMessage: (content: string) => void
+  onSendMessage: (content: string, branchFromMessageId?: string) => void
   onCreateBranch: (messageId: string) => void
   onToggleTree: () => void
 }
@@ -20,6 +20,9 @@ export default function ChatArea({
   onToggleTree
 }: ChatAreaProps) {
   const [inputValue, setInputValue] = useState('')
+  const [quotedMessage, setQuotedMessage] = useState<Message | null>(null)
+  const [quotedText, setQuotedText] = useState<string>('')
+  const [selectedText, setSelectedText] = useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -34,12 +37,47 @@ export default function ChatArea({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim() && !isLoading) {
-      onSendMessage(inputValue.trim())
+      onSendMessage(inputValue.trim(), quotedMessage?.id)
       setInputValue('')
+      setQuotedMessage(null)
+      setQuotedText('')
+      setSelectedText('')
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto'
       }
     }
+  }
+
+  const handleTextSelection = () => {
+    const selection = window.getSelection()
+    if (selection && selection.toString().trim()) {
+      setSelectedText(selection.toString().trim())
+    } else {
+      setSelectedText('')
+    }
+  }
+
+  const handleQuoteSelection = (message: Message) => {
+    if (selectedText) {
+      setQuotedMessage(message)
+      setQuotedText(selectedText)
+      setSelectedText('')
+      textareaRef.current?.focus()
+    }
+  }
+
+  const handleMessageClick = (message: Message) => {
+    if (message.role === 'assistant' && !selectedText) {
+      setQuotedMessage(message)
+      setQuotedText(message.content)
+      textareaRef.current?.focus()
+    }
+  }
+
+  const handleClearQuote = () => {
+    setQuotedMessage(null)
+    setQuotedText('')
+    setSelectedText('')
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -97,16 +135,47 @@ export default function ChatArea({
         ) : (
           <>
             {messages.map((message) => (
-              <div key={message.id} className={`message ${message.role}`}>
+              <div 
+                key={message.id} 
+                className={`message ${message.role} ${message.role === 'assistant' ? 'clickable' : ''}`}
+                onClick={() => handleMessageClick(message)}
+              >
                 <div className="message-header">
                   <span className="message-role">
                     {message.role === 'user' ? 'あなた' : 'AI'}
                   </span>
                   {message.role === 'assistant' && (
                     <div className="message-actions">
+                      {selectedText && (
+                        <button
+                          className="quote-selected-btn"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleQuoteSelection(message)
+                          }}
+                          title="選択したテキストを引用"
+                        >
+                          <Quote size={14} />
+                          選択部分を引用
+                        </button>
+                      )}
+                      <button
+                        className="quote-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleMessageClick(message)
+                        }}
+                        title="このメッセージ全体を引用"
+                      >
+                        <Quote size={14} />
+                        全体を引用
+                      </button>
                       <button
                         className="branch-btn"
-                        onClick={() => onCreateBranch(message.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onCreateBranch(message.id)
+                        }}
                         title="ここから分岐"
                       >
                         <GitBranch size={14} />
@@ -115,7 +184,11 @@ export default function ChatArea({
                     </div>
                   )}
                 </div>
-                <div className="message-content">
+                <div 
+                  className="message-content"
+                  onMouseUp={handleTextSelection}
+                  onKeyUp={handleTextSelection}
+                >
                   {message.content}
                 </div>
               </div>
@@ -139,11 +212,30 @@ export default function ChatArea({
       </div>
 
       <div className="chat-input-container">
+        {quotedMessage && quotedText && (
+          <div className="quoted-message">
+            <div className="quoted-message-header">
+              <Quote size={16} />
+              <span>引用メッセージ</span>
+              <button
+                className="clear-quote-btn"
+                onClick={handleClearQuote}
+                title="引用を削除"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="quoted-message-content">
+              {quotedText.slice(0, 200)}
+              {quotedText.length > 200 && '...'}
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="chat-input-wrapper">
           <textarea
             ref={textareaRef}
             className="form-control"
-            placeholder="メッセージを入力してください..."
+            placeholder={quotedMessage ? "引用メッセージに対する返信を入力してください..." : "メッセージを入力してください..."}
             value={inputValue}
             onChange={handleTextareaChange}
             onKeyPress={handleKeyPress}
