@@ -58,7 +58,7 @@ export default function TreeView({
     )
   }
 
-  const allMessages = conversation.messages || {}
+  const allMessages = conversation?.messages || {}
 
   const buildSimpleTree = () => {
     const buildNodeHTML = (messageId: string, depth = 0): string => {

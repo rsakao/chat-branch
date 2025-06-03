@@ -25,6 +25,7 @@ export default function HomePage() {
 
   const {
     messages,
+    allMessages,
     isLoading,
     sendMessage,
     createBranch,
@@ -110,7 +111,10 @@ export default function HomePage() {
         {/* 右サイドバー: ツリー表示 */}
         {isTreeVisible && (
           <TreeView
-            conversation={currentConversation}
+            conversation={{
+              ...currentConversation,
+              messages: allMessages
+            }}
             messages={messages}
             treeMode={treeMode}
             onTreeModeChange={setTreeMode}
