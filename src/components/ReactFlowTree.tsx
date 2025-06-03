@@ -1,10 +1,8 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { 
   ReactFlow, 
   Node, 
   Edge, 
-  useNodesState, 
-  useEdgesState,
   Controls,
   Background,
   ConnectionMode
@@ -75,64 +73,67 @@ export default function ReactFlowTree({
   currentMessages, 
   onSelectMessage 
 }: ReactFlowTreeProps) {
-  const currentMessageIds = new Set(currentMessages.map(m => m.id))
+  // キーを使用して強制的に再レンダリング
+  const [, forceUpdate] = useState(0);
 
-  const { nodes, edges } = useMemo(() => {
-    const nodes: Node[] = []
-    const edges: Edge[] = []
+  // 現在選択されているメッセージのIDセット
+  const currentMessageIds = useMemo(
+    () => new Set(currentMessages.map(m => m.id)),
+    [currentMessages]
+  )
 
-    // 改良されたレイアウトアルゴリズム
-    const calculatePositions = () => {
-      const levels = new Map<string, number>()
-      const levelNodes = new Map<number, string[]>()
+  // 新しいノードとエッジを計算
+  const nodesAndEdges = useMemo(() => {
+    // 強制的に再計算
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+
+    // レベル計算用の一時データ構造
+    const levels = new Map<string, number>();
+    const levelNodes = new Map<number, string[]>();
+    
+    // ノードのレベル（深さ）を計算
+    const calculateLevel = (messageId: string, level = 0) => {
+      if (levels.has(messageId)) return;
       
-      // レベル計算
-      const calculateLevel = (messageId: string, level = 0) => {
-        if (levels.has(messageId)) return
-        
-        levels.set(messageId, level)
-        
-        if (!levelNodes.has(level)) {
-          levelNodes.set(level, [])
-        }
-        levelNodes.get(level)!.push(messageId)
-        
-        const message = messages[messageId]
-        if (message?.children) {
-          message.children.forEach(childId => {
-            calculateLevel(childId, level + 1)
-          })
-        }
+      levels.set(messageId, level);
+      
+      if (!levelNodes.has(level)) {
+        levelNodes.set(level, []);
       }
+      levelNodes.get(level)!.push(messageId);
+      
+      const message = messages[messageId];
+      if (message?.children) {
+        message.children.forEach(childId => {
+          calculateLevel(childId, level + 1);
+        });
+      }
+    };
 
-      // ルートメッセージを見つけてレベル計算開始
-      Object.values(messages).forEach(message => {
-        if (!message.parentId) {
-          calculateLevel(message.id)
-        }
-      })
-
-      return { levels, levelNodes }
-    }
-
-    const { levels, levelNodes } = calculatePositions()
+    // ルートメッセージを見つけてレベル計算開始
+    Object.values(messages).forEach(message => {
+      if (!message.parentId) {
+        calculateLevel(message.id);
+      }
+    });
 
     // ノード作成
     Object.entries(messages).forEach(([messageId, message]) => {
-      const level = levels.get(messageId) || 0
-      const nodesAtLevel = levelNodes.get(level) || []
-      const indexAtLevel = nodesAtLevel.indexOf(messageId)
+      const level = levels.get(messageId) || 0;
+      const nodesAtLevel = levelNodes.get(level) || [];
+      const indexAtLevel = nodesAtLevel.indexOf(messageId);
       
       // 水平間隔を調整
-      const horizontalSpacing = 250
-      const verticalSpacing = 150
-      const centerOffset = (nodesAtLevel.length - 1) * horizontalSpacing / 2
+      const horizontalSpacing = 250;
+      const verticalSpacing = 150;
+      const centerOffset = (nodesAtLevel.length - 1) * horizontalSpacing / 2;
       
-      const x = indexAtLevel * horizontalSpacing - centerOffset
-      const y = level * verticalSpacing
+      const x = indexAtLevel * horizontalSpacing - centerOffset;
+      const y = level * verticalSpacing;
       
-      const nodeType = getNodeType(messageId, messages)
-      const isActive = currentMessageIds.has(messageId)
+      const nodeType = getNodeType(messageId, messages);
+      const isActive = currentMessageIds.has(messageId);
       
       nodes.push({
         id: messageId,
@@ -170,10 +171,10 @@ export default function ReactFlowTree({
           )
         },
         style: getNodeStyle(nodeType, isActive)
-      })
-    })
+      });
+    });
 
-    // エッジ作成（より美しいスタイル）
+    // エッジ作成
     Object.entries(messages).forEach(([messageId, message]) => {
       if (message.children) {
         message.children.forEach((childId, index) => {
@@ -193,99 +194,85 @@ export default function ReactFlowTree({
               fill: '#64748b'
             },
             label: `分岐${index + 1}`
-          })
-        })
+          });
+        });
       }
-    })
+    });
 
-    return { nodes, edges }
-  }, [messages, currentMessageIds])
+    return { nodes, edges };
+  }, [messages, currentMessageIds]);
 
-  const [flowNodes, setNodes, onNodesChange] = useNodesState(nodes)
-  const [flowEdges, setEdges, onEdgesChange] = useEdgesState(edges)
+  // メッセージが変わったときに強制再レンダリング
+  React.useEffect(() => {
+    forceUpdate(prev => prev + 1);
+  }, [messages, currentMessages]);
 
   const onNodeClick = useCallback((_: any, node: Node) => {
-    onSelectMessage(node.id)
-  }, [onSelectMessage])
+    onSelectMessage(node.id);
+  }, [onSelectMessage]);
 
   return (
     <div style={{ height: '100%', width: '100%', background: '#f8fafc' }}>
-      {/* ヘッダー */}
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 10,
-        background: 'white',
-        padding: '12px 24px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        fontSize: '18px',
-        fontWeight: 'bold',
-        color: '#1e293b'
-      }}>
-        Conversation Tree
-      </div>
-
-      {/* 凡例 */}
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        zIndex: 10,
-        background: 'white',
-        padding: '12px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        fontSize: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: '#3b82f6',
-            marginRight: '8px'
-          }} />
-          Root
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: '#f59e0b',
-            marginRight: '8px'
-          }} />
-          Branch
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: '#10b981',
-            marginRight: '8px'
-          }} />
-          Leaf
-        </div>
-      </div>
 
       <ReactFlow
-        nodes={flowNodes}
-        edges={flowEdges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        nodes={nodesAndEdges.nodes}
+        edges={nodesAndEdges.edges}
         onNodeClick={onNodeClick}
         connectionMode={ConnectionMode.Loose}
         fitView
         fitViewOptions={{ padding: 0.3 }}
         style={{ background: '#f8fafc' }}
+        key={Object.keys(messages).length} // キーを使って強制的に再レンダリング
       >
         <Background color="#e2e8f0" />
         <Controls />
+        
+        {/* グラフ内に凡例を配置 */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            background: 'white',
+            padding: '12px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            fontSize: '12px',
+            zIndex: 5
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: '#3b82f6',
+              marginRight: '8px'
+            }} />
+            Root
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: '#f59e0b',
+              marginRight: '8px'
+            }} />
+            Branch
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: '#10b981',
+              marginRight: '8px'
+            }} />
+            Leaf
+          </div>
+        </div>
       </ReactFlow>
     </div>
-  )
-} 
+  );
+}

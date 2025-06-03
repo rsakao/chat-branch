@@ -34,6 +34,7 @@ export default function HomePage() {
 
   const statusRef = useRef<HTMLDivElement>(null)
 
+  // 初回ロード時に会話を取得
   useEffect(() => {
     loadConversations()
   }, [])
