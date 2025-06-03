@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Conversation, Message } from '@/types'
 import { truncateText } from '@/utils/helpers'
 import ReactFlowTree from './ReactFlowTree'
@@ -142,17 +142,17 @@ interface SimpleTreeProps {
   onSelectMessage: (messageId: string) => void
 }
 
-function SimpleTree({ messages, currentMessages, onSelectMessage }: SimpleTreeProps) {
+const SimpleTree: React.FC<SimpleTreeProps> = ({ messages, currentMessages, onSelectMessage }) => {
   const currentMessageIds = new Set(currentMessages.map(m => m.id))
 
-  const buildTree = (messageId: string, depth = 0): JSX.Element[] => {
+  const buildTree = (messageId: string, depth = 0): React.ReactElement[] => {
     const message = messages[messageId]
     if (!message) return []
 
     const isActive = currentMessageIds.has(messageId)
     const indent = depth * 20
 
-    const elements: JSX.Element[] = [
+    const elements: React.ReactElement[] = [
       <div
         key={messageId}
         className={`tree-node ${message.role} ${isActive ? 'active' : ''}`}

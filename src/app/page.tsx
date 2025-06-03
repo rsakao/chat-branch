@@ -111,10 +111,10 @@ export default function HomePage() {
         {/* 右サイドバー: ツリー表示 */}
         {isTreeVisible && (
           <TreeView
-            conversation={{
+            conversation={currentConversation ? {
               ...currentConversation,
               messages: allMessages
-            }}
+            } : undefined}
             messages={messages}
             treeMode={treeMode}
             onTreeModeChange={setTreeMode}

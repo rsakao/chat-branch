@@ -3,10 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const conversationId = params.id
+    const { id } = await params
+    const conversationId = id
 
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
@@ -58,10 +59,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const conversationId = params.id
+    const { id } = await params
+    const conversationId = id
     const { messages: newMessages, currentPath } = await request.json()
 
     // Update conversation's current path
