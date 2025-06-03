@@ -102,16 +102,18 @@ export default function ChatArea({
                   <span className="message-role">
                     {message.role === 'user' ? 'あなた' : 'AI'}
                   </span>
-                  <div className="message-actions">
-                    <button
-                      className="branch-btn"
-                      onClick={() => onCreateBranch(message.id)}
-                      title="ここから分岐"
-                    >
-                      <GitBranch size={14} />
-                      分岐
-                    </button>
-                  </div>
+                  {message.role === 'assistant' && (
+                    <div className="message-actions">
+                      <button
+                        className="branch-btn"
+                        onClick={() => onCreateBranch(message.id)}
+                        title="ここから分岐"
+                      >
+                        <GitBranch size={14} />
+                        分岐
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div className="message-content">
                   {message.content}
