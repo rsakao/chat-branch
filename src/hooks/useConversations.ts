@@ -81,12 +81,47 @@ export function useConversations() {
     )
   }, [])
 
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // ローカル状態から削除
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId))
+        
+        // 削除された会話が現在選択されている場合
+        if (currentConversationId === conversationId) {
+          const remainingConversations = conversations.filter(conv => conv.id !== conversationId)
+          if (remainingConversations.length > 0) {
+            // 最初の会話を選択
+            setCurrentConversationId(remainingConversations[0].id)
+            localStorage.setItem('lastConversationId', remainingConversations[0].id)
+          } else {
+            // 会話がなくなった場合
+            setCurrentConversationId(null)
+            localStorage.removeItem('lastConversationId')
+          }
+        }
+        
+        return true
+      } else {
+        throw new Error('Failed to delete conversation')
+      }
+    } catch (error) {
+      console.error('Failed to delete conversation:', error)
+      return false
+    }
+  }, [currentConversationId, conversations])
+
   return {
     conversations,
     currentConversationId,
     loadConversations,
     createConversation,
     switchConversation,
-    updateConversation
+    updateConversation,
+    deleteConversation
   }
 } 

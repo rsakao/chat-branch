@@ -20,7 +20,8 @@ export default function HomePage() {
     currentConversationId,
     createConversation,
     switchConversation,
-    loadConversations
+    loadConversations,
+    deleteConversation
   } = useConversations()
 
   const {
@@ -65,6 +66,22 @@ export default function HomePage() {
     }
   }
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const success = await deleteConversation(conversationId)
+      if (success) {
+        toast.success('会話を削除しました')
+        return true
+      } else {
+        toast.error('会話の削除に失敗しました')
+        return false
+      }
+    } catch (error) {
+      toast.error('会話の削除に失敗しました')
+      return false
+    }
+  }
+
   const currentConversation = conversations.find(c => c.id === currentConversationId)
 
   return (
@@ -97,6 +114,7 @@ export default function HomePage() {
           currentConversationId={currentConversationId}
           onSwitchConversation={switchConversation}
           onNewConversation={handleNewConversation}
+          onDeleteConversation={handleDeleteConversation}
         />
 
         {/* 中央: チャットエリア */}
