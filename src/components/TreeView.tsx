@@ -22,18 +22,102 @@ export default function TreeView({
   const [treeWidth, setTreeWidth] = useState(350);
   const [isResizing, setIsResizing] = useState(false);
   const treeRef = useRef<HTMLDivElement>(null);
+  
+  // 幅の監視用
+  const [componentWidth, setComponentWidth] = useState(350);
+  
+  // デバッグモードの設定を読み込む
+  const [debugMode, setDebugMode] = useState(false);
+  
+  useEffect(() => {
+    // localStorageから設定を読み込む
+    const saved = localStorage.getItem('chatAppSettings');
+    if (saved) {
+      try {
+        const settings = JSON.parse(saved);
+        if (settings.debugMode !== undefined) {
+          setDebugMode(settings.debugMode);
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    }
+  }, []);
 
-  // メッセージ数に基づいて使用するモードを決定
-  const useAdvanced = useMemo(() => {
-    if (!conversation) return false;
+  // コンポーネントの幅を監視
+  useEffect(() => {
+    const observeWidth = () => {
+      if (treeRef.current) {
+        const width = treeRef.current.offsetWidth;
+        setComponentWidth(width);
+      }
+    };
+
+    // 初期値を設定
+    observeWidth();
+
+    // ResizeObserverで監視
+    const resizeObserver = new ResizeObserver(observeWidth);
+    if (treeRef.current) {
+      resizeObserver.observe(treeRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [treeWidth]);
+
+  // ツリーの表示方法を決定
+  const { useAdvanced, treeMaxWidth } = useMemo(() => {
+    if (!conversation) return { useAdvanced: false, treeMaxWidth: 0 };
     
-    if (treeMode === 'advanced') return true;
-    if (treeMode === 'simple') return false;
+    if (treeMode === 'advanced') return { useAdvanced: true, treeMaxWidth: 0 };
+    if (treeMode === 'simple') return { useAdvanced: false, treeMaxWidth: 0 };
     
-    // auto modeの場合
-    const messageCount = Object.keys(conversation.messages || {}).length;
-    return messageCount > 10;
-  }, [treeMode, conversation]);
+    // auto modeの場合、コンポーネントの幅で判定
+    const messages = conversation.messages || {};
+    
+    // ツリーの最大幅を計算（デバッグ表示用）
+    const calculateTreeWidth = () => {
+      // 各レベル（深さ）にあるノードの数を記録
+      const levelCounts = new Map<number, number>();
+      
+      // 深さを計算する再帰関数
+      const calculateDepth = (messageId: string, depth = 0) => {
+        // 現在の深さのカウントを更新
+        levelCounts.set(depth, (levelCounts.get(depth) || 0) + 1);
+        
+        // 子ノードについても同様に計算
+        const message = messages[messageId];
+        if (message?.children && message.children.length > 0) {
+          message.children.forEach(childId => {
+            calculateDepth(childId, depth + 1);
+          });
+        }
+      };
+      
+      // ルートメッセージから計算開始
+      Object.values(messages).forEach(message => {
+        if (!message.parentId) {
+          calculateDepth(message.id);
+        }
+      });
+      
+      // 最大幅を返す
+      return Math.max(...Array.from(levelCounts.values(), count => count || 0), 0);
+    };
+    
+    // ツリーの最大幅（デバッグ用）
+    const maxTreeWidth = calculateTreeWidth();
+    
+    // コンポーネントの幅で表示方法を決定（400px未満の場合はシンプル表示）
+    const useAdvancedDisplay = componentWidth >= 400;
+    
+    return { 
+      useAdvanced: useAdvancedDisplay,
+      treeMaxWidth: maxTreeWidth
+    };
+  }, [treeMode, conversation, componentWidth]);
 
   // リサイズ処理
   const startResizing = useCallback((e: React.MouseEvent) => {
@@ -132,6 +216,18 @@ export default function TreeView({
               <option value="advanced">グラフィカル表示</option>
             </select>
           </div>
+          {debugMode && conversation && (
+            <div className="debug-info" style={{ 
+              fontSize: '11px', 
+              marginTop: '5px', 
+              color: '#666',
+              backgroundColor: '#f0f0f0',
+              padding: '3px 6px',
+              borderRadius: '4px'
+            }}>
+              幅: {componentWidth}px ({componentWidth >= 400 ? 'グラフィカル' : 'シンプル'}) | ツリー最大幅: {treeMaxWidth}
+            </div>
+          )}
         </div>
 
         <div className="tree-container">
