@@ -709,6 +709,12 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* 会話フローアニメーション */
+@keyframes flow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 12; }
+}
+
 /* Modal */
 .modal {
   position: fixed;

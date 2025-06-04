@@ -5,7 +5,8 @@ import {
   Edge, 
   Controls,
   Background,
-  ConnectionMode
+  ConnectionMode,
+  MarkerType
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { Message } from '@/types'
@@ -281,7 +282,7 @@ export default function ReactFlowTree({
     // エッジ作成（会話ペア間の接続）
     Object.entries(pairs).forEach(([pairId, pair]) => {
       if (pair.children && pair.children.length > 0) {
-        pair.children.forEach((childPairId, index) => {
+        pair.children.forEach((childPairId) => {
           edges.push({
             id: `${pairId}-${childPairId}`,
             source: pairId,
@@ -289,15 +290,17 @@ export default function ReactFlowTree({
             type: 'smoothstep',
             style: {
               stroke: isDarkMode ? '#94a3b8' : '#64748b',
-              strokeWidth: 2,
-              strokeDasharray: '0'
+              strokeWidth: 3,
+              strokeDasharray: '8 4',
+              animation: 'flow 2s linear infinite reverse'
             },
-            labelStyle: {
-              fontSize: '10px',
-              fontWeight: 'bold',
-              fill: isDarkMode ? '#94a3b8' : '#64748b'
-            },
-            label: `分岐${index + 1}`
+            animated: true,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 10,
+              height: 10,
+              color: isDarkMode ? '#94a3b8' : '#64748b'
+            }
           });
         });
       }
