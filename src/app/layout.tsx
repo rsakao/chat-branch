@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import 'highlight.js/styles/atom-one-dark.css'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
@@ -14,6 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body>
         {children}
         <Toaster 

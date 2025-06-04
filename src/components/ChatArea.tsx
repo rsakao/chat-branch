@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, GitBranch, Eye, EyeOff, Quote, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 import { Conversation, Message } from '@/types'
 
 interface ChatAreaProps {
@@ -189,7 +192,80 @@ export default function ChatArea({
                   onMouseUp={handleTextSelection}
                   onKeyUp={handleTextSelection}
                 >
-                  {message.content}
+                  {message.role === 'assistant' ? (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        // カスタムコンポーネントの設定
+                        p: ({ children }) => <p className="markdown-paragraph">{children}</p>,
+                        h1: ({ children }) => <h1 className="markdown-h1">{children}</h1>,
+                        h2: ({ children }) => <h2 className="markdown-h2">{children}</h2>,
+                        h3: ({ children }) => <h3 className="markdown-h3">{children}</h3>,
+                        h4: ({ children }) => <h4 className="markdown-h4">{children}</h4>,
+                        h5: ({ children }) => <h5 className="markdown-h5">{children}</h5>,
+                        h6: ({ children }) => <h6 className="markdown-h6">{children}</h6>,
+                        ul: ({ children }) => <ul className="markdown-ul">{children}</ul>,
+                        ol: ({ children }) => <ol className="markdown-ol">{children}</ol>,
+                        li: ({ children }) => <li className="markdown-li">{children}</li>,
+                        blockquote: ({ children }) => <blockquote className="markdown-blockquote">{children}</blockquote>,
+                        hr: () => <hr className="markdown-hr" />,
+                        code: ({ children, className, ...props }) => {
+                          // インラインコードとコードブロックを区別
+                          const match = /language-(\w+)/.exec(className || '')
+                          const language = match ? match[1] : ''
+                          
+                          if (className?.startsWith('language-')) {
+                            return <code className={`markdown-code-block ${className}`} {...props}>{children}</code>
+                          }
+                          return <code className="markdown-code-inline" {...props}>{children}</code>
+                        },
+                        pre: ({ children, ...props }) => (
+                          <pre className="markdown-pre" {...props}>
+                            {children}
+                          </pre>
+                        ),
+                        table: ({ children }) => <table className="markdown-table">{children}</table>,
+                        thead: ({ children }) => <thead className="markdown-thead">{children}</thead>,
+                        tbody: ({ children }) => <tbody className="markdown-tbody">{children}</tbody>,
+                        tr: ({ children }) => <tr className="markdown-tr">{children}</tr>,
+                        th: ({ children }) => <th className="markdown-th">{children}</th>,
+                        td: ({ children }) => <td className="markdown-td">{children}</td>,
+                        a: ({ children, href, ...props }) => (
+                          <a 
+                            href={href} 
+                            className="markdown-link" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            {...props}
+                          >
+                            {children}
+                          </a>
+                        ),
+                        strong: ({ children }) => <strong className="markdown-strong">{children}</strong>,
+                        em: ({ children }) => <em className="markdown-em">{children}</em>,
+                        input: ({ type, checked, ...props }) => {
+                          // チェックボックス用
+                          if (type === 'checkbox') {
+                            return (
+                              <input 
+                                type="checkbox" 
+                                checked={checked}
+                                readOnly
+                                className="markdown-checkbox"
+                                {...props}
+                              />
+                            )
+                          }
+                          return <input type={type} {...props} />
+                        },
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  ) : (
+                    message.content
+                  )}
                 </div>
               </div>
             ))}
