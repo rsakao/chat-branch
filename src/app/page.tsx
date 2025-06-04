@@ -40,14 +40,19 @@ export default function HomePage() {
     loadConversations()
   }, [])
 
-  const handleSendMessage = async (content: string, quotedMessageId?: string) => {
+  const handleSendMessage = async (
+    content: string, 
+    quotedMessageId?: string, 
+    quotedMessage?: any, 
+    quotedText?: string
+  ) => {
     try {
       if (quotedMessageId) {
         // 引用メッセージから分岐を作成してメッセージを送信
-        await sendMessage(content, quotedMessageId)
+        await sendMessage(content, quotedMessageId, quotedMessage, quotedText)
         toast.success('新しいブランチを作成しました')
       } else {
-        await sendMessage(content)
+        await sendMessage(content, undefined, quotedMessage, quotedText)
       }
     } catch (error) {
       toast.error('メッセージの送信に失敗しました')

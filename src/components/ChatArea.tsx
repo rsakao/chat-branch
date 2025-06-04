@@ -6,7 +6,7 @@ interface ChatAreaProps {
   conversation?: Conversation
   messages: Message[]
   isLoading: boolean
-  onSendMessage: (content: string, branchFromMessageId?: string) => void
+  onSendMessage: (content: string, branchFromMessageId?: string, quotedMessage?: Message, quotedText?: string) => void
   onCreateBranch: (messageId: string) => void
   onToggleTree: () => void
 }
@@ -37,7 +37,7 @@ export default function ChatArea({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim() && !isLoading) {
-      onSendMessage(inputValue.trim(), quotedMessage?.id)
+      onSendMessage(inputValue.trim(), quotedMessage?.id, quotedMessage || undefined, quotedText || undefined)
       setInputValue('')
       setQuotedMessage(null)
       setQuotedText('')

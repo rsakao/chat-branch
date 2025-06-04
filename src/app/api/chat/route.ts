@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { prisma } from '@/lib/prisma'
+import { buildEnhancedQuotedPrompt, SYSTEM_PROMPT_WITH_QUOTE } from '@/utils/prompts'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationId } = await request.json()
+    const { message, conversationId, quotedMessage, quotedText } = await request.json()
 
     if (!message) {
       return NextResponse.json(
@@ -25,16 +26,22 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     })
 
+    // 引用メッセージがある場合の高度なプロンプト構築
+    let userPrompt = message
+    if (quotedMessage && quotedText) {
+      userPrompt = buildEnhancedQuotedPrompt(message, quotedText, quotedMessage)
+    }
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: 'あなたは親切で知識豊富なAIアシスタントです。日本語で分かりやすく回答してください。'
+          content: SYSTEM_PROMPT_WITH_QUOTE
         },
         {
           role: 'user',
-          content: message
+          content: userPrompt
         }
       ],
       max_tokens: 1000,

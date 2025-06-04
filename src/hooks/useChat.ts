@@ -68,63 +68,70 @@ export function useChat(conversationId: string | null) {
     loadMessages()
   }, [loadMessages])
 
-  const sendMessage = useCallback(async (content: string, branchFromMessageId?: string) => {
+  const sendMessage = useCallback(async (
+    content: string, 
+    branchFromMessageId?: string,
+    quotedMessage?: any,
+    quotedText?: string
+  ) => {
     if (!conversationId || isLoading) return
 
     setIsLoading(true)
     
+    // 分岐元が指定されている場合は、そのメッセージを親にする
+    let parentId: string | undefined
+    let newPath: string[]
+    
+    if (branchFromMessageId) {
+      parentId = branchFromMessageId
+      newPath = buildPathToMessage(branchFromMessageId, messages)
+      setCurrentPath(newPath)
+    } else {
+      parentId = currentPath[currentPath.length - 1] || undefined
+      newPath = currentPath
+    }
+
+    // ユーザーメッセージを作成
+    const userMessage: Message = {
+      id: generateId('msg'),
+      role: 'user',
+      content,
+      conversationId,
+      parentId,
+      children: [],
+      branchIndex: 0,
+      timestamp: new Date().toISOString()
+    }
+
+    // 親メッセージを更新（子を追加）
+    const updatedMessages = { ...messages }
+    
+    if (parentId && updatedMessages[parentId]) {
+      updatedMessages[parentId] = {
+        ...updatedMessages[parentId],
+        children: [...updatedMessages[parentId].children, userMessage.id]
+      }
+    }
+
+    // ユーザーメッセージを追加
+    updatedMessages[userMessage.id] = userMessage
+    setMessages(updatedMessages)
+
+    // パスを更新
+    const updatedPath = [...newPath, userMessage.id]
+    setCurrentPath(updatedPath)
+
     try {
-      // 分岐元が指定されている場合は、そのメッセージを親にする
-      let parentId: string | undefined
-      let newPath: string[]
-      
-      if (branchFromMessageId) {
-        parentId = branchFromMessageId
-        newPath = buildPathToMessage(branchFromMessageId, messages)
-        setCurrentPath(newPath)
-      } else {
-        parentId = currentPath[currentPath.length - 1] || undefined
-        newPath = currentPath
-      }
-
-      // ユーザーメッセージを作成
-      const userMessage: Message = {
-        id: generateId('msg'),
-        role: 'user',
-        content,
-        conversationId,
-        parentId,
-        children: [],
-        branchIndex: 0,
-        timestamp: new Date().toISOString()
-      }
-
-      // 親メッセージを更新（子を追加）
-      const updatedMessages = { ...messages }
-      
-      if (parentId && updatedMessages[parentId]) {
-        updatedMessages[parentId] = {
-          ...updatedMessages[parentId],
-          children: [...updatedMessages[parentId].children, userMessage.id]
-        }
-      }
-
-      // ユーザーメッセージを追加
-      updatedMessages[userMessage.id] = userMessage
-      setMessages(updatedMessages)
-
-      // パスを更新
-      const updatedPath = [...newPath, userMessage.id]
-      setCurrentPath(updatedPath)
-
-      // AI応答を生成
+      // AI応答を生成（引用メッセージの情報を含める）
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId,
           message: content,
-          parentMessageId: userMessage.id
+          parentMessageId: userMessage.id,
+          quotedMessage,
+          quotedText
         })
       })
 
@@ -174,8 +181,8 @@ export function useChat(conversationId: string | null) {
         timestamp: new Date().toISOString()
       }
 
-      const updatedMessages = { ...messages, [aiMessage.id]: aiMessage }
-      setMessages(updatedMessages)
+      const finalUpdatedMessages = { ...updatedMessages, [aiMessage.id]: aiMessage }
+      setMessages(finalUpdatedMessages)
       
       const finalPath = [...updatedPath, aiMessage.id]
       setCurrentPath(finalPath)
