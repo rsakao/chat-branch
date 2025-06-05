@@ -274,9 +274,21 @@ body {
   background-color: var(--color-secondary);
 }
 
+/* ホバー時の時間表示改善 */
+.conversation-item:hover .conversation-date {
+  color: rgba(98, 108, 113, 1);
+  background-color: rgba(98, 108, 113, 0.1);
+}
+
 .conversation-item.active .conversation-button {
   background-color: var(--color-primary);
   color: var(--color-btn-primary-text);
+}
+
+/* アクティブ時の時間表示改善 */
+.conversation-item.active .conversation-date {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .conversation-item.active {
@@ -308,21 +320,47 @@ body {
   background-color: rgba(192, 21, 47, 0.1);
 }
 
+/* ダークモードでのホバー・アクティブ状態 */
 @media (prefers-color-scheme: dark) {
   .delete-button:hover {
     color: var(--color-error);
     background-color: rgba(255, 100, 105, 0.15);
+  }
+
+  .conversation-item:hover .conversation-date {
+    color: rgba(200, 202, 204, 1);
+    background-color: rgba(200, 202, 204, 0.15);
+  }
+  
+  .conversation-item.active .conversation-date {
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 }
 
 .conversation-title {
   font-weight: var(--font-weight-medium);
   margin-bottom: var(--space-4);
+  color: var(--color-text);
 }
 
 .conversation-date {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: rgba(98, 108, 113, 0.8);
+  font-weight: var(--font-weight-medium);
+  background-color: rgba(98, 108, 113, 0.05);
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  transition: all var(--duration-fast);
+}
+
+/* ダークモードでの時間表示の改善 */
+@media (prefers-color-scheme: dark) {
+  .conversation-date {
+    color: rgba(200, 202, 204, 0.9);
+    background-color: rgba(200, 202, 204, 0.1);
+  }
 }
 
 /* Chat area */
@@ -514,7 +552,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-10) var(--space-12);
+  padding: var(--space-12) var(--space-12);
   background: linear-gradient(90deg, var(--color-primary) 0%, rgba(33, 128, 141, 0.9) 100%);
   color: var(--color-btn-primary-text);
   font-size: var(--font-size-sm);
@@ -538,7 +576,7 @@ body {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-8);
 }
 
 .clear-quote-btn {
@@ -620,7 +658,7 @@ body {
 /* 引用選択ボタンの改善 */
 .quote-btn,
 .quote-selected-btn {
-  padding: var(--space-6) var(--space-10);
+  padding: var(--space-8) var(--space-12);
   font-size: var(--font-size-xs);
   background: linear-gradient(135deg, var(--color-secondary) 0%, rgba(33, 128, 141, 0.1) 100%);
   border: 1px solid var(--color-primary);
@@ -667,13 +705,13 @@ body {
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .quoted-message-content {
-    padding: var(--space-10) var(--space-12);
+    padding: var(--space-12) var(--space-12);
     font-size: var(--font-size-xs);
   }
   
   .quote-btn,
   .quote-selected-btn {
-    padding: var(--space-4) var(--space-6);
+    padding: var(--space-4) var(--space-8);
     font-size: var(--font-size-xs);
     margin-left: var(--space-4);
   }
@@ -1376,7 +1414,7 @@ body {
   right: var(--space-8);
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.7);
-  padding: 2px var(--space-6);
+  padding: 2px var(--space-8);
   border-radius: var(--radius-sm);
   font-size: 10px;
   text-transform: uppercase;
