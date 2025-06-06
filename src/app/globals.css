@@ -100,6 +100,13 @@ body {
   padding: 0;
 }
 
+/* Prevent body scroll when mobile menus are open */
+body.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 /* Button styles */
 .btn {
   display: inline-flex;
@@ -168,7 +175,7 @@ body {
   border-radius: var(--radius-base);
   background-color: var(--color-surface);
   color: var(--color-text);
-  font-size: var(--font-size-base);
+  font-size: 16px; /* モバイルズーム防止のため16px以上に設定 */
   transition: border-color var(--duration-fast);
 }
 
@@ -187,12 +194,21 @@ body {
 }
 
 .app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-16) var(--space-24);
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
+}
+
+.main-content {
+  margin-top: 72px; /* ヘッダーの高さ分のマージン */
 }
 
 .header-left {
@@ -226,6 +242,7 @@ body {
   flex: 1;
   overflow: hidden;
   position: relative;
+  height: calc(100vh - 72px); /* ヘッダー分を除いた高さ */
 }
 
 /* Mobile responsive breakpoints */
@@ -261,13 +278,15 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 0;
+    top: 72px; /* ヘッダー下に配置 */
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 72px); /* ヘッダー分を除いた高さ */
     z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    overflow-y: auto; /* 独立したスクロール */
+    -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
   }
   
   .sidebar.open {
@@ -276,15 +295,16 @@ body {
   
   .sidebar-overlay {
     position: fixed;
-    top: 0;
+    top: 72px; /* ヘッダー下に配置 */
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 72px); /* ヘッダー分を除いた高さ */
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    touch-action: none; /* タッチスクロールを無効化 */
   }
   
   .sidebar-overlay.open {
@@ -311,6 +331,13 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-8);
+  -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
+}
+
+@media (max-width: 768px) {
+  .conversation-list {
+    padding-bottom: 60px; /* モバイルで十分な下部余白を追加 */
+  }
 }
 
 .conversation-item {
@@ -436,6 +463,8 @@ body {
 @media (max-width: 768px) {
   .chat-area {
     width: 100%;
+    height: calc(100vh - 72px); /* ヘッダー分を除いた高さ */
+    overflow-y: auto; /* 独立したスクロール */
   }
 }
 
@@ -599,6 +628,13 @@ body {
   flex: 1;
   min-height: 60px;
   resize: none;
+  font-size: 16px; /* モバイルズーム防止のため16px以上に設定 */
+}
+
+@media (max-width: 768px) {
+  .chat-input-wrapper textarea {
+    font-size: 16px; /* モバイルで確実に16px以上にする */
+  }
 }
 
 /* 引用メッセージ表示の改善 */
@@ -1114,19 +1150,25 @@ body {
 @media (max-width: 768px) {
   .tree-area {
     position: fixed;
-    top: 0;
+    top: 72px; /* ヘッダー下に配置 */
     right: 0;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 72px); /* ヘッダー分を除いた高さ */
     z-index: 1000;
     transform: translateX(100%);
     transition: transform 0.3s ease;
     background-color: var(--color-surface);
     border-left: 1px solid var(--color-border);
+    overflow-y: auto; /* 独立したスクロール */
+    -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
   }
   
   .tree-area.open {
     transform: translateX(0);
+  }
+  
+  .tree-area .tree-container {
+    padding-bottom: 60px; /* モバイルで十分な下部余白を追加 */
   }
   
   .resize-handle {
@@ -1155,6 +1197,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  
+  .mobile-nav-btn.active {
+    background-color: var(--color-primary);
+    color: var(--color-btn-primary-text);
   }
 }
 

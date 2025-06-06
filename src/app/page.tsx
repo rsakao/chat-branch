@@ -42,6 +42,21 @@ export default function HomePage() {
     loadConversations()
   }, [])
 
+  // モバイルでサイドバーやツリーが開いている時のbodyスクロール制御
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768
+    if (isMobile && (isSidebarOpen || isTreeOpen)) {
+      document.body.classList.add('no-scroll')
+    } else {
+      document.body.classList.remove('no-scroll')
+    }
+
+    // クリーンアップ
+    return () => {
+      document.body.classList.remove('no-scroll')
+    }
+  }, [isSidebarOpen, isTreeOpen])
+
   const handleSendMessage = async (
     content: string, 
     quotedMessageId?: string, 
@@ -103,8 +118,11 @@ export default function HomePage() {
       <header className="app-header">
         <div className="header-left">
           <button 
-            className="mobile-nav-btn"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`mobile-nav-btn ${isSidebarOpen ? 'active' : ''}`}
+            onClick={() => {
+              setIsSidebarOpen(!isSidebarOpen)
+              if (!isSidebarOpen) setIsTreeOpen(false) // サイドバーを開く時はツリーを閉じる
+            }}
             aria-label="会話履歴を開く"
           >
             <Menu size={20} />
@@ -119,8 +137,11 @@ export default function HomePage() {
             {isLoading && <div className="loading-spinner"></div>}
           </div>
           <button 
-            className="mobile-nav-btn"
-            onClick={() => setIsTreeOpen(!isTreeOpen)}
+            className={`mobile-nav-btn ${isTreeOpen ? 'active' : ''}`}
+            onClick={() => {
+              setIsTreeOpen(!isTreeOpen)
+              if (!isTreeOpen) setIsSidebarOpen(false) // ツリーを開く時はサイドバーを閉じる
+            }}
             aria-label="会話ツリーを開く"
           >
             <GitBranch size={20} />
@@ -142,8 +163,8 @@ export default function HomePage() {
           <div 
             className={`sidebar-overlay ${isSidebarOpen || isTreeOpen ? 'open' : ''}`}
             onClick={() => {
-              setIsSidebarOpen(false)
-              setIsTreeOpen(false)
+              if (isSidebarOpen) setIsSidebarOpen(false)
+              if (isTreeOpen) setIsTreeOpen(false)
             }}
           />
         )}
