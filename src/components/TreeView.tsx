@@ -9,6 +9,7 @@ interface TreeViewProps {
   treeMode: 'auto' | 'simple' | 'advanced'
   onTreeModeChange: (mode: 'auto' | 'simple' | 'advanced') => void
   onSelectMessage: (messageId: string) => void
+  className?: string
 }
 
 export default function TreeView({
@@ -16,7 +17,8 @@ export default function TreeView({
   messages,
   treeMode,
   onTreeModeChange,
-  onSelectMessage
+  onSelectMessage,
+  className = ''
 }: TreeViewProps) {
   // リサイズ機能
   const [treeWidth, setTreeWidth] = useState(350);
@@ -161,7 +163,7 @@ export default function TreeView({
 
   if (!conversation) {
     return (
-      <aside className="tree-area" style={{ width: `${treeWidth}px` }}>
+      <aside className={className || "tree-area"} style={{ width: `${treeWidth}px` }}>
         <div className="tree-header">
           <h3>会話ツリー</h3>
           <div className="tree-mode-selector">
@@ -199,7 +201,7 @@ export default function TreeView({
         }}
       />
       <aside 
-        className="tree-area" 
+        className={className || "tree-area"} 
         ref={treeRef}
         style={{ width: `${treeWidth}px` }}
       >

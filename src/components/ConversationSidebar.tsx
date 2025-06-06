@@ -10,6 +10,7 @@ interface ConversationSidebarProps {
   onSwitchConversation: (conversationId: string) => void
   onNewConversation: () => void
   onDeleteConversation: (conversationId: string) => Promise<boolean>
+  className?: string
 }
 
 export default function ConversationSidebar({
@@ -17,7 +18,8 @@ export default function ConversationSidebar({
   currentConversationId,
   onSwitchConversation,
   onNewConversation,
-  onDeleteConversation
+  onDeleteConversation,
+  className = ''
 }: ConversationSidebarProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null)
@@ -43,7 +45,7 @@ export default function ConversationSidebar({
     setConversationToDelete(null)
   }
   return (
-    <aside className="sidebar">
+    <aside className={className || "sidebar"}>
       <div className="sidebar-header">
         <h3>会話履歴</h3>
         <button

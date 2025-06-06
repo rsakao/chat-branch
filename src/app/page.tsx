@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { Settings, Plus, GitBranch } from 'lucide-react'
+import { Settings, GitBranch, Menu } from 'lucide-react'
 import ConversationSidebar from '@/components/ConversationSidebar'
 import ChatArea from '@/components/ChatArea'
 import TreeView from '@/components/TreeView'
@@ -14,6 +14,8 @@ export default function HomePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isTreeVisible, setIsTreeVisible] = useState(true)
   const [treeMode, setTreeMode] = useState<'auto' | 'simple' | 'advanced'>('auto')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isTreeOpen, setIsTreeOpen] = useState(false)
   
   const {
     conversations,
@@ -43,7 +45,7 @@ export default function HomePage() {
   const handleSendMessage = async (
     content: string, 
     quotedMessageId?: string, 
-    quotedMessage?: any, 
+    quotedMessage?: { role: string; content: string }, 
     quotedText?: string
   ) => {
     try {
@@ -54,7 +56,7 @@ export default function HomePage() {
       } else {
         await sendMessage(content, undefined, quotedMessage, quotedText)
       }
-    } catch (error) {
+    } catch {
       toast.error('メッセージの送信に失敗しました')
     }
   }
@@ -63,7 +65,7 @@ export default function HomePage() {
     try {
       await createBranch(messageId)
       toast.success('新しいブランチを作成しました')
-    } catch (error) {
+    } catch {
       toast.error('ブランチの作成に失敗しました')
     }
   }
@@ -72,7 +74,7 @@ export default function HomePage() {
     try {
       await createConversation()
       toast.success('新しい会話を作成しました')
-    } catch (error) {
+    } catch {
       toast.error('会話の作成に失敗しました')
     }
   }
@@ -87,7 +89,7 @@ export default function HomePage() {
         toast.error('会話の削除に失敗しました')
         return false
       }
-    } catch (error) {
+    } catch {
       toast.error('会話の削除に失敗しました')
       return false
     }
@@ -99,7 +101,16 @@ export default function HomePage() {
     <div className="app-container">
       {/* ヘッダー */}
       <header className="app-header">
-        <h1>AI分岐チャット</h1>
+        <div className="header-left">
+          <button 
+            className="mobile-nav-btn"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="会話履歴を開く"
+          >
+            <Menu size={20} />
+          </button>
+          <h1>AI分岐チャット</h1>
+        </div>
         <div className="header-controls">
           <div className="status-indicator" ref={statusRef}>
             <span className="status-text">
@@ -107,6 +118,13 @@ export default function HomePage() {
             </span>
             {isLoading && <div className="loading-spinner"></div>}
           </div>
+          <button 
+            className="mobile-nav-btn"
+            onClick={() => setIsTreeOpen(!isTreeOpen)}
+            aria-label="会話ツリーを開く"
+          >
+            <GitBranch size={20} />
+          </button>
           <button 
             className="btn btn--secondary btn--sm"
             onClick={() => setIsSettingsOpen(true)}
@@ -119,13 +137,31 @@ export default function HomePage() {
 
       {/* メインコンテンツ */}
       <main className="main-content">
+        {/* オーバーレイ */}
+        {(isSidebarOpen || isTreeOpen) && (
+          <div 
+            className={`sidebar-overlay ${isSidebarOpen || isTreeOpen ? 'open' : ''}`}
+            onClick={() => {
+              setIsSidebarOpen(false)
+              setIsTreeOpen(false)
+            }}
+          />
+        )}
+
         {/* 左サイドバー: 会話履歴 */}
         <ConversationSidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
-          onSwitchConversation={switchConversation}
-          onNewConversation={handleNewConversation}
+          onSwitchConversation={(id) => {
+            switchConversation(id)
+            setIsSidebarOpen(false)
+          }}
+          onNewConversation={() => {
+            handleNewConversation()
+            setIsSidebarOpen(false)
+          }}
           onDeleteConversation={handleDeleteConversation}
+          className={`sidebar ${isSidebarOpen ? 'open' : ''}`}
         />
 
         {/* 中央: チャットエリア */}
@@ -148,7 +184,11 @@ export default function HomePage() {
             messages={messages}
             treeMode={treeMode}
             onTreeModeChange={setTreeMode}
-            onSelectMessage={selectMessage}
+            onSelectMessage={(messageId) => {
+              selectMessage(messageId)
+              setIsTreeOpen(false)
+            }}
+            className={`tree-area ${isTreeOpen ? 'open' : ''}`}
           />
         )}
       </main>
