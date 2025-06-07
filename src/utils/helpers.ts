@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import { Message } from '@/types'
 
 export function generateId(prefix: string = 'id'): string {
   return `${prefix}_${uuidv4().replace(/-/g, '').substring(0, 8)}`
@@ -26,7 +27,7 @@ export function truncateText(text: string, maxLength: number = 50): string {
   return text.substring(0, maxLength) + '...'
 }
 
-export function buildPathToMessage(targetId: string, messages: Record<string, any>): string[] {
+export function buildPathToMessage(targetId: string, messages: Record<string, Message>): string[] {
   const findPath = (messageId: string): string[] | null => {
     if (messageId === targetId) return [messageId]
     

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react'
-import { Send, GitBranch, Eye, EyeOff, Quote, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { Send, GitBranch, Eye, Quote, X, ChevronDown, ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -16,36 +16,36 @@ interface ChatAreaProps {
 
 // ReactMarkdownのcomponents定義を外部化（再生成を防ぐ）
 const markdownComponents = {
-  p: ({ children }: any) => <p className="markdown-paragraph">{children}</p>,
-  h1: ({ children }: any) => <h1 className="markdown-h1">{children}</h1>,
-  h2: ({ children }: any) => <h2 className="markdown-h2">{children}</h2>,
-  h3: ({ children }: any) => <h3 className="markdown-h3">{children}</h3>,
-  h4: ({ children }: any) => <h4 className="markdown-h4">{children}</h4>,
-  h5: ({ children }: any) => <h5 className="markdown-h5">{children}</h5>,
-  h6: ({ children }: any) => <h6 className="markdown-h6">{children}</h6>,
-  ul: ({ children }: any) => <ul className="markdown-ul">{children}</ul>,
-  ol: ({ children }: any) => <ol className="markdown-ol">{children}</ol>,
-  li: ({ children }: any) => <li className="markdown-li">{children}</li>,
-  blockquote: ({ children }: any) => <blockquote className="markdown-blockquote">{children}</blockquote>,
+  p: ({ children }: React.HTMLProps<HTMLParagraphElement>) => <p className="markdown-paragraph">{children}</p>,
+  h1: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h1 className="markdown-h1">{children}</h1>,
+  h2: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h2 className="markdown-h2">{children}</h2>,
+  h3: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h3 className="markdown-h3">{children}</h3>,
+  h4: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h4 className="markdown-h4">{children}</h4>,
+  h5: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h5 className="markdown-h5">{children}</h5>,
+  h6: ({ children }: React.HTMLProps<HTMLHeadingElement>) => <h6 className="markdown-h6">{children}</h6>,
+  ul: ({ children }: React.HTMLProps<HTMLUListElement>) => <ul className="markdown-ul">{children}</ul>,
+  ol: ({ children }: React.HTMLProps<HTMLOListElement>) => <ol className="markdown-ol">{children}</ol>,
+  li: ({ children }: React.HTMLProps<HTMLLIElement>) => <li className="markdown-li">{children}</li>,
+  blockquote: ({ children }: React.HTMLProps<HTMLQuoteElement>) => <blockquote className="markdown-blockquote">{children}</blockquote>,
   hr: () => <hr className="markdown-hr" />,
-  code: ({ children, className, ...props }: any) => {
+  code: ({ children, className, ...props }: React.HTMLProps<HTMLElement>) => {
     if (className?.startsWith('language-')) {
       return <code className={`markdown-code-block ${className}`} {...props}>{children}</code>
     }
     return <code className="markdown-code-inline" {...props}>{children}</code>
   },
-  pre: ({ children, ...props }: any) => (
+  pre: ({ children, ...props }: React.HTMLProps<HTMLPreElement>) => (
     <pre className="markdown-pre" {...props}>
       {children}
     </pre>
   ),
-  table: ({ children }: any) => <table className="markdown-table">{children}</table>,
-  thead: ({ children }: any) => <thead className="markdown-thead">{children}</thead>,
-  tbody: ({ children }: any) => <tbody className="markdown-tbody">{children}</tbody>,
-  tr: ({ children }: any) => <tr className="markdown-tr">{children}</tr>,
-  th: ({ children }: any) => <th className="markdown-th">{children}</th>,
-  td: ({ children }: any) => <td className="markdown-td">{children}</td>,
-  a: ({ children, href, ...props }: any) => (
+  table: ({ children }: React.HTMLProps<HTMLTableElement>) => <table className="markdown-table">{children}</table>,
+  thead: ({ children }: React.HTMLProps<HTMLTableSectionElement>) => <thead className="markdown-thead">{children}</thead>,
+  tbody: ({ children }: React.HTMLProps<HTMLTableSectionElement>) => <tbody className="markdown-tbody">{children}</tbody>,
+  tr: ({ children }: React.HTMLProps<HTMLTableRowElement>) => <tr className="markdown-tr">{children}</tr>,
+  th: ({ children }: React.HTMLProps<HTMLTableHeaderCellElement>) => <th className="markdown-th">{children}</th>,
+  td: ({ children }: React.HTMLProps<HTMLTableDataCellElement>) => <td className="markdown-td">{children}</td>,
+  a: ({ children, href, ...props }: React.HTMLProps<HTMLAnchorElement>) => (
     <a 
       href={href} 
       className="markdown-link" 
@@ -56,9 +56,9 @@ const markdownComponents = {
       {children}
     </a>
   ),
-  strong: ({ children }: any) => <strong className="markdown-strong">{children}</strong>,
-  em: ({ children }: any) => <em className="markdown-em">{children}</em>,
-  input: ({ type, checked, ...props }: any) => {
+  strong: ({ children }: React.HTMLProps<HTMLElement>) => <strong className="markdown-strong">{children}</strong>,
+  em: ({ children }: React.HTMLProps<HTMLElement>) => <em className="markdown-em">{children}</em>,
+  input: ({ type, checked, ...props }: React.HTMLProps<HTMLInputElement>) => {
     if (type === 'checkbox') {
       return (
         <input 

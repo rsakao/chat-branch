@@ -35,7 +35,7 @@ export async function GET() {
           timestamp: msg.timestamp.toISOString()
         }
         return acc
-      }, {} as Record<string, any>),
+      }, {} as Record<string, object>),
       rootMessageId: conv.rootMessageId,
       currentPath: conv.currentPath ? JSON.parse(conv.currentPath) : [],
       createdAt: conv.createdAt.toISOString(),

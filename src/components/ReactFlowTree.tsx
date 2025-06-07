@@ -116,7 +116,7 @@ export default function ReactFlowTree({
     // ユーザーメッセージから会話ペアを作成
     const userMessages = Object.values(messages).filter(m => m.role === 'user');
     
-    userMessages.forEach((userMsg, index) => {
+    userMessages.forEach((userMsg) => {
       if (processedMessages.has(userMsg.id)) return;
       
       // 対応するAIメッセージを探す
@@ -202,7 +202,7 @@ export default function ReactFlowTree({
       
       const nodeType = getNodeType(pairId, pairs);
       const isActive = currentMessageIds.has(pair.userMessage.id) || 
-                      (pair.aiMessage && currentMessageIds.has(pair.aiMessage.id));
+                      (pair.aiMessage ? currentMessageIds.has(pair.aiMessage.id) : false);
       
       nodes.push({
         id: pairId,
@@ -314,7 +314,7 @@ export default function ReactFlowTree({
     forceUpdate(prev => prev + 1);
   }, [messages, currentMessages]);
 
-  const onNodeClick = useCallback((_: any, node: Node) => {
+  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     // ペアIDからAIメッセージのIDを取得（ユーザー+AI対話の最後まで表示）
     const pairId = node.id;
     const pairs = createConversationPairs(messages);

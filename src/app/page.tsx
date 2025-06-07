@@ -9,6 +9,7 @@ import TreeView from '@/components/TreeView'
 import SettingsModal from '@/components/SettingsModal'
 import { useChat } from '@/hooks/useChat'
 import { useConversations } from '@/hooks/useConversations'
+import { Message } from '@/types'
 
 export default function HomePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -40,7 +41,7 @@ export default function HomePage() {
   // 初回ロード時に会話を取得
   useEffect(() => {
     loadConversations()
-  }, [])
+  }, [loadConversations])
 
   // モバイルでサイドバーやツリーが開いている時のbodyスクロール制御
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function HomePage() {
   const handleSendMessage = async (
     content: string, 
     quotedMessageId?: string, 
-    quotedMessage?: { role: string; content: string }, 
+    quotedMessage?: Message, 
     quotedText?: string
   ) => {
     try {
