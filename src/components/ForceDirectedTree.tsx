@@ -242,11 +242,11 @@ export default function ForceDirectedTree({
       .data(nodes)
       .enter()
       .append('circle')
-      .attr('r', (d: ConversationNode) => {
-        // レベルに応じてサイズを調整
-        const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
+      .attr('r', (d) => {
+        const node = d as ConversationNode;
+        const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
         const hasChildren =
-          d.aiMessage?.children && d.aiMessage.children.length > 0;
+          node.aiMessage?.children && node.aiMessage.children.length > 0;
         return hasChildren ? baseSize + 5 : baseSize;
       })
       .attr('fill', (d: ConversationNode) => {
@@ -279,10 +279,11 @@ export default function ForceDirectedTree({
           d3.select(this)
             .transition()
             .duration(200)
-            .attr('r', (d: ConversationNode) => {
-              const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
+            .attr('r', (d) => {
+              const node = d as ConversationNode;
+              const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
               const hasChildren =
-                d.aiMessage?.children && d.aiMessage.children.length > 0;
+                node.aiMessage?.children && node.aiMessage.children.length > 0;
               return (hasChildren ? baseSize + 5 : baseSize) + 5;
             })
             .attr('stroke-width', 4);
@@ -296,10 +297,11 @@ export default function ForceDirectedTree({
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('r', (d: ConversationNode) => {
-            const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
+          .attr('r', (d) => {
+            const node = d as ConversationNode;
+            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
             const hasChildren =
-              d.aiMessage?.children && d.aiMessage.children.length > 0;
+              node.aiMessage?.children && node.aiMessage.children.length > 0;
             return hasChildren ? baseSize + 5 : baseSize;
           })
           .attr('stroke-width', 2);
