@@ -3,9 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// Check if DATABASE_URL contains postgresql
+// Check if DATABASE_URL contains postgresql or postgres
 const databaseUrl = process.env.DATABASE_URL;
-const isPostgreSQL = databaseUrl && databaseUrl.includes('postgresql');
+const isPostgreSQL = databaseUrl && (databaseUrl.includes('postgresql') || databaseUrl.includes('postgres'));
 
 console.log('Database URL:', databaseUrl);
 console.log('Using PostgreSQL:', isPostgreSQL);
