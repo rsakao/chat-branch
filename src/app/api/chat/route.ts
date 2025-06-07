@@ -59,8 +59,10 @@ export async function POST(request: NextRequest) {
           content: userPrompt,
         },
       ],
-      ...(isNewModel ? { max_completion_tokens: 1000 } : { max_tokens: 1000 }),
-      temperature: 0.7,
+      ...(isNewModel
+        ? { max_completion_tokens: 1000 }
+        : { max_tokens: 1000 }),
+      ...(isNewModel ? {} : { temperature: 0.7 }),
     });
 
     const content =
