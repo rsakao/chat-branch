@@ -1,16 +1,16 @@
-import { Plus, Trash2 } from 'lucide-react'
-import { Conversation } from '@/types'
-import { formatDate, truncateText } from '@/utils/helpers'
-import { useState } from 'react'
-import DeleteConfirmDialog from './DeleteConfirmDialog'
+import { Plus, Trash2 } from 'lucide-react';
+import { Conversation } from '@/types';
+import { formatDate, truncateText } from '@/utils/helpers';
+import { useState } from 'react';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 interface ConversationSidebarProps {
-  conversations: Conversation[]
-  currentConversationId: string | null
-  onSwitchConversation: (conversationId: string) => void
-  onNewConversation: () => void
-  onDeleteConversation: (conversationId: string) => Promise<boolean>
-  className?: string
+  conversations: Conversation[];
+  currentConversationId: string | null;
+  onSwitchConversation: (conversationId: string) => void;
+  onNewConversation: () => void;
+  onDeleteConversation: (conversationId: string) => Promise<boolean>;
+  className?: string;
 }
 
 export default function ConversationSidebar({
@@ -19,33 +19,37 @@ export default function ConversationSidebar({
   onSwitchConversation,
   onNewConversation,
   onDeleteConversation,
-  className = ''
+  className = '',
 }: ConversationSidebarProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] =
+    useState<Conversation | null>(null);
 
-  const handleDeleteClick = (e: React.MouseEvent, conversation: Conversation) => {
-    e.stopPropagation() // 会話選択をトリガーしないように
-    setConversationToDelete(conversation)
-    setDeleteDialogOpen(true)
-  }
+  const handleDeleteClick = (
+    e: React.MouseEvent,
+    conversation: Conversation
+  ) => {
+    e.stopPropagation(); // 会話選択をトリガーしないように
+    setConversationToDelete(conversation);
+    setDeleteDialogOpen(true);
+  };
 
   const handleDeleteConfirm = async () => {
     if (conversationToDelete) {
-      const success = await onDeleteConversation(conversationToDelete.id)
+      const success = await onDeleteConversation(conversationToDelete.id);
       if (success) {
-        setDeleteDialogOpen(false)
-        setConversationToDelete(null)
+        setDeleteDialogOpen(false);
+        setConversationToDelete(null);
       }
     }
-  }
+  };
 
   const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false)
-    setConversationToDelete(null)
-  }
+    setDeleteDialogOpen(false);
+    setConversationToDelete(null);
+  };
   return (
-    <aside className={className || "sidebar"}>
+    <aside className={className || 'sidebar'}>
       <div className="sidebar-header">
         <h3>会話履歴</h3>
         <button
@@ -56,7 +60,7 @@ export default function ConversationSidebar({
           新規会話
         </button>
       </div>
-      
+
       <div className="conversation-list">
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
@@ -93,7 +97,7 @@ export default function ConversationSidebar({
           ))
         )}
       </div>
-      
+
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
         onClose={handleDeleteCancel}
@@ -101,5 +105,5 @@ export default function ConversationSidebar({
         conversationTitle={conversationToDelete?.title || ''}
       />
     </aside>
-  )
-} 
+  );
+}
