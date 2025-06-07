@@ -43,10 +43,10 @@ vercel
 
 Vercelダッシュボードの「Settings」→「Environment Variables」で以下を設定：
 
-| 変数名 | 値 | 説明 |
-|--------|-----|------|
-| `OPENAI_API_KEY` | `sk-...` | OpenAI APIキー |
-| `DATABASE_URL` | `postgresql://...` | PostgreSQL接続URL |
+| 変数名           | 値                 | 説明              |
+| ---------------- | ------------------ | ----------------- |
+| `OPENAI_API_KEY` | `sk-...`           | OpenAI APIキー    |
+| `DATABASE_URL`   | `postgresql://...` | PostgreSQL接続URL |
 
 ### 3. ビルド設定の確認
 
@@ -90,6 +90,7 @@ Vercelが自動的に以下の設定を検出することを確認：
 **原因**: Prismaクライアントが正しく生成されていない
 
 **解決策**:
+
 ```bash
 # 環境変数でPrismaクライアントの生成を強制
 PRISMA_GENERATE_DATAPROXY=true
@@ -100,6 +101,7 @@ PRISMA_GENERATE_DATAPROXY=true
 **原因**: データベースへの接続が失敗している
 
 **解決策**:
+
 - `DATABASE_URL`が正しく設定されているか確認
 - データベースが起動しているか確認
 - 接続権限があるか確認
@@ -109,6 +111,7 @@ PRISMA_GENERATE_DATAPROXY=true
 **原因**: APIキーが正しく設定されていない
 
 **解決策**:
+
 - `OPENAI_API_KEY`が正しく設定されているか確認
 - APIキーが有効で残高があるか確認
 
@@ -202,4 +205,4 @@ npm update
 
 ---
 
-このガイドに従って、安全で高性能なAI分岐チャットアプリをVercelにデプロイできます。 
+このガイドに従って、安全で高性能なAI分岐チャットアプリをVercelにデプロイできます。

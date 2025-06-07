@@ -23,11 +23,13 @@ OpenAI APIを使用した会話分岐機能付きチャットアプリケーシ�
 ## 🗄️ データベース設定
 
 ### ローカル開発（SQLite）
+
 ```bash
 DATABASE_URL="file:./dev.db"
 ```
 
 ### 本番環境（PostgreSQL）
+
 ```bash
 DATABASE_URL="postgresql://username:password@host:port/database"
 ```
@@ -107,21 +109,25 @@ npm run dev
 ### Vercelへのデプロイ
 
 1. **Vercelプロジェクトの作成**
+
    ```bash
    npm i -g vercel
    vercel
    ```
 
 2. **PostgreSQLデータベースの準備**
+
    - Vercel Postgres、Supabase、PlanetScale等のサービスを利用
    - データベース接続URLを取得
 
 3. **環境変数の設定**
+
    - Vercelダッシュボードで以下の環境変数を設定：
      - `OPENAI_API_KEY`: OpenAI APIキー
      - `DATABASE_URL`: PostgreSQL接続URL
 
 4. **ビルドコマンドの設定**
+
    - Vercelでは自動的にマイグレーションが実行されるよう、以下をpackage.jsonに追加することを推奨：
 
    ```json
@@ -204,6 +210,7 @@ src/
 ### データベーススキーマの変更
 
 #### ローカル開発
+
 ```bash
 # スキーマを編集後
 npx prisma db push
@@ -211,6 +218,7 @@ npx prisma generate
 ```
 
 #### 本番環境
+
 ```bash
 # マイグレーション作成
 npx prisma migrate dev --name description_of_change

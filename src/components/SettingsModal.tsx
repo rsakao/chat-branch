@@ -1,68 +1,74 @@
-import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface SettingsModalProps {
-  isOpen: boolean
-  onClose: () => void
-  treeMode: 'auto' | 'simple' | 'advanced'
-  onTreeModeChange: (mode: 'auto' | 'simple' | 'advanced') => void
+  isOpen: boolean;
+  onClose: () => void;
+  treeMode: 'auto' | 'simple' | 'advanced';
+  onTreeModeChange: (mode: 'auto' | 'simple' | 'advanced') => void;
 }
 
 export default function SettingsModal({
   isOpen,
   onClose,
   treeMode,
-  onTreeModeChange
+  onTreeModeChange,
 }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = useState({
     theme: 'auto' as 'light' | 'dark' | 'auto',
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
-    debugMode: false
-  })
+    debugMode: false,
+  });
 
   useEffect(() => {
-    setLocalSettings(prev => ({ ...prev, treeViewMode: treeMode }))
-  }, [treeMode])
+    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
+  }, [treeMode]);
 
   const handleSave = () => {
-    onTreeModeChange(localSettings.treeViewMode)
-    
+    onTreeModeChange(localSettings.treeViewMode);
+
     // Apply theme
     if (localSettings.theme !== 'auto') {
-      document.documentElement.setAttribute('data-color-scheme', localSettings.theme)
+      document.documentElement.setAttribute(
+        'data-color-scheme',
+        localSettings.theme
+      );
     } else {
-      document.documentElement.removeAttribute('data-color-scheme')
+      document.documentElement.removeAttribute('data-color-scheme');
     }
-    
+
     // Apply font size
-    document.documentElement.setAttribute('data-font-size', localSettings.fontSize)
-    
+    document.documentElement.setAttribute(
+      'data-font-size',
+      localSettings.fontSize
+    );
+
     // Save to localStorage
-    localStorage.setItem('chatAppSettings', JSON.stringify(localSettings))
-    
-    onClose()
-  }
+    localStorage.setItem('chatAppSettings', JSON.stringify(localSettings));
+
+    onClose();
+  };
 
   const handleCancel = () => {
-    setLocalSettings(prev => ({ ...prev, treeViewMode: treeMode }))
-    onClose()
-  }
+    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
+    onClose();
+  };
 
   useEffect(() => {
     // Load settings from localStorage
-    const saved = localStorage.getItem('chatAppSettings')
+    const saved = localStorage.getItem('chatAppSettings');
     if (saved) {
       try {
-        const settings = JSON.parse(saved)
-        setLocalSettings(prev => ({ ...prev, ...settings }))
+        const settings = JSON.parse(saved);
+        setLocalSettings((prev) => ({ ...prev, ...settings }));
       } catch (error) {
-        console.error('Failed to load settings:', error)
+        console.error('Failed to load settings:', error);
       }
     }
-  }, [])
+  }, []);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="modal">
@@ -73,16 +79,18 @@ export default function SettingsModal({
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="modal-body">
           <div className="form-group">
             <label className="form-label">テーマ</label>
             <select
               value={localSettings.theme}
-              onChange={(e) => setLocalSettings(prev => ({ 
-                ...prev, 
-                theme: e.target.value as 'light' | 'dark' | 'auto'
-              }))}
+              onChange={(e) =>
+                setLocalSettings((prev) => ({
+                  ...prev,
+                  theme: e.target.value as 'light' | 'dark' | 'auto',
+                }))
+              }
               className="form-control"
             >
               <option value="light">ライト</option>
@@ -95,10 +103,12 @@ export default function SettingsModal({
             <label className="form-label">フォントサイズ</label>
             <select
               value={localSettings.fontSize}
-              onChange={(e) => setLocalSettings(prev => ({ 
-                ...prev, 
-                fontSize: e.target.value as 'small' | 'medium' | 'large'
-              }))}
+              onChange={(e) =>
+                setLocalSettings((prev) => ({
+                  ...prev,
+                  fontSize: e.target.value as 'small' | 'medium' | 'large',
+                }))
+              }
               className="form-control"
             >
               <option value="small">小</option>
@@ -111,10 +121,15 @@ export default function SettingsModal({
             <label className="form-label">ツリー表示モード</label>
             <select
               value={localSettings.treeViewMode}
-              onChange={(e) => setLocalSettings(prev => ({ 
-                ...prev, 
-                treeViewMode: e.target.value as 'auto' | 'simple' | 'advanced'
-              }))}
+              onChange={(e) =>
+                setLocalSettings((prev) => ({
+                  ...prev,
+                  treeViewMode: e.target.value as
+                    | 'auto'
+                    | 'simple'
+                    | 'advanced',
+                }))
+              }
               className="form-control"
             >
               <option value="auto">自動選択</option>
@@ -123,16 +138,17 @@ export default function SettingsModal({
             </select>
           </div>
 
-
           <div className="form-group">
             <label className="form-label">
               <input
                 type="checkbox"
                 checked={localSettings.debugMode}
-                onChange={(e) => setLocalSettings(prev => ({ 
-                  ...prev, 
-                  debugMode: e.target.checked 
-                }))}
+                onChange={(e) =>
+                  setLocalSettings((prev) => ({
+                    ...prev,
+                    debugMode: e.target.checked,
+                  }))
+                }
                 style={{ marginRight: '8px' }}
               />
               デバッグモード
@@ -150,5 +166,5 @@ export default function SettingsModal({
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
