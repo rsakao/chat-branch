@@ -79,7 +79,7 @@ export default function ForceDirectedTree({
 
   // メッセージが変更された時にツリーを強制再描画
   useEffect(() => {
-    setTreeKey(prev => prev + 1);
+    setTreeKey((prev) => prev + 1);
   }, [messages]);
 
   // メッセージからツリー構造を作成
@@ -148,7 +148,13 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.links())
       .enter()
       .append('path')
-      .attr('d', d3.linkVertical().x((d: any) => d.x).y((d: any) => d.y) as any)
+      .attr(
+        'd',
+        d3
+          .linkVertical()
+          .x((d: any) => d.x)
+          .y((d: any) => d.y) as any
+      )
       .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
       .attr('stroke-width', 3)
@@ -187,20 +193,24 @@ export default function ForceDirectedTree({
       .style('transition', 'all 0.2s ease');
     // ノードのホバーエフェクト
     node
-      .on('mouseenter', function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('r', () => {
-            const node = d.data;
-            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-            const hasChildren = node.children && node.children.length > 0;
-            return (hasChildren ? baseSize + 5 : baseSize) + 5;
-          })
-          .attr('stroke-width', 4);
-        // ポップアップを表示
-        setPopup({ node: d.data, x: d.x + 50, y: d.y });
-      })
+      .on(
+        'mouseenter',
+        function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('r', () => {
+              const node = d.data;
+              const baseSize =
+                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+              const hasChildren = node.children && node.children.length > 0;
+              return (hasChildren ? baseSize + 5 : baseSize) + 5;
+            })
+            .attr('stroke-width', 4);
+          // ポップアップを表示
+          setPopup({ node: d.data, x: d.x + 50, y: d.y });
+        }
+      )
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
@@ -220,7 +230,15 @@ export default function ForceDirectedTree({
           : d.data.userMessage.id;
         onSelectMessage(targetMessageId);
       });
-  }, [messages, currentMessageIds, dimensions, isDarkMode, buildTree, onSelectMessage, treeKey]);
+  }, [
+    messages,
+    currentMessageIds,
+    dimensions,
+    isDarkMode,
+    buildTree,
+    onSelectMessage,
+    treeKey,
+  ]);
 
   const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength

@@ -38,7 +38,9 @@ export default function TreeView({
   const [debugMode, setDebugMode] = useState(false);
 
   // 前回のconversation IDを記録してリセット検知用
-  const [previousConversationId, setPreviousConversationId] = useState<string | undefined>(undefined);
+  const [previousConversationId, setPreviousConversationId] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     // localStorageから設定を読み込む
@@ -58,11 +60,11 @@ export default function TreeView({
   // 会話が変更された時にツリー表示をリセット
   useEffect(() => {
     const currentConversationId = conversation?.id;
-    
+
     // 会話が変更された場合（新規会話含む）
     if (currentConversationId !== previousConversationId) {
       setPreviousConversationId(currentConversationId);
-      
+
       // コンポーネントの強制再レンダリングのために一時的にwidthを変更
       if (treeRef.current) {
         const currentWidth = treeRef.current.offsetWidth;
