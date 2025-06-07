@@ -45,8 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // max_completion_tokensが必要なモデルを拡張
-    const isCompletionTokensModel = /^(gpt-4o|o4|o4-mini|o3-mini)/.test(model);
+    // o系モデルはmax_completion_tokensを使う
+    const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(
+      model
+    );
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
@@ -59,11 +61,17 @@ export async function POST(request: NextRequest) {
           content: userPrompt,
         },
       ],
-      ...(isCompletionTokensModel
-        ? { max_completion_tokens: 1000 }
-        : { max_tokens: 1000 }),
-      ...(isCompletionTokensModel ? {} : { temperature: 0.7 }),
+      ...(useMaxCompletionTokens
+        ? { max_completion_tokens: 4000 }
+        : { max_tokens: 1000, temperature: 0.7 }),
     });
+
+    console.log('OpenAI Response:', JSON.stringify(completion, null, 2));
+    console.log('Response choices:', completion.choices);
+    console.log(
+      'First choice content:',
+      completion.choices[0]?.message?.content
+    );
 
     const content =
       completion.choices[0]?.message?.content ||

@@ -16,6 +16,7 @@
     "@prisma/client": "^6.8.2",
     "@types/uuid": "^10.0.0",
     "@xyflow/react": "^12.6.4",
+    "d3": "^7.9.0",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
@@ -32,13 +33,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/d3": "^7.4.3",
+    "@types/node": "20.19.0",
+    "@types/react": "19.1.6",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "prettier": "^3.4.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "5.8.3"
   }
 }

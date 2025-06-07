@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { Conversation, Message } from '@/types';
 import { truncateText } from '@/utils/helpers';
-import ReactFlowTree from './ReactFlowTree';
+import ForceDirectedTree from './ForceDirectedTree';
 
 interface TreeViewProps {
   conversation?: Conversation;
@@ -26,16 +26,21 @@ export default function TreeView({
   onSelectMessage,
   className = '',
 }: TreeViewProps) {
-  // リサイズ機能
-  const [treeWidth, setTreeWidth] = useState(350);
+  // リサイズ機能（デフォルト幅を450pxに設定して自動選択でツリーレイアウトになるようにする）
+  const [treeWidth, setTreeWidth] = useState(450);
   const [isResizing, setIsResizing] = useState(false);
   const treeRef = useRef<HTMLDivElement>(null);
 
   // 幅の監視用
-  const [componentWidth, setComponentWidth] = useState(350);
+  const [componentWidth, setComponentWidth] = useState(450);
 
   // デバッグモードの設定を読み込む
   const [debugMode, setDebugMode] = useState(false);
+
+  // 前回のconversation IDを記録してリセット検知用
+  const [previousConversationId, setPreviousConversationId] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     // localStorageから設定を読み込む
@@ -51,6 +56,22 @@ export default function TreeView({
       }
     }
   }, []);
+
+  // 会話が変更された時にツリー表示をリセット
+  useEffect(() => {
+    const currentConversationId = conversation?.id;
+
+    // 会話が変更された場合（新規会話含む）
+    if (currentConversationId !== previousConversationId) {
+      setPreviousConversationId(currentConversationId);
+
+      // コンポーネントの強制再レンダリングのために一時的にwidthを変更
+      if (treeRef.current) {
+        const currentWidth = treeRef.current.offsetWidth;
+        setComponentWidth(currentWidth);
+      }
+    }
+  }, [conversation?.id, previousConversationId]);
 
   // コンポーネントの幅を監視
   useEffect(() => {
@@ -190,7 +211,7 @@ export default function TreeView({
             >
               <option value="auto">自動選択</option>
               <option value="simple">シンプル表示</option>
-              <option value="advanced">グラフィカル表示</option>
+              <option value="advanced">ツリーレイアウト</option>
             </select>
           </div>
         </div>
@@ -235,7 +256,7 @@ export default function TreeView({
             >
               <option value="auto">自動選択</option>
               <option value="simple">シンプル表示</option>
-              <option value="advanced">グラフィカル表示</option>
+              <option value="advanced">ツリーレイアウト</option>
             </select>
           </div>
           {debugMode && conversation && (
@@ -251,32 +272,30 @@ export default function TreeView({
               }}
             >
               幅: {componentWidth}px (
-              {componentWidth >= 400 ? 'グラフィカル' : 'シンプル'}) |
+              {componentWidth >= 400 ? 'ツリーレイアウト' : 'シンプル'}) |
               ツリー最大幅: {treeMaxWidth}
             </div>
           )}
         </div>
 
         <div className="tree-container">
-          {useAdvanced ? (
-            <ReactFlowTree
+          {Object.keys(allMessages).length === 0 ? (
+            <div className="tree-loading">
+              <p>メッセージがありません</p>
+            </div>
+          ) : useAdvanced ? (
+            <ForceDirectedTree
               messages={allMessages}
               currentMessages={messages}
               onSelectMessage={onSelectMessage}
             />
           ) : (
             <div className="simple-tree">
-              {Object.keys(allMessages).length === 0 ? (
-                <div className="tree-loading">
-                  <p>メッセージがありません</p>
-                </div>
-              ) : (
-                <SimpleTree
-                  messages={allMessages}
-                  currentMessages={messages}
-                  onSelectMessage={onSelectMessage}
-                />
-              )}
+              <SimpleTree
+                messages={allMessages}
+                currentMessages={messages}
+                onSelectMessage={onSelectMessage}
+              />
             </div>
           )}
         </div>
