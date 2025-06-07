@@ -297,6 +297,10 @@ export default function ChatArea({
   const [selectedText, setSelectedText] = useState<string>('');
   const [justDeselected, setJustDeselected] = useState(false);
   const [selectedModel, setSelectedModel] = useState('o4-mini');
+  const [sendBehavior, setSendBehavior] = useState<'enter' | 'shift-enter'>(
+    'enter'
+  );
+  const [isComposing, setIsComposing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -308,19 +312,35 @@ export default function ChatArea({
     scrollToBottom();
   }, [messages]);
 
-  // Load saved model from localStorage
+  // Load saved settings from localStorage
   useEffect(() => {
-    try {
-      const savedSettings = localStorage.getItem('chatAppSettings');
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        if (settings.aiModel) {
-          setSelectedModel(settings.aiModel);
+    const loadSettings = () => {
+      try {
+        const savedSettings = localStorage.getItem('chatAppSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.aiModel) {
+            setSelectedModel(settings.aiModel);
+          }
+          if (settings.sendBehavior) {
+            setSendBehavior(settings.sendBehavior);
+          }
         }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
       }
-    } catch (error) {
-      console.error('Failed to load model setting:', error);
-    }
+    };
+
+    loadSettings();
+
+    // Listen for custom settings update event
+    const handleSettingsUpdate = () => {
+      loadSettings();
+    };
+
+    window.addEventListener('settingsUpdated', handleSettingsUpdate);
+    return () =>
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate);
   }, []);
 
   // 選択状態の監視（selectionchangeイベントを使用）
@@ -405,11 +425,35 @@ export default function ChatArea({
     setQuotedText('');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // IME変換中は送信しない
+    if (isComposing) {
+      return;
     }
+
+    if (e.key === 'Enter') {
+      if (sendBehavior === 'enter') {
+        // Enterで送信モード: Shift+Enterなら改行、Enterなら送信
+        if (!e.shiftKey) {
+          e.preventDefault();
+          handleSubmit(e);
+        }
+      } else {
+        // Shift+Enterで送信モード: Shift+Enterなら送信、Enterなら改行
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleSubmit(e);
+        }
+      }
+    }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -545,11 +589,15 @@ export default function ChatArea({
             placeholder={
               quotedMessage
                 ? '引用メッセージに対する返信を入力してください...'
-                : 'メッセージを入力してください...'
+                : sendBehavior === 'enter'
+                  ? 'メッセージを入力してください（Enterで送信、Shift+Enterで改行）...'
+                  : 'メッセージを入力してください（Shift+Enterで送信、Enterで改行）...'
             }
             value={inputValue}
             onChange={handleTextareaChange}
-            onKeyDown={handleKeyPress}
+            onKeyDown={handleKeyDown}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             disabled={isLoading}
             rows={1}
             style={{ resize: 'none', minHeight: '60px' }}

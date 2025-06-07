@@ -55,7 +55,9 @@ npm install
 
 #### ローカル開発環境
 
-`.env.local` ファイルを作成し、以下の環境変数を設定してください：
+`.env` ファイルを作成し、以下の環境変数を設定してください：
+
+> **重要**: Prismaは標準で`.env`ファイルを読み込みます。`.env.local`を使用するとPrismaがデータベース接続情報を読み込めません。
 
 ```env
 # OpenAI API Key (必須)
@@ -64,6 +66,8 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Database Configuration (ローカル開発用 - SQLite)
 DATABASE_URL="file:./dev.db"
 ```
+
+> **注意**: `.env`ファイルにはセンシティブな情報が含まれるため、必ず`.gitignore`に含まれていることを確認してください。
 
 #### 本番環境 (Vercel + PostgreSQL)
 
@@ -237,7 +241,7 @@ npx prisma migrate deploy
 
 ### 環境変数
 
-- ローカル: `.env.local`ファイル
+- ローカル: `.env`ファイル
 - Vercel: ダッシュボードの環境変数設定
 - 本番では`OPENAI_API_KEY`、`DATABASE_URL`が必要
 

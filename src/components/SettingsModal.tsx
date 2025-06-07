@@ -19,6 +19,7 @@ export default function SettingsModal({
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
     debugMode: false,
+    sendBehavior: 'enter' as 'enter' | 'shift-enter',
   });
 
   useEffect(() => {
@@ -46,6 +47,9 @@ export default function SettingsModal({
 
     // Save to localStorage
     localStorage.setItem('chatAppSettings', JSON.stringify(localSettings));
+
+    // Dispatch custom event to notify other components of settings change
+    window.dispatchEvent(new CustomEvent('settingsUpdated'));
 
     onClose();
   };
@@ -135,6 +139,25 @@ export default function SettingsModal({
               <option value="auto">自動選択</option>
               <option value="simple">常にシンプル</option>
               <option value="advanced">常に高度表示</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">送信方法</label>
+            <select
+              value={localSettings.sendBehavior}
+              onChange={(e) =>
+                setLocalSettings((prev) => ({
+                  ...prev,
+                  sendBehavior: e.target.value as 'enter' | 'shift-enter',
+                }))
+              }
+              className="form-control"
+            >
+              <option value="enter">Enterで送信（Shift+Enterで改行）</option>
+              <option value="shift-enter">
+                Shift+Enterで送信（Enterで改行）
+              </option>
             </select>
           </div>
 

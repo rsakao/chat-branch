@@ -56,4 +56,5 @@ export interface AppSettings {
   treeViewMode: 'auto' | 'simple' | 'advanced';
   debugMode: boolean;
   aiModel: string;
+  sendBehavior: 'enter' | 'shift-enter';
 }
