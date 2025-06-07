@@ -209,7 +209,7 @@ export default function ForceDirectedTree({
         'link',
         d3
           .forceLink(links)
-          .id((d: any) => d.id)
+          .id((d: ConversationNode) => d.id)
           .distance(100)
           .strength(0.8)
       )
@@ -242,14 +242,14 @@ export default function ForceDirectedTree({
       .data(nodes)
       .enter()
       .append('circle')
-      .attr('r', (d) => {
+      .attr('r', (d: ConversationNode) => {
         // レベルに応じてサイズを調整
         const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
         const hasChildren =
           d.aiMessage?.children && d.aiMessage.children.length > 0;
         return hasChildren ? baseSize + 5 : baseSize;
       })
-      .attr('fill', (d) => {
+      .attr('fill', (d: ConversationNode) => {
         const isActive =
           currentMessageIds.has(d.userMessage.id) ||
           (d.aiMessage && currentMessageIds.has(d.aiMessage.id));
@@ -270,11 +270,11 @@ export default function ForceDirectedTree({
 
     // ノードのホバーエフェクト
     node
-      .on('mouseenter', function (event, d) {
+      .on('mouseenter', function (event: React.MouseEvent<SVGCircleElement, MouseEvent>, d: ConversationNode) {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('r', (d: any) => {
+          .attr('r', (d: ConversationNode) => {
             const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
             const hasChildren =
               d.aiMessage?.children && d.aiMessage.children.length > 0;
@@ -286,11 +286,11 @@ export default function ForceDirectedTree({
         const [x, y] = d3.pointer(event, svgRef.current);
         setPopup({ node: d, x, y });
       })
-      .on('mouseleave', function (event, d) {
+      .on('mouseleave', function () {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('r', (d: any) => {
+          .attr('r', (d: ConversationNode) => {
             const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
             const hasChildren =
               d.aiMessage?.children && d.aiMessage.children.length > 0;
@@ -301,7 +301,7 @@ export default function ForceDirectedTree({
         // ポップアップを非表示
         setPopup(null);
       })
-      .on('click', function (event, d) {
+      .on('click', function (_event: React.MouseEvent<SVGCircleElement, MouseEvent>, d: ConversationNode) {
         // メッセージを選択
         const targetMessageId = d.aiMessage ? d.aiMessage.id : d.userMessage.id;
         onSelectMessage(targetMessageId);
@@ -309,17 +309,17 @@ export default function ForceDirectedTree({
 
     // ドラッグ機能
     const drag = d3
-      .drag()
-      .on('start', function (event, d: any) {
+      .drag<SVGCircleElement, ConversationNode>()
+      .on('start', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
       })
-      .on('drag', function (event, d: any) {
+      .on('drag', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
         d.fx = event.x;
         d.fy = event.y;
       })
-      .on('end', function (event, d: any) {
+      .on('end', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
         if (!event.active) simulation.alphaTarget(0);
         // ルートノード以外はドラッグ終了時に固定を解除
         if (d.level !== 0) {
@@ -333,12 +333,12 @@ export default function ForceDirectedTree({
     // シミュレーション更新
     simulation.on('tick', () => {
       link
-        .attr('x1', (d: any) => d.source.x)
-        .attr('y1', (d: any) => d.source.y)
-        .attr('x2', (d: any) => d.target.x)
-        .attr('y2', (d: any) => d.target.y);
+        .attr('x1', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.source === 'object' ? d.source.x ?? 0 : 0))
+        .attr('y1', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.source === 'object' ? d.source.y ?? 0 : 0))
+        .attr('x2', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.target === 'object' ? d.target.x ?? 0 : 0))
+        .attr('y2', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.target === 'object' ? d.target.y ?? 0 : 0));
 
-      node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+      node.attr('cx', (d: ConversationNode) => d.x ?? 0).attr('cy', (d: ConversationNode) => d.y ?? 0);
     });
 
     return () => {
