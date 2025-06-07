@@ -48,6 +48,9 @@ export default function SettingsModal({
     // Save to localStorage
     localStorage.setItem('chatAppSettings', JSON.stringify(localSettings));
 
+    // Dispatch custom event to notify other components of settings change
+    window.dispatchEvent(new CustomEvent('settingsUpdated'));
+
     onClose();
   };
 

@@ -333,6 +333,7 @@ export default function ChatArea({
 
     loadSettings();
 
+<<<<<<< Updated upstream
     // Listen for storage changes (when settings are updated in the modal)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'chatAppSettings') {
@@ -343,6 +344,16 @@ export default function ChatArea({
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+=======
+    // Listen for custom settings update event
+    const handleSettingsUpdate = () => {
+      loadSettings()
+    }
+
+    window.addEventListener('settingsUpdated', handleSettingsUpdate)
+    return () => window.removeEventListener('settingsUpdated', handleSettingsUpdate)
+  }, [])
+>>>>>>> Stashed changes
 
   // 選択状態の監視（selectionchangeイベントを使用）
   useEffect(() => {
