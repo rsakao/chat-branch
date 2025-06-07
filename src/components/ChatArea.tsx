@@ -335,12 +335,13 @@ export default function ChatArea({
 
     // Listen for custom settings update event
     const handleSettingsUpdate = () => {
-      loadSettings()
-    }
+      loadSettings();
+    };
 
-    window.addEventListener('settingsUpdated', handleSettingsUpdate)
-    return () => window.removeEventListener('settingsUpdated', handleSettingsUpdate)
-  }, [])
+    window.addEventListener('settingsUpdated', handleSettingsUpdate);
+    return () =>
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+  }, []);
 
   // 選択状態の監視（selectionchangeイベントを使用）
   useEffect(() => {
