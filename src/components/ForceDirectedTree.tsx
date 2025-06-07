@@ -142,19 +142,14 @@ export default function ForceDirectedTree({
       });
     svg.call(zoom);
     // エッジ描画
-    const link = g
+    g
       .append('g')
       .selectAll('path')
       .data(hierarchyRoot.links())
       .enter()
       .append('path')
-      .attr(
-        'd',
-        d3
-          .linkVertical()
-          .x((d: any) => d.x)
-          .y((d: any) => d.y) as any
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .attr('d', d3.linkVertical().x((d: any) => d.x).y((d: any) => d.y) as any)
       .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
       .attr('stroke-width', 3)
