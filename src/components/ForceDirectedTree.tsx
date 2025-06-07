@@ -166,8 +166,8 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.descendants())
       .enter()
       .append('circle')
-      .attr('cx', (d) => d.x)
-      .attr('cy', (d) => d.y)
+      .attr('cx', (d) => d.x || 0)
+      .attr('cy', (d) => d.y || 0)
       .attr('r', (d) => {
         const node = d.data;
         const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
@@ -193,29 +193,29 @@ export default function ForceDirectedTree({
       .style('transition', 'all 0.2s ease');
     // ノードのホバーエフェクト
     node
-      .on(
-        'mouseenter',
-        function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', () => {
-              const node = d.data;
-              const baseSize =
-                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-              const hasChildren = node.children && node.children.length > 0;
-              return (hasChildren ? baseSize + 5 : baseSize) + 5;
-            })
-            .attr('stroke-width', 4);
-          // ポップアップを表示
-          setPopup({ node: d.data, x: d.x + 50, y: d.y });
-        }
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('mouseenter', function (event: any, d: any) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('r', () => {
+            const node = d.data;
+            const baseSize =
+              node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+            const hasChildren = node.children && node.children.length > 0;
+            return (hasChildren ? baseSize + 5 : baseSize) + 5;
+          })
+          .attr('stroke-width', 4);
+        // ポップアップを表示
+        setPopup({ node: d.data, x: (d.x || 0) + 50, y: d.y || 0 });
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('r', (d: d3.HierarchyPointNode<TreeNodeDatum>) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .attr('r', (d: any) => {
             const node = d.data;
             const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
             const hasChildren = node.children && node.children.length > 0;
@@ -224,7 +224,8 @@ export default function ForceDirectedTree({
           .attr('stroke-width', 2);
         setPopup(null);
       })
-      .on('click', function (_event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('click', function (_event: any, d: any) {
         const targetMessageId = d.data.aiMessage
           ? d.data.aiMessage.id
           : d.data.userMessage.id;
