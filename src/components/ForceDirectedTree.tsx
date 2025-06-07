@@ -50,7 +50,7 @@ export default function ForceDirectedTree({
   // ダークモード検出
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const checkDarkMode = () => {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setIsDarkMode(isDark);
@@ -66,7 +66,7 @@ export default function ForceDirectedTree({
   // コンテナサイズの監視
   useEffect(() => {
     if (typeof window === 'undefined' || !window.ResizeObserver) return;
-    
+
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
