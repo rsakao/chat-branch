@@ -77,36 +77,41 @@ export default function ForceDirectedTree({
   );
 
   // メッセージからツリー構造を作成
-  const buildTree = useCallback((messages: Record<string, Message>): TreeNodeDatum | null => {
-    // ルートメッセージ（parentIdがないuser）を探す
-    const userMessages = Object.values(messages).filter((m) => m.role === 'user');
-    const rootUser = userMessages.find((m) => !m.parentId);
-    if (!rootUser) return null;
+  const buildTree = useCallback(
+    (messages: Record<string, Message>): TreeNodeDatum | null => {
+      // ルートメッセージ（parentIdがないuser）を探す
+      const userMessages = Object.values(messages).filter(
+        (m) => m.role === 'user'
+      );
+      const rootUser = userMessages.find((m) => !m.parentId);
+      if (!rootUser) return null;
 
-    // 再帰的にツリーを構築
-    const buildNode = (userMsg: Message, level: number): TreeNodeDatum => {
-      // 対応するAIメッセージ
-      const aiMessage = userMsg.children
-        ?.map((childId) => messages[childId])
-        .find((child) => child?.role === 'assistant');
-      // 子ノード（AIメッセージの子のuser）
-      let children: TreeNodeDatum[] = [];
-      if (aiMessage?.children) {
-        children = aiMessage.children
-          .map((childId) => messages[childId])
-          .filter((m): m is Message => !!m && m.role === 'user')
-          .map((childUserMsg) => buildNode(childUserMsg, level + 1));
-      }
-      return {
-        id: `pair-${userMsg.id}`,
-        userMessage: userMsg,
-        aiMessage,
-        children: children.length > 0 ? children : undefined,
-        level,
+      // 再帰的にツリーを構築
+      const buildNode = (userMsg: Message, level: number): TreeNodeDatum => {
+        // 対応するAIメッセージ
+        const aiMessage = userMsg.children
+          ?.map((childId) => messages[childId])
+          .find((child) => child?.role === 'assistant');
+        // 子ノード（AIメッセージの子のuser）
+        let children: TreeNodeDatum[] = [];
+        if (aiMessage?.children) {
+          children = aiMessage.children
+            .map((childId) => messages[childId])
+            .filter((m): m is Message => !!m && m.role === 'user')
+            .map((childUserMsg) => buildNode(childUserMsg, level + 1));
+        }
+        return {
+          id: `pair-${userMsg.id}`,
+          userMessage: userMsg,
+          aiMessage,
+          children: children.length > 0 ? children : undefined,
+          level,
+        };
       };
-    };
-    return buildNode(rootUser, 0);
-  }, []);
+      return buildNode(rootUser, 0);
+    },
+    []
+  );
 
   // D3 tree layout
   useEffect(() => {
@@ -137,7 +142,13 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.links())
       .enter()
       .append('path')
-      .attr('d', d3.linkHorizontal().x((d: any) => d.y).y((d: any) => d.x) as any)
+      .attr(
+        'd',
+        d3
+          .linkHorizontal()
+          .x((d: any) => d.y)
+          .y((d: any) => d.x) as any
+      )
       .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
       .attr('stroke-width', 3)
@@ -176,20 +187,24 @@ export default function ForceDirectedTree({
       .style('transition', 'all 0.2s ease');
     // ノードのホバーエフェクト
     node
-      .on('mouseenter', function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('r', () => {
-            const node = d.data;
-            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-            const hasChildren = node.children && node.children.length > 0;
-            return (hasChildren ? baseSize + 5 : baseSize) + 5;
-          })
-          .attr('stroke-width', 4);
-        // ポップアップを表示
-        setPopup({ node: d.data, x: d.y + 50, y: d.x });
-      })
+      .on(
+        'mouseenter',
+        function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('r', () => {
+              const node = d.data;
+              const baseSize =
+                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+              const hasChildren = node.children && node.children.length > 0;
+              return (hasChildren ? baseSize + 5 : baseSize) + 5;
+            })
+            .attr('stroke-width', 4);
+          // ポップアップを表示
+          setPopup({ node: d.data, x: d.y + 50, y: d.x });
+        }
+      )
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
@@ -209,10 +224,19 @@ export default function ForceDirectedTree({
           : d.data.userMessage.id;
         onSelectMessage(targetMessageId);
       });
-  }, [messages, currentMessageIds, dimensions, isDarkMode, buildTree, onSelectMessage]);
+  }, [
+    messages,
+    currentMessageIds,
+    dimensions,
+    isDarkMode,
+    buildTree,
+    onSelectMessage,
+  ]);
 
   const truncateText = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + '...'
+      : text;
   };
 
   return (

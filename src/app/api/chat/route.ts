@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
     }
 
     // o系モデルはmax_completion_tokensを使う
-    const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(model);
+    const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(
+      model
+    );
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
@@ -66,7 +68,10 @@ export async function POST(request: NextRequest) {
 
     console.log('OpenAI Response:', JSON.stringify(completion, null, 2));
     console.log('Response choices:', completion.choices);
-    console.log('First choice content:', completion.choices[0]?.message?.content);
+    console.log(
+      'First choice content:',
+      completion.choices[0]?.message?.content
+    );
 
     const content =
       completion.choices[0]?.message?.content ||
