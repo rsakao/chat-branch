@@ -84,6 +84,18 @@ export async function POST(
     // Add new messages
     if (newMessages && Array.isArray(newMessages)) {
       for (const message of newMessages) {
+        // parentIdが指定されている場合は、そのメッセージが存在するかチェック
+        if (message.parentId) {
+          const parentExists = await prisma.message.findUnique({
+            where: { id: message.parentId },
+          });
+          if (!parentExists) {
+            return NextResponse.json(
+              { error: `Parent message (${message.parentId}) not found` },
+              { status: 400 }
+            );
+          }
+        }
         await prisma.message.upsert({
           where: { id: message.id },
           update: {
