@@ -14,24 +14,16 @@ interface ForceDirectedTreeProps {
   onSelectMessage: (messageId: string) => void;
 }
 
-interface ConversationNode {
+interface TreeNodeDatum {
   id: string;
   userMessage: Message;
   aiMessage?: Message;
+  children?: TreeNodeDatum[];
   level: number;
-  x?: number;
-  y?: number;
-  fx?: number | null;
-  fy?: number | null;
-}
-
-interface TreeLink {
-  source: string;
-  target: string;
 }
 
 interface PopupData {
-  node: ConversationNode;
+  node: TreeNodeDatum;
   x: number;
   y: number;
 }
@@ -50,23 +42,19 @@ export default function ForceDirectedTree({
   // ダークモード検出
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
     const checkDarkMode = () => {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setIsDarkMode(isDark);
     };
-
     checkDarkMode();
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     mediaQuery.addEventListener('change', checkDarkMode);
-
     return () => mediaQuery.removeEventListener('change', checkDarkMode);
   }, []);
 
   // コンテナサイズの監視
   useEffect(() => {
     if (typeof window === 'undefined' || !window.ResizeObserver) return;
-
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
@@ -76,11 +64,9 @@ export default function ForceDirectedTree({
         });
       }
     });
-
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
-
     return () => resizeObserver.disconnect();
   }, []);
 
@@ -90,319 +76,143 @@ export default function ForceDirectedTree({
     [currentMessages]
   );
 
-  // 会話ペアを作成する関数
-  const createNodes = useCallback(
-    (messages: Record<string, Message>): ConversationNode[] => {
-      const nodes: ConversationNode[] = [];
-      const processedMessages = new Set<string>();
+  // メッセージからツリー構造を作成
+  const buildTree = useCallback((messages: Record<string, Message>): TreeNodeDatum | null => {
+    // ルートメッセージ（parentIdがないuser）を探す
+    const userMessages = Object.values(messages).filter((m) => m.role === 'user');
+    const rootUser = userMessages.find((m) => !m.parentId);
+    if (!rootUser) return null;
 
-      // ユーザーメッセージから会話ペアを作成
-      const userMessages = Object.values(messages).filter(
-        (m) => m.role === 'user'
-      );
+    // 再帰的にツリーを構築
+    const buildNode = (userMsg: Message, level: number): TreeNodeDatum => {
+      // 対応するAIメッセージ
+      const aiMessage = userMsg.children
+        ?.map((childId) => messages[childId])
+        .find((child) => child?.role === 'assistant');
+      // 子ノード（AIメッセージの子のuser）
+      let children: TreeNodeDatum[] = [];
+      if (aiMessage?.children) {
+        children = aiMessage.children
+          .map((childId) => messages[childId])
+          .filter((m): m is Message => !!m && m.role === 'user')
+          .map((childUserMsg) => buildNode(childUserMsg, level + 1));
+      }
+      return {
+        id: `pair-${userMsg.id}`,
+        userMessage: userMsg,
+        aiMessage,
+        children: children.length > 0 ? children : undefined,
+        level,
+      };
+    };
+    return buildNode(rootUser, 0);
+  }, []);
 
-      userMessages.forEach((userMsg) => {
-        if (processedMessages.has(userMsg.id)) return;
-
-        // 対応するAIメッセージを探す
-        const aiMessage = userMsg.children
-          ?.map((childId) => messages[childId])
-          .find((child) => child?.role === 'assistant');
-
-        // レベル計算
-        let level = 0;
-        if (userMsg.parentId) {
-          const parentMsg = messages[userMsg.parentId];
-          if (parentMsg?.role === 'assistant') {
-            // 親のAIメッセージに対応するユーザーメッセージを探す
-            const grandParentUserMsg = Object.values(messages).find(
-              (m) => m.role === 'user' && m.children?.includes(parentMsg.id)
-            );
-            if (grandParentUserMsg) {
-              const parentNode = nodes.find(
-                (n) => n.userMessage.id === grandParentUserMsg.id
-              );
-              level = (parentNode?.level || 0) + 1;
-            }
-          }
-        }
-
-        nodes.push({
-          id: `pair-${userMsg.id}`,
-          userMessage: userMsg,
-          aiMessage,
-          level,
-        });
-
-        processedMessages.add(userMsg.id);
-        if (aiMessage) {
-          processedMessages.add(aiMessage.id);
-        }
-      });
-
-      return nodes;
-    },
-    []
-  );
-
-  // リンクを作成する関数
-  const createLinks = useCallback(
-    (
-      nodes: ConversationNode[],
-      messages: Record<string, Message>
-    ): TreeLink[] => {
-      const links: TreeLink[] = [];
-
-      nodes.forEach((node) => {
-        if (node.aiMessage?.children) {
-          node.aiMessage.children.forEach((childId) => {
-            const childMsg = messages[childId];
-            if (childMsg?.role === 'user') {
-              const childNode = nodes.find((n) => n.userMessage.id === childId);
-              if (childNode) {
-                links.push({
-                  source: node.id,
-                  target: childNode.id,
-                });
-              }
-            }
-          });
-        }
-      });
-
-      return links;
-    },
-    []
-  );
-
-  // D3 force simulation
+  // D3 tree layout
   useEffect(() => {
     if (!svgRef.current) return;
-
-    const nodes = createNodes(messages);
-    const links = createLinks(nodes, messages);
-
-    if (nodes.length === 0) return;
-
+    const root = buildTree(messages);
+    if (!root) return;
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
-
     const { width, height } = dimensions;
-
-    // SVGグループを作成
-    const g = svg.append('g');
-
+    // d3.hierarchyに変換
+    const hierarchyRoot = d3.hierarchy<TreeNodeDatum>(root, (d) => d.children);
+    // tree layout
+    const treeLayout = d3.tree<TreeNodeDatum>().size([height - 80, width - 80]);
+    treeLayout(hierarchyRoot);
     // ズーム機能
+    const g = svg.append('g').attr('transform', `translate(40,40)`);
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
       });
-
     svg.call(zoom);
-
-    // Force simulation
-    const simulation = d3
-      .forceSimulation(nodes)
-      .force(
-        'link',
-        d3
-          .forceLink(links)
-          .id((d) => (d as ConversationNode).id)
-          .distance(100)
-          .strength(0.8)
-      )
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(35));
-
-    // ルートノードを中央に固定
-    const rootNodes = nodes.filter((n) => n.level === 0);
-    rootNodes.forEach((node, index) => {
-      node.fx = width / 2 + (index - (rootNodes.length - 1) / 2) * 100;
-      node.fy = height / 2;
-    });
-
-    // リンクを描画
+    // エッジ描画
     const link = g
       .append('g')
-      .selectAll('line')
-      .data(links)
+      .selectAll('path')
+      .data(hierarchyRoot.links())
       .enter()
-      .append('line')
+      .append('path')
+      .attr('d', d3.linkHorizontal().x((d: any) => d.y).y((d: any) => d.x) as any)
+      .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
       .attr('stroke-width', 3)
       .attr('stroke-opacity', 0.6);
-
-    // ノードを描画
+    // ノード描画
     const node = g
       .append('g')
       .selectAll('circle')
-      .data(nodes)
+      .data(hierarchyRoot.descendants())
       .enter()
       .append('circle')
+      .attr('cx', (d) => d.y)
+      .attr('cy', (d) => d.x)
       .attr('r', (d) => {
-        const node = d as ConversationNode;
+        const node = d.data;
         const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-        const hasChildren =
-          node.aiMessage?.children && node.aiMessage.children.length > 0;
+        const hasChildren = node.children && node.children.length > 0;
         return hasChildren ? baseSize + 5 : baseSize;
       })
-      .attr('fill', (d: ConversationNode) => {
+      .attr('fill', (d) => {
+        const node = d.data;
         const isActive =
-          currentMessageIds.has(d.userMessage.id) ||
-          (d.aiMessage && currentMessageIds.has(d.aiMessage.id));
-
-        // レベルと状態に応じて色を決定
-        if (d.level === 0) {
-          return isActive ? '#1e40af' : '#3b82f6'; // ブルー系
-        } else if (d.aiMessage?.children && d.aiMessage.children.length > 0) {
-          return isActive ? '#b45309' : '#f59e0b'; // オレンジ系（分岐あり）
+          currentMessageIds.has(node.userMessage.id) ||
+          (node.aiMessage && currentMessageIds.has(node.aiMessage.id));
+        if (node.level === 0) {
+          return isActive ? '#1e40af' : '#3b82f6';
+        } else if (node.children && node.children.length > 0) {
+          return isActive ? '#b45309' : '#f59e0b';
         } else {
-          return isActive ? '#047857' : '#10b981'; // グリーン系（リーフ）
+          return isActive ? '#047857' : '#10b981';
         }
       })
       .attr('stroke', isDarkMode ? '#1e293b' : '#ffffff')
       .attr('stroke-width', 2)
       .style('cursor', 'pointer')
       .style('transition', 'all 0.2s ease');
-
     // ノードのホバーエフェクト
     node
-      .on(
-        'mouseenter',
-        function (
-          event: React.MouseEvent<SVGCircleElement, MouseEvent>,
-          d: ConversationNode
-        ) {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', (d) => {
-              const node = d as ConversationNode;
-              const baseSize =
-                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-              const hasChildren =
-                node.aiMessage?.children && node.aiMessage.children.length > 0;
-              return (hasChildren ? baseSize + 5 : baseSize) + 5;
-            })
-            .attr('stroke-width', 4);
-
-          // ポップアップを表示
-          const [x, y] = d3.pointer(event, svgRef.current);
-          setPopup({ node: d, x, y });
-        }
-      )
+      .on('mouseenter', function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('r', () => {
+            const node = d.data;
+            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+            const hasChildren = node.children && node.children.length > 0;
+            return (hasChildren ? baseSize + 5 : baseSize) + 5;
+          })
+          .attr('stroke-width', 4);
+        // ポップアップを表示
+        setPopup({ node: d.data, x: d.y + 50, y: d.x });
+      })
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('r', (d) => {
-            const node = d as ConversationNode;
+          .attr('r', (d: d3.HierarchyPointNode<TreeNodeDatum>) => {
+            const node = d.data;
             const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-            const hasChildren =
-              node.aiMessage?.children && node.aiMessage.children.length > 0;
+            const hasChildren = node.children && node.children.length > 0;
             return hasChildren ? baseSize + 5 : baseSize;
           })
           .attr('stroke-width', 2);
-
-        // ポップアップを非表示
         setPopup(null);
       })
-      .on(
-        'click',
-        function (
-          _event: React.MouseEvent<SVGCircleElement, MouseEvent>,
-          d: ConversationNode
-        ) {
-          // メッセージを選択
-          const targetMessageId = d.aiMessage
-            ? d.aiMessage.id
-            : d.userMessage.id;
-          onSelectMessage(targetMessageId);
-        }
-      );
-
-    // ドラッグ機能
-    const drag = d3
-      .drag<SVGCircleElement, ConversationNode>()
-      .on(
-        'start',
-        function (
-          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
-          d: ConversationNode
-        ) {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
-          d.fy = d.y;
-        }
-      )
-      .on(
-        'drag',
-        function (
-          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
-          d: ConversationNode
-        ) {
-          d.fx = event.x;
-          d.fy = event.y;
-        }
-      )
-      .on(
-        'end',
-        function (
-          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
-          d: ConversationNode
-        ) {
-          if (!event.active) simulation.alphaTarget(0);
-          // ルートノード以外はドラッグ終了時に固定を解除
-          if (d.level !== 0) {
-            d.fx = null;
-            d.fy = null;
-          }
-        }
-      );
-
-    node.call(drag);
-
-    // シミュレーション更新
-    simulation.on('tick', () => {
-      link
-        .attr('x1', (d: d3.SimulationLinkDatum<ConversationNode>) =>
-          typeof d.source === 'object' ? (d.source.x ?? 0) : 0
-        )
-        .attr('y1', (d: d3.SimulationLinkDatum<ConversationNode>) =>
-          typeof d.source === 'object' ? (d.source.y ?? 0) : 0
-        )
-        .attr('x2', (d: d3.SimulationLinkDatum<ConversationNode>) =>
-          typeof d.target === 'object' ? (d.target.x ?? 0) : 0
-        )
-        .attr('y2', (d: d3.SimulationLinkDatum<ConversationNode>) =>
-          typeof d.target === 'object' ? (d.target.y ?? 0) : 0
-        );
-
-      node
-        .attr('cx', (d: ConversationNode) => d.x ?? 0)
-        .attr('cy', (d: ConversationNode) => d.y ?? 0);
-    });
-
-    return () => {
-      simulation.stop();
-    };
-  }, [
-    messages,
-    currentMessageIds,
-    dimensions,
-    isDarkMode,
-    createNodes,
-    createLinks,
-    onSelectMessage,
-  ]);
+      .on('click', function (_event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+        const targetMessageId = d.data.aiMessage
+          ? d.data.aiMessage.id
+          : d.data.userMessage.id;
+        onSelectMessage(targetMessageId);
+      });
+  }, [messages, currentMessageIds, dimensions, isDarkMode, buildTree, onSelectMessage]);
 
   const truncateText = (text: string, maxLength: number) => {
-    return text.length > maxLength
-      ? text.substring(0, maxLength) + '...'
-      : text;
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   return (
@@ -419,7 +229,6 @@ export default function ForceDirectedTree({
           borderRadius: '8px',
         }}
       />
-
       {/* ポップアップ */}
       {popup && (
         <div
@@ -456,7 +265,6 @@ export default function ForceDirectedTree({
           )}
         </div>
       )}
-
       {/* 凡例 */}
       <div
         style={{

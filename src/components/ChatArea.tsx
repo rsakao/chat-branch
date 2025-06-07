@@ -610,7 +610,6 @@ export default function ChatArea({
               disabled={isLoading}
             >
               <option value="o4-mini">o4-mini</option>
-              <option value="o3">o3</option>
               <option value="o3-mini">o3-mini</option>
               <option value="gpt-4.1">GPT-4.1</option>
             </select>
