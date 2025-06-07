@@ -281,7 +281,8 @@ export default function ForceDirectedTree({
             .duration(200)
             .attr('r', (d) => {
               const node = d as ConversationNode;
-              const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+              const baseSize =
+                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
               const hasChildren =
                 node.aiMessage?.children && node.aiMessage.children.length > 0;
               return (hasChildren ? baseSize + 5 : baseSize) + 5;
