@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { Conversation, Message } from '@/types'
 import { truncateText } from '@/utils/helpers'
-import ReactFlowTree from './ReactFlowTree'
+import ForceDirectedTree from './ForceDirectedTree'
 
 interface TreeViewProps {
   conversation?: Conversation
@@ -174,7 +174,7 @@ export default function TreeView({
             >
               <option value="auto">自動選択</option>
               <option value="simple">シンプル表示</option>
-              <option value="advanced">グラフィカル表示</option>
+              <option value="advanced">フォースレイアウト</option>
             </select>
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function TreeView({
             >
               <option value="auto">自動選択</option>
               <option value="simple">シンプル表示</option>
-              <option value="advanced">グラフィカル表示</option>
+              <option value="advanced">フォースレイアウト</option>
             </select>
           </div>
           {debugMode && conversation && (
@@ -227,14 +227,14 @@ export default function TreeView({
               padding: '3px 6px',
               borderRadius: '4px'
             }}>
-              幅: {componentWidth}px ({componentWidth >= 400 ? 'グラフィカル' : 'シンプル'}) | ツリー最大幅: {treeMaxWidth}
+              幅: {componentWidth}px ({componentWidth >= 400 ? 'フォースレイアウト' : 'シンプル'}) | ツリー最大幅: {treeMaxWidth}
             </div>
           )}
         </div>
 
         <div className="tree-container">
           {useAdvanced ? (
-            <ReactFlowTree
+            <ForceDirectedTree
               messages={allMessages}
               currentMessages={messages}
               onSelectMessage={onSelectMessage}
