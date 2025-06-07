@@ -38,6 +38,7 @@ export default function ForceDirectedTree({
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [popup, setPopup] = useState<PopupData | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [treeKey, setTreeKey] = useState(0); // ツリーの強制再レンダリング用
 
   // ダークモード検出
   useEffect(() => {
@@ -75,6 +76,11 @@ export default function ForceDirectedTree({
     () => new Set(currentMessages.map((m) => m.id)),
     [currentMessages]
   );
+
+  // メッセージが変更された時にツリーを強制再描画
+  useEffect(() => {
+    setTreeKey(prev => prev + 1);
+  }, [messages]);
 
   // メッセージからツリー構造を作成
   const buildTree = useCallback(
@@ -124,7 +130,7 @@ export default function ForceDirectedTree({
     // d3.hierarchyに変換
     const hierarchyRoot = d3.hierarchy<TreeNodeDatum>(root, (d) => d.children);
     // tree layout
-    const treeLayout = d3.tree<TreeNodeDatum>().size([height - 80, width - 80]);
+    const treeLayout = d3.tree<TreeNodeDatum>().size([width - 80, height - 80]);
     treeLayout(hierarchyRoot);
     // ズーム機能
     const g = svg.append('g').attr('transform', `translate(40,40)`);
@@ -142,13 +148,7 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.links())
       .enter()
       .append('path')
-      .attr(
-        'd',
-        d3
-          .linkHorizontal()
-          .x((d: any) => d.y)
-          .y((d: any) => d.x) as any
-      )
+      .attr('d', d3.linkVertical().x((d: any) => d.x).y((d: any) => d.y) as any)
       .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
       .attr('stroke-width', 3)
@@ -160,8 +160,8 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.descendants())
       .enter()
       .append('circle')
-      .attr('cx', (d) => d.y)
-      .attr('cy', (d) => d.x)
+      .attr('cx', (d) => d.x)
+      .attr('cy', (d) => d.y)
       .attr('r', (d) => {
         const node = d.data;
         const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
@@ -187,24 +187,20 @@ export default function ForceDirectedTree({
       .style('transition', 'all 0.2s ease');
     // ノードのホバーエフェクト
     node
-      .on(
-        'mouseenter',
-        function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', () => {
-              const node = d.data;
-              const baseSize =
-                node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
-              const hasChildren = node.children && node.children.length > 0;
-              return (hasChildren ? baseSize + 5 : baseSize) + 5;
-            })
-            .attr('stroke-width', 4);
-          // ポップアップを表示
-          setPopup({ node: d.data, x: d.y + 50, y: d.x });
-        }
-      )
+      .on('mouseenter', function (event, d: d3.HierarchyPointNode<TreeNodeDatum>) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('r', () => {
+            const node = d.data;
+            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+            const hasChildren = node.children && node.children.length > 0;
+            return (hasChildren ? baseSize + 5 : baseSize) + 5;
+          })
+          .attr('stroke-width', 4);
+        // ポップアップを表示
+        setPopup({ node: d.data, x: d.x + 50, y: d.y });
+      })
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
@@ -224,14 +220,7 @@ export default function ForceDirectedTree({
           : d.data.userMessage.id;
         onSelectMessage(targetMessageId);
       });
-  }, [
-    messages,
-    currentMessageIds,
-    dimensions,
-    isDarkMode,
-    buildTree,
-    onSelectMessage,
-  ]);
+  }, [messages, currentMessageIds, dimensions, isDarkMode, buildTree, onSelectMessage, treeKey]);
 
   const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength
@@ -289,62 +278,6 @@ export default function ForceDirectedTree({
           )}
         </div>
       )}
-      {/* 凡例 */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          background: isDarkMode ? '#374151' : 'white',
-          color: isDarkMode ? '#f3f4f6' : '#1f2937',
-          padding: '12px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          fontSize: '12px',
-          border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
-        }}
-      >
-        <div
-          style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}
-        >
-          <div
-            style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              background: '#3b82f6',
-              marginRight: '8px',
-            }}
-          />
-          Root
-        </div>
-        <div
-          style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}
-        >
-          <div
-            style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              background: '#f59e0b',
-              marginRight: '8px',
-            }}
-          />
-          Branch
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div
-            style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              background: '#10b981',
-              marginRight: '8px',
-            }}
-          />
-          Leaf
-        </div>
-      </div>
     </div>
   );
 }
