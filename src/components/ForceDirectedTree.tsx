@@ -270,22 +270,28 @@ export default function ForceDirectedTree({
 
     // ノードのホバーエフェクト
     node
-      .on('mouseenter', function (event: React.MouseEvent<SVGCircleElement, MouseEvent>, d: ConversationNode) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('r', (d: ConversationNode) => {
-            const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
-            const hasChildren =
-              d.aiMessage?.children && d.aiMessage.children.length > 0;
-            return (hasChildren ? baseSize + 5 : baseSize) + 5;
-          })
-          .attr('stroke-width', 4);
+      .on(
+        'mouseenter',
+        function (
+          event: React.MouseEvent<SVGCircleElement, MouseEvent>,
+          d: ConversationNode
+        ) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('r', (d: ConversationNode) => {
+              const baseSize = d.level === 0 ? 25 : d.level === 1 ? 20 : 15;
+              const hasChildren =
+                d.aiMessage?.children && d.aiMessage.children.length > 0;
+              return (hasChildren ? baseSize + 5 : baseSize) + 5;
+            })
+            .attr('stroke-width', 4);
 
-        // ポップアップを表示
-        const [x, y] = d3.pointer(event, svgRef.current);
-        setPopup({ node: d, x, y });
-      })
+          // ポップアップを表示
+          const [x, y] = d3.pointer(event, svgRef.current);
+          setPopup({ node: d, x, y });
+        }
+      )
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
@@ -301,44 +307,80 @@ export default function ForceDirectedTree({
         // ポップアップを非表示
         setPopup(null);
       })
-      .on('click', function (_event: React.MouseEvent<SVGCircleElement, MouseEvent>, d: ConversationNode) {
-        // メッセージを選択
-        const targetMessageId = d.aiMessage ? d.aiMessage.id : d.userMessage.id;
-        onSelectMessage(targetMessageId);
-      });
+      .on(
+        'click',
+        function (
+          _event: React.MouseEvent<SVGCircleElement, MouseEvent>,
+          d: ConversationNode
+        ) {
+          // メッセージを選択
+          const targetMessageId = d.aiMessage
+            ? d.aiMessage.id
+            : d.userMessage.id;
+          onSelectMessage(targetMessageId);
+        }
+      );
 
     // ドラッグ機能
     const drag = d3
       .drag<SVGCircleElement, ConversationNode>()
-      .on('start', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      })
-      .on('drag', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
-        d.fx = event.x;
-        d.fy = event.y;
-      })
-      .on('end', function (event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>, d: ConversationNode) {
-        if (!event.active) simulation.alphaTarget(0);
-        // ルートノード以外はドラッグ終了時に固定を解除
-        if (d.level !== 0) {
-          d.fx = null;
-          d.fy = null;
+      .on(
+        'start',
+        function (
+          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
+          d: ConversationNode
+        ) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
         }
-      });
+      )
+      .on(
+        'drag',
+        function (
+          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
+          d: ConversationNode
+        ) {
+          d.fx = event.x;
+          d.fy = event.y;
+        }
+      )
+      .on(
+        'end',
+        function (
+          event: d3.D3DragEvent<SVGCircleElement, ConversationNode, unknown>,
+          d: ConversationNode
+        ) {
+          if (!event.active) simulation.alphaTarget(0);
+          // ルートノード以外はドラッグ終了時に固定を解除
+          if (d.level !== 0) {
+            d.fx = null;
+            d.fy = null;
+          }
+        }
+      );
 
     node.call(drag);
 
     // シミュレーション更新
     simulation.on('tick', () => {
       link
-        .attr('x1', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.source === 'object' ? d.source.x ?? 0 : 0))
-        .attr('y1', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.source === 'object' ? d.source.y ?? 0 : 0))
-        .attr('x2', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.target === 'object' ? d.target.x ?? 0 : 0))
-        .attr('y2', (d: d3.SimulationLinkDatum<ConversationNode>) => (typeof d.target === 'object' ? d.target.y ?? 0 : 0));
+        .attr('x1', (d: d3.SimulationLinkDatum<ConversationNode>) =>
+          typeof d.source === 'object' ? (d.source.x ?? 0) : 0
+        )
+        .attr('y1', (d: d3.SimulationLinkDatum<ConversationNode>) =>
+          typeof d.source === 'object' ? (d.source.y ?? 0) : 0
+        )
+        .attr('x2', (d: d3.SimulationLinkDatum<ConversationNode>) =>
+          typeof d.target === 'object' ? (d.target.x ?? 0) : 0
+        )
+        .attr('y2', (d: d3.SimulationLinkDatum<ConversationNode>) =>
+          typeof d.target === 'object' ? (d.target.y ?? 0) : 0
+        );
 
-      node.attr('cx', (d: ConversationNode) => d.x ?? 0).attr('cy', (d: ConversationNode) => d.y ?? 0);
+      node
+        .attr('cx', (d: ConversationNode) => d.x ?? 0)
+        .attr('cy', (d: ConversationNode) => d.y ?? 0);
     });
 
     return () => {
