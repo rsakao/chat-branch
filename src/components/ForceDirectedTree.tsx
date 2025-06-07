@@ -282,7 +282,7 @@ export default function ForceDirectedTree({
         const [x, y] = d3.pointer(event, svgRef.current);
         setPopup({ node: d, x, y });
       })
-      .on('mouseleave', function() {
+      .on('mouseleave', function () {
         d3.select(this)
           .transition()
           .duration(200)
