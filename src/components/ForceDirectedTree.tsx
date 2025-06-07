@@ -194,7 +194,7 @@ export default function ForceDirectedTree({
 
     // ズーム機能
     const zoom = d3
-      .zoom()
+      .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
