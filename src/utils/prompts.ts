@@ -1,10 +1,10 @@
 // 引用機能専用のプロンプト処理ユーティリティ
 
 export interface QuotedMessageInfo {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: string
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
 }
 
 /**
@@ -15,9 +15,8 @@ export function buildQuotedPrompt(
   quotedText: string
 ): string {
   // 引用テキストが長い場合は省略
-  const truncatedQuotedText = quotedText.length > 300 
-    ? quotedText.substring(0, 300) + '...'
-    : quotedText
+  const truncatedQuotedText =
+    quotedText.length > 300 ? quotedText.substring(0, 300) + '...' : quotedText;
 
   const prompt = `以下の部分を引用してお聞きします：
 
@@ -27,9 +26,9 @@ export function buildQuotedPrompt(
 【質問・コメント】
 ${userMessage}
 
-この引用部分について回答してください。`
+この引用部分について回答してください。`;
 
-  return prompt
+  return prompt;
 }
 
 /**
@@ -45,13 +44,16 @@ export const SYSTEM_PROMPT_WITH_QUOTE = `あなたは親切で知識豊富なAI�
 4. 引用された文脈を考慮して適切な詳しさで説明する
 5. 必要に応じて、引用部分を参照しながら説明する
 
-引用がない通常の質問の場合は、これまで通り親切で分かりやすい回答を心がけてください。`
+引用がない通常の質問の場合は、これまで通り親切で分かりやすい回答を心がけてください。`;
 
 /**
  * 引用の種類を判定
  */
-export function getQuoteType(quotedText: string, originalContent: string): 'partial' | 'full' {
-  return quotedText.length < originalContent.length ? 'partial' : 'full'
+export function getQuoteType(
+  quotedText: string,
+  originalContent: string
+): 'partial' | 'full' {
+  return quotedText.length < originalContent.length ? 'partial' : 'full';
 }
 
 /**
@@ -62,17 +64,18 @@ export function buildEnhancedQuotedPrompt(
   quotedText: string,
   quotedMessage?: QuotedMessageInfo
 ): string {
-  const quoteType = quotedMessage 
+  const quoteType = quotedMessage
     ? getQuoteType(quotedText, quotedMessage.content)
-    : 'partial'
+    : 'partial';
 
-  const quoteTypeText = quoteType === 'partial' ? '部分引用' : '全文引用'
-  const senderText = quotedMessage?.role === 'user' ? 'ユーザーのメッセージ' : 'AIの回答'
+  const quoteTypeText = quoteType === 'partial' ? '部分引用' : '全文引用';
+  const senderText =
+    quotedMessage?.role === 'user' ? 'ユーザーのメッセージ' : 'AIの回答';
 
   const prompt = `【${quoteTypeText}：${senderText}より】
 "${quotedText}"
 
-上記の引用について：${userMessage}`
+上記の引用について：${userMessage}`;
 
-  return prompt
-} 
+  return prompt;
+}

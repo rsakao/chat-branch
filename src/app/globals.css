@@ -25,8 +25,9 @@
   --color-focus-ring: rgba(33, 128, 141, 0.4);
 
   /* Typography */
-  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-base:
+    'FKGroteskNeue', 'Geist', 'Inter', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
   --font-size-sm: 12px;
   --font-size-base: 14px;
   --font-size-lg: 16px;
@@ -54,8 +55,8 @@
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
-    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
 
   /* Animation */
   --duration-fast: 150ms;
@@ -250,15 +251,15 @@ body.no-scroll {
   .app-header {
     padding: var(--space-12) var(--space-16);
   }
-  
+
   .app-header h1 {
     font-size: var(--font-size-lg);
   }
-  
+
   .header-controls {
     gap: var(--space-12);
   }
-  
+
   .status-indicator {
     display: none;
   }
@@ -288,11 +289,11 @@ body.no-scroll {
     overflow-y: auto; /* 独立したスクロール */
     -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
-  
+
   .sidebar-overlay {
     position: fixed;
     top: 72px; /* ヘッダー下に配置 */
@@ -303,10 +304,12 @@ body.no-scroll {
     z-index: 999;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
     touch-action: none; /* タッチスクロールを無効化 */
   }
-  
+
   .sidebar-overlay.open {
     opacity: 1;
     visibility: visible;
@@ -421,7 +424,7 @@ body.no-scroll {
     color: rgba(200, 202, 204, 1);
     background-color: rgba(200, 202, 204, 0.15);
   }
-  
+
   .conversation-item.active .conversation-date {
     color: rgba(255, 255, 255, 0.95);
     background-color: rgba(255, 255, 255, 0.2);
@@ -610,7 +613,7 @@ body.no-scroll {
   .quote-selected-btn:hover {
     background-color: rgba(50, 184, 198, 0.2);
   }
-  
+
   .research-btn:hover {
     background-color: rgba(255, 165, 100, 0.2);
   }
@@ -687,7 +690,11 @@ body.no-scroll {
 
 /* 引用メッセージ表示の改善 */
 .quoted-message {
-  background: linear-gradient(135deg, var(--color-secondary) 0%, rgba(33, 128, 141, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    rgba(33, 128, 141, 0.1) 100%
+  );
   border: 1px solid var(--color-primary);
   border-left: 4px solid var(--color-primary);
   border-radius: var(--radius-base);
@@ -706,7 +713,11 @@ body.no-scroll {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-12) var(--space-12);
-  background: linear-gradient(90deg, var(--color-primary) 0%, rgba(33, 128, 141, 0.9) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    rgba(33, 128, 141, 0.9) 100%
+  );
   color: var(--color-btn-primary-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -791,14 +802,18 @@ body.no-scroll {
   .clear-quote-btn:hover {
     background-color: rgba(255, 255, 255, 0.3);
   }
-  
+
   .quoted-message-content {
     color: var(--color-text-secondary);
     background: rgba(119, 124, 124, 0.05);
   }
 
   .quoted-message {
-    background: linear-gradient(135deg, rgba(119, 124, 124, 0.1) 0%, rgba(50, 184, 198, 0.1) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(119, 124, 124, 0.1) 0%,
+      rgba(50, 184, 198, 0.1) 100%
+    );
     border-color: rgba(50, 184, 198, 0.6);
     box-shadow: 0 2px 8px rgba(50, 184, 198, 0.1);
   }
@@ -813,7 +828,11 @@ body.no-scroll {
 .quote-selected-btn {
   padding: var(--space-8) var(--space-12);
   font-size: var(--font-size-xs);
-  background: linear-gradient(135deg, var(--color-secondary) 0%, rgba(33, 128, 141, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    rgba(33, 128, 141, 0.1) 100%
+  );
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -829,26 +848,44 @@ body.no-scroll {
 
 .quote-btn:hover,
 .quote-selected-btn:hover {
-  background: linear-gradient(135deg, rgba(33, 128, 141, 0.15) 0%, rgba(33, 128, 141, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(33, 128, 141, 0.15) 0%,
+    rgba(33, 128, 141, 0.05) 100%
+  );
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(33, 128, 141, 0.3);
 }
 
 .quote-selected-btn {
-  background: linear-gradient(135deg, var(--color-primary) 0%, rgba(33, 128, 141, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    rgba(33, 128, 141, 0.9) 100%
+  );
   color: var(--color-btn-primary-text);
   border-color: var(--color-primary);
 }
 
 .quote-selected-btn:hover {
-  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-hover) 0%,
+    var(--color-primary) 100%
+  );
 }
 
 /* アニメーション効果 */
 @keyframes quoteHighlight {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .quoted-message {
@@ -861,7 +898,7 @@ body.no-scroll {
     padding: var(--space-12) var(--space-12);
     font-size: var(--font-size-xs);
   }
-  
+
   .quote-btn,
   .quote-selected-btn {
     padding: var(--space-4) var(--space-8);
@@ -982,21 +1019,21 @@ body.no-scroll {
     background-color: rgba(51, 65, 85, 0.95) !important;
     border: 1px solid rgba(119, 124, 124, 0.45) !important;
   }
-  
+
   .react-flow__controls-button {
     background-color: transparent !important;
     color: rgba(255, 255, 255, 0.95) !important;
     border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
   }
-  
+
   .react-flow__controls-button:hover {
     background-color: rgba(119, 124, 124, 0.3) !important;
   }
-  
+
   .react-flow__controls-button:last-child {
     border-bottom: none !important;
   }
-  
+
   /* ReactFlowのズーム表示テキスト */
   .react-flow__controls-zoom {
     color: rgba(255, 255, 255, 0.95) !important;
@@ -1021,14 +1058,22 @@ body.no-scroll {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 会話フローアニメーション */
 @keyframes flow {
-  0% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 12; }
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 12;
+  }
 }
 
 /* Modal */
@@ -1210,15 +1255,15 @@ body.no-scroll {
     overflow-y: auto; /* 独立したスクロール */
     -webkit-overflow-scrolling: touch; /* iOSでのスムーズスクロール */
   }
-  
+
   .tree-area.open {
     transform: translateX(0);
   }
-  
+
   .tree-area .tree-container {
     padding-bottom: 60px; /* モバイルで十分な下部余白を追加 */
   }
-  
+
   .resize-handle {
     display: none;
   }
@@ -1246,7 +1291,7 @@ body.no-scroll {
     align-items: center;
     justify-content: center;
   }
-  
+
   .mobile-nav-btn.active {
     background-color: var(--color-primary);
     color: var(--color-btn-primary-text);
@@ -1470,7 +1515,7 @@ body.no-scroll {
   .markdown-tr:nth-child(even) .markdown-td {
     background-color: rgba(50, 184, 198, 0.05);
   }
-  
+
   .markdown-table {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -1607,21 +1652,21 @@ body.no-scroll {
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   .markdown-th,
   .markdown-td {
     padding: var(--space-4) var(--space-8);
   }
-  
+
   .markdown-pre {
     padding: var(--space-12);
     font-size: 0.8em;
   }
-  
+
   .markdown-h1 {
     font-size: var(--font-size-lg);
   }
-  
+
   .markdown-h2 {
     font-size: var(--font-size-base);
   }
