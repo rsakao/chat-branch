@@ -291,16 +291,18 @@ export default function ChatArea({
   onCreateBranch,
   onToggleTree,
 }: ChatAreaProps) {
-  const [inputValue, setInputValue] = useState('')
-  const [quotedMessage, setQuotedMessage] = useState<Message | null>(null)
-  const [quotedText, setQuotedText] = useState<string>('')
-  const [selectedText, setSelectedText] = useState<string>('')
-  const [justDeselected, setJustDeselected] = useState(false)
-  const [selectedModel, setSelectedModel] = useState('o4-mini')
-  const [sendBehavior, setSendBehavior] = useState<'enter' | 'shift-enter'>('enter')
-  const [isComposing, setIsComposing] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [inputValue, setInputValue] = useState('');
+  const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
+  const [quotedText, setQuotedText] = useState<string>('');
+  const [selectedText, setSelectedText] = useState<string>('');
+  const [justDeselected, setJustDeselected] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('o4-mini');
+  const [sendBehavior, setSendBehavior] = useState<'enter' | 'shift-enter'>(
+    'enter'
+  );
+  const [isComposing, setIsComposing] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -314,33 +316,33 @@ export default function ChatArea({
   useEffect(() => {
     const loadSettings = () => {
       try {
-        const savedSettings = localStorage.getItem('chatAppSettings')
+        const savedSettings = localStorage.getItem('chatAppSettings');
         if (savedSettings) {
-          const settings = JSON.parse(savedSettings)
+          const settings = JSON.parse(savedSettings);
           if (settings.aiModel) {
-            setSelectedModel(settings.aiModel)
+            setSelectedModel(settings.aiModel);
           }
           if (settings.sendBehavior) {
-            setSendBehavior(settings.sendBehavior)
+            setSendBehavior(settings.sendBehavior);
           }
         }
       } catch (error) {
-        console.error('Failed to load settings:', error)
+        console.error('Failed to load settings:', error);
       }
-    }
+    };
 
-    loadSettings()
+    loadSettings();
 
     // Listen for storage changes (when settings are updated in the modal)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'chatAppSettings') {
-        loadSettings()
+        loadSettings();
       }
-    }
+    };
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // 選択状態の監視（selectionchangeイベントを使用）
   useEffect(() => {
@@ -427,33 +429,33 @@ export default function ChatArea({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // IME変換中は送信しない
     if (isComposing) {
-      return
+      return;
     }
 
     if (e.key === 'Enter') {
       if (sendBehavior === 'enter') {
         // Enterで送信モード: Shift+Enterなら改行、Enterなら送信
         if (!e.shiftKey) {
-          e.preventDefault()
-          handleSubmit(e)
+          e.preventDefault();
+          handleSubmit(e);
         }
       } else {
         // Shift+Enterで送信モード: Shift+Enterなら送信、Enterなら改行
         if (e.shiftKey) {
-          e.preventDefault()
-          handleSubmit(e)
+          e.preventDefault();
+          handleSubmit(e);
         }
       }
     }
-  }
+  };
 
   const handleCompositionStart = () => {
-    setIsComposing(true)
-  }
+    setIsComposing(true);
+  };
 
   const handleCompositionEnd = () => {
-    setIsComposing(false)
-  }
+    setIsComposing(false);
+  };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
@@ -585,11 +587,12 @@ export default function ChatArea({
           <textarea
             ref={textareaRef}
             className="form-control"
-            placeholder={quotedMessage 
-              ? "引用メッセージに対する返信を入力してください..." 
-              : sendBehavior === 'enter' 
-                ? "メッセージを入力してください（Enterで送信、Shift+Enterで改行）..." 
-                : "メッセージを入力してください（Shift+Enterで送信、Enterで改行）..."
+            placeholder={
+              quotedMessage
+                ? '引用メッセージに対する返信を入力してください...'
+                : sendBehavior === 'enter'
+                  ? 'メッセージを入力してください（Enterで送信、Shift+Enterで改行）...'
+                  : 'メッセージを入力してください（Shift+Enterで送信、Enterで改行）...'
             }
             value={inputValue}
             onChange={handleTextareaChange}

@@ -51,10 +51,10 @@ export interface TreeEdge {
 }
 
 export interface AppSettings {
-  theme: 'light' | 'dark' | 'auto'
-  fontSize: 'small' | 'medium' | 'large'
-  treeViewMode: 'auto' | 'simple' | 'advanced'
-  debugMode: boolean
-  aiModel: string
-  sendBehavior: 'enter' | 'shift-enter'
-} 
+  theme: 'light' | 'dark' | 'auto';
+  fontSize: 'small' | 'medium' | 'large';
+  treeViewMode: 'auto' | 'simple' | 'advanced';
+  debugMode: boolean;
+  aiModel: string;
+  sendBehavior: 'enter' | 'shift-enter';
+}

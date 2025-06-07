@@ -19,8 +19,8 @@ export default function SettingsModal({
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
     debugMode: false,
-    sendBehavior: 'enter' as 'enter' | 'shift-enter'
-  })
+    sendBehavior: 'enter' as 'enter' | 'shift-enter',
+  });
 
   useEffect(() => {
     setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
@@ -143,14 +143,18 @@ export default function SettingsModal({
             <label className="form-label">送信方法</label>
             <select
               value={localSettings.sendBehavior}
-              onChange={(e) => setLocalSettings(prev => ({ 
-                ...prev, 
-                sendBehavior: e.target.value as 'enter' | 'shift-enter'
-              }))}
+              onChange={(e) =>
+                setLocalSettings((prev) => ({
+                  ...prev,
+                  sendBehavior: e.target.value as 'enter' | 'shift-enter',
+                }))
+              }
               className="form-control"
             >
               <option value="enter">Enterで送信（Shift+Enterで改行）</option>
-              <option value="shift-enter">Shift+Enterで送信（Enterで改行）</option>
+              <option value="shift-enter">
+                Shift+Enterで送信（Enterで改行）
+              </option>
             </select>
           </div>
 
