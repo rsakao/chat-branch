@@ -638,6 +638,40 @@ body.no-scroll {
   align-items: end;
 }
 
+.input-controls {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.model-select {
+  min-width: 120px;
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.model-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.model-select:hover {
+  border-color: var(--color-primary);
+}
+
+.model-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .chat-input-wrapper textarea {
   flex: 1;
   min-height: 60px;

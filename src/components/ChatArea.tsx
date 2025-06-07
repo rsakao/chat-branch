@@ -234,6 +234,7 @@ export default function ChatArea({
   const [quotedText, setQuotedText] = useState<string>('')
   const [selectedText, setSelectedText] = useState<string>('')
   const [justDeselected, setJustDeselected] = useState(false)
+  const [selectedModel, setSelectedModel] = useState('o4-mini')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -244,6 +245,21 @@ export default function ChatArea({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Load saved model from localStorage
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem('chatAppSettings')
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings)
+        if (settings.aiModel) {
+          setSelectedModel(settings.aiModel)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load model setting:', error)
+    }
+  }, [])
 
   // 選択状態の監視（selectionchangeイベントを使用）
   useEffect(() => {
@@ -335,6 +351,24 @@ export default function ChatArea({
     const textarea = e.target
     textarea.style.height = 'auto'
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'
+  }
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newModel = e.target.value
+    setSelectedModel(newModel)
+    
+    // Save to localStorage
+    try {
+      const savedSettings = localStorage.getItem('chatAppSettings')
+      let settings = {}
+      if (savedSettings) {
+        settings = JSON.parse(savedSettings)
+      }
+      settings = { ...settings, aiModel: newModel }
+      localStorage.setItem('chatAppSettings', JSON.stringify(settings))
+    } catch (error) {
+      console.error('Failed to save model setting:', error)
+    }
   }
 
   if (!conversation) {
@@ -448,14 +482,27 @@ export default function ChatArea({
             rows={1}
             style={{ resize: 'none', minHeight: '60px' }}
           />
-          <button
-            type="submit"
-            className="btn btn--primary"
-            disabled={!inputValue.trim() || isLoading}
-          >
-            <Send size={16} />
-            送信
-          </button>
+          <div className="input-controls">
+            <select
+              value={selectedModel}
+              onChange={handleModelChange}
+              className="model-select"
+              disabled={isLoading}
+            >
+              <option value="o4-mini">o4-mini</option>
+              <option value="o3">o3</option>
+              <option value="o3-mini">o3-mini</option>
+              <option value="gpt-4.1">GPT-4.1</option>
+            </select>
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={!inputValue.trim() || isLoading}
+            >
+              <Send size={16} />
+              送信
+            </button>
+          </div>
         </form>
       </div>
     </section>

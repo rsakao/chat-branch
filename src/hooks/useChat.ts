@@ -123,12 +123,12 @@ export function useChat(conversationId: string | null) {
 
     try {
       // 保存された設定からモデルを取得
-      let selectedModel = 'gpt-4o-mini'
+      let selectedModel = 'o4-mini'
       try {
         const savedSettings = localStorage.getItem('chatAppSettings')
         if (savedSettings) {
           const settings = JSON.parse(savedSettings)
-          selectedModel = settings.aiModel || 'gpt-4o-mini'
+          selectedModel = settings.aiModel || 'o4-mini'
         }
       } catch (error) {
         console.error('Failed to load model setting:', error)
