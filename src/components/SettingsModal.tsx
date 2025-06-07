@@ -18,7 +18,8 @@ export default function SettingsModal({
     theme: 'auto' as 'light' | 'dark' | 'auto',
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
-    debugMode: false
+    debugMode: false,
+    aiModel: 'gpt-4o-mini'
   })
 
   useEffect(() => {
@@ -120,6 +121,24 @@ export default function SettingsModal({
               <option value="auto">自動選択</option>
               <option value="simple">常にシンプル</option>
               <option value="advanced">常に高度表示</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">AIモデル</label>
+            <select
+              value={localSettings.aiModel}
+              onChange={(e) => setLocalSettings(prev => ({ 
+                ...prev, 
+                aiModel: e.target.value 
+              }))}
+              className="form-control"
+            >
+              <option value="gpt-4o-mini">GPT-4o Mini</option>
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+              <option value="gpt-4">GPT-4</option>
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
             </select>
           </div>
 
