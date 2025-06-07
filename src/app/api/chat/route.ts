@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // max_completion_tokensが必要なモデルを拡張
-    const isCompletionTokensModel = /^(gpt-4o|o4|o3|o3-mini)/.test(model);
+    const isCompletionTokensModel = /^(gpt-4o|o4|o4-mini|o3-mini)/.test(model);
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
