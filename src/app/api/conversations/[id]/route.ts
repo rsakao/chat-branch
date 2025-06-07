@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 // 特定の会話を削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const conversationId = params.id
+    const { id } = await params
+    const conversationId = id
 
     // 会話が存在するかチェック
     const conversation = await prisma.conversation.findUnique({

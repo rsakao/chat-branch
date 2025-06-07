@@ -12,8 +12,7 @@ export interface QuotedMessageInfo {
  */
 export function buildQuotedPrompt(
   userMessage: string,
-  quotedText: string,
-  quotedMessage?: QuotedMessageInfo
+  quotedText: string
 ): string {
   // 引用テキストが長い場合は省略
   const truncatedQuotedText = quotedText.length > 300 

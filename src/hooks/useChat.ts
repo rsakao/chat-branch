@@ -71,7 +71,7 @@ export function useChat(conversationId: string | null) {
   const sendMessage = useCallback(async (
     content: string, 
     branchFromMessageId?: string,
-    quotedMessage?: any,
+    quotedMessage?: Message,
     quotedText?: string
   ) => {
     if (!conversationId || isLoading) return

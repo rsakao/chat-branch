@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { PrismaMessage } from '@/types'
 
 export async function GET(
   request: NextRequest,
@@ -28,7 +29,7 @@ export async function GET(
     }
 
     // Convert messages to frontend format
-    const messages = conversation.messages.reduce((acc: Record<string, any>, msg: any) => {
+    const messages = conversation.messages.reduce((acc: Record<string, object>, msg: PrismaMessage) => {
       acc[msg.id] = {
         id: msg.id,
         role: msg.role,
@@ -36,8 +37,8 @@ export async function GET(
         conversationId: msg.conversationId,
         parentId: msg.parentId,
         children: conversation.messages
-          .filter((m: any) => m.parentId === msg.id)
-          .map((m: any) => m.id),
+          .filter((m: PrismaMessage) => m.parentId === msg.id)
+          .map((m: PrismaMessage) => m.id),
         branchIndex: msg.branchIndex,
         timestamp: msg.timestamp.toISOString()
       }
@@ -118,7 +119,7 @@ export async function POST(
       )
     }
 
-    const messages = conversation.messages.reduce((acc: Record<string, any>, msg: any) => {
+    const messages = conversation.messages.reduce((acc: Record<string, object>, msg: PrismaMessage) => {
       acc[msg.id] = {
         id: msg.id,
         role: msg.role,
@@ -126,8 +127,8 @@ export async function POST(
         conversationId: msg.conversationId,
         parentId: msg.parentId,
         children: conversation.messages
-          .filter((m: any) => m.parentId === msg.id)
-          .map((m: any) => m.id),
+          .filter((m: PrismaMessage) => m.parentId === msg.id)
+          .map((m: PrismaMessage) => m.id),
         branchIndex: msg.branchIndex,
         timestamp: msg.timestamp.toISOString()
       }

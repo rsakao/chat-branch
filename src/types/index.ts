@@ -9,6 +9,17 @@ export interface Message {
   timestamp: string
 }
 
+// Prismaから取得されるメッセージの型
+export interface PrismaMessage {
+  id: string
+  role: string
+  content: string
+  conversationId: string
+  parentId?: string | null
+  branchIndex: number
+  timestamp: Date
+}
+
 export interface Conversation {
   id: string
   title: string

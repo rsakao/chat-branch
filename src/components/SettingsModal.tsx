@@ -81,7 +81,7 @@ export default function SettingsModal({
               value={localSettings.theme}
               onChange={(e) => setLocalSettings(prev => ({ 
                 ...prev, 
-                theme: e.target.value as any 
+                theme: e.target.value as 'light' | 'dark' | 'auto'
               }))}
               className="form-control"
             >
@@ -97,7 +97,7 @@ export default function SettingsModal({
               value={localSettings.fontSize}
               onChange={(e) => setLocalSettings(prev => ({ 
                 ...prev, 
-                fontSize: e.target.value as any 
+                fontSize: e.target.value as 'small' | 'medium' | 'large'
               }))}
               className="form-control"
             >
@@ -113,7 +113,7 @@ export default function SettingsModal({
               value={localSettings.treeViewMode}
               onChange={(e) => setLocalSettings(prev => ({ 
                 ...prev, 
-                treeViewMode: e.target.value as any 
+                treeViewMode: e.target.value as 'auto' | 'simple' | 'advanced'
               }))}
               className="form-control"
             >

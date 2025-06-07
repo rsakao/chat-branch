@@ -169,7 +169,7 @@ export default function TreeView({
           <div className="tree-mode-selector">
             <select
               value={treeMode}
-              onChange={(e) => onTreeModeChange(e.target.value as any)}
+              onChange={(e) => onTreeModeChange(e.target.value as 'auto' | 'simple' | 'advanced')}
               className="form-control"
             >
               <option value="auto">自動選択</option>
@@ -210,7 +210,7 @@ export default function TreeView({
           <div className="tree-mode-selector">
             <select
               value={treeMode}
-              onChange={(e) => onTreeModeChange(e.target.value as any)}
+              onChange={(e) => onTreeModeChange(e.target.value as 'auto' | 'simple' | 'advanced')}
               className="form-control"
             >
               <option value="auto">自動選択</option>
@@ -349,7 +349,7 @@ const SimpleTree: React.FC<SimpleTreeProps> = ({ messages, currentMessages, onSe
     const pairs = createSimpleConversationPairs(messages);
     
     // ペアをレンダリングする関数
-    const renderPair = (pairId: string, depth = 0): JSX.Element | null => {
+    const renderPair = (pairId: string, depth = 0): React.ReactElement | null => {
       const pair = pairs[pairId];
       if (!pair) return null;
       
