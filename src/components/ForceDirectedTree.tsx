@@ -147,13 +147,14 @@ export default function ForceDirectedTree({
       .data(hierarchyRoot.links())
       .enter()
       .append('path')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .attr(
         'd',
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         d3
           .linkVertical()
           .x((d: any) => d.x)
           .y((d: any) => d.y) as any
+        /* eslint-enable @typescript-eslint/no-explicit-any */
       )
       .attr('fill', 'none')
       .attr('stroke', isDarkMode ? '#64748b' : '#94a3b8')
@@ -208,7 +209,6 @@ export default function ForceDirectedTree({
         // ポップアップを表示
         setPopup({ node: d.data, x: (d.x || 0) + 50, y: d.y || 0 });
       })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on('mouseleave', function () {
         d3.select(this)
           .transition()
