@@ -209,7 +209,7 @@ export default function ForceDirectedTree({
         'link',
         d3
           .forceLink(links)
-          .id((d: ConversationNode) => d.id)
+          .id((d) => (d as ConversationNode).id)
           .distance(100)
           .strength(0.8)
       )
