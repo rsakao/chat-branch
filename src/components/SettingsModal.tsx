@@ -123,6 +123,7 @@ export default function SettingsModal({
             </select>
           </div>
 
+
           <div className="form-group">
             <label className="form-label">
               <input

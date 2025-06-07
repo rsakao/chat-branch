@@ -5,7 +5,7 @@ import { buildEnhancedQuotedPrompt, SYSTEM_PROMPT_WITH_QUOTE } from '@/utils/pro
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationId, quotedMessage, quotedText } = await request.json()
+    const { message, conversationId, quotedMessage, quotedText, model = 'gpt-4o-mini' } = await request.json()
 
     if (!message) {
       return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: model,
       messages: [
         {
           role: 'system',

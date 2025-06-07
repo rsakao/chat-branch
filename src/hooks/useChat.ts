@@ -122,6 +122,18 @@ export function useChat(conversationId: string | null) {
     setCurrentPath(updatedPath)
 
     try {
+      // 保存された設定からモデルを取得
+      let selectedModel = 'o4-mini'
+      try {
+        const savedSettings = localStorage.getItem('chatAppSettings')
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings)
+          selectedModel = settings.aiModel || 'o4-mini'
+        }
+      } catch (error) {
+        console.error('Failed to load model setting:', error)
+      }
+
       // AI応答を生成（引用メッセージの情報を含める）
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -131,7 +143,8 @@ export function useChat(conversationId: string | null) {
           message: content,
           parentMessageId: userMessage.id,
           quotedMessage,
-          quotedText
+          quotedText,
+          model: selectedModel
         })
       })
 

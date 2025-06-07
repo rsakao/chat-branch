@@ -55,4 +55,5 @@ export interface AppSettings {
   fontSize: 'small' | 'medium' | 'large'
   treeViewMode: 'auto' | 'simple' | 'advanced'
   debugMode: boolean
+  aiModel: string
 } 
