@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react'
-import { Send, GitBranch, Eye, EyeOff, Quote, X } from 'lucide-react'
+import { Send, GitBranch, Eye, EyeOff, Quote, X, ChevronDown, ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -80,6 +80,14 @@ interface MessageContentProps {
 }
 
 const MessageContent = memo(({ message }: MessageContentProps) => {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const contentLength = message.content.length
+  const shouldShowToggle = contentLength > 500 // 500文字以上で折りたたみ表示
+
+  const displayContent = shouldShowToggle && !isExpanded 
+    ? message.content.slice(0, 500) + '...'
+    : message.content
+
   return (
     <div className="message-content">
       {message.role === 'assistant' ? (
@@ -88,10 +96,42 @@ const MessageContent = memo(({ message }: MessageContentProps) => {
           rehypePlugins={[rehypeHighlight]}
           components={markdownComponents}
         >
-          {message.content}
+          {displayContent}
         </ReactMarkdown>
       ) : (
-        message.content
+        displayContent
+      )}
+      
+      {shouldShowToggle && (
+        <button
+          className="text-toggle-btn"
+          onClick={() => setIsExpanded(!isExpanded)}
+          style={{ 
+            marginTop: '8px',
+            fontSize: '12px',
+            color: '#666',
+            background: 'none',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp size={12} />
+              折りたたむ
+            </>
+          ) : (
+            <>
+              <ChevronDown size={12} />
+              続きを読む
+            </>
+          )}
+        </button>
       )}
     </div>
   )
@@ -162,7 +202,7 @@ const MessageActions = memo(({
         title="選択範囲について調査"
       >
         <Quote size={14} />
-        調査
+        調べる
       </button>
       <button
         className="branch-btn"
@@ -231,7 +271,13 @@ export default function ChatArea({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim() && !isLoading) {
-      onSendMessage(inputValue.trim(), quotedMessage?.id, quotedMessage || undefined, quotedText || undefined)
+      // 引用がある場合は引用文を含めてメッセージを構築
+      let fullMessage = inputValue.trim()
+      if (quotedMessage && quotedText) {
+        fullMessage = `> ${quotedText}\n\n${inputValue.trim()}`
+      }
+      
+      onSendMessage(fullMessage, quotedMessage?.id, quotedMessage || undefined, quotedText || undefined)
       setInputValue('')
       setQuotedMessage(null)
       setQuotedText('')
@@ -252,8 +298,9 @@ export default function ChatArea({
 
   const handleResearch = (message: Message) => {
     if (selectedText) {
-      const researchPrompt = `次のテキストについて詳しく調査して説明してください：\n\n「${selectedText}」`
-      onSendMessage(researchPrompt, message.id, message, selectedText)
+      // 調査も通常の引用と同様に、引用文のみをメッセージとして送信
+      const fullMessage = `> ${selectedText}`
+      onSendMessage(fullMessage, message.id, message, selectedText)
       setSelectedText('')
     }
   }
