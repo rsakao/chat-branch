@@ -1,7 +1,13 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
-import { Conversation, Message } from '@/types'
-import { truncateText } from '@/utils/helpers'
-import ForceDirectedTree from './ForceDirectedTree'
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
+import { Conversation, Message } from '@/types';
+import { truncateText } from '@/utils/helpers';
+import ForceDirectedTree from './ForceDirectedTree';
 
 interface TreeViewProps {
   conversation?: Conversation;
@@ -233,15 +239,20 @@ export default function TreeView({
             </select>
           </div>
           {debugMode && conversation && (
-            <div className="debug-info" style={{ 
-              fontSize: '11px', 
-              marginTop: '5px', 
-              color: '#666',
-              backgroundColor: '#f0f0f0',
-              padding: '3px 6px',
-              borderRadius: '4px'
-            }}>
-              幅: {componentWidth}px ({componentWidth >= 400 ? 'フォースレイアウト' : 'シンプル'}) | ツリー最大幅: {treeMaxWidth}
+            <div
+              className="debug-info"
+              style={{
+                fontSize: '11px',
+                marginTop: '5px',
+                color: '#666',
+                backgroundColor: '#f0f0f0',
+                padding: '3px 6px',
+                borderRadius: '4px',
+              }}
+            >
+              幅: {componentWidth}px (
+              {componentWidth >= 400 ? 'フォースレイアウト' : 'シンプル'}) |
+              ツリー最大幅: {treeMaxWidth}
             </div>
           )}
         </div>
