@@ -45,3 +45,4 @@ dev.db
 
 # vscode
 *.code-workspace
+.vscode/
