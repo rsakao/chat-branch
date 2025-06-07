@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // OpenAI APIリクエスト時のパラメータ分岐
-    const isNewModel = /^(gpt-4o|o4)/.test(model);
+    // max_completion_tokensが必要なモデルを拡張
+    const isCompletionTokensModel = /^(gpt-4o|o4|o3|o3-mini)/.test(model);
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
@@ -59,8 +59,10 @@ export async function POST(request: NextRequest) {
           content: userPrompt,
         },
       ],
-      ...(isNewModel ? { max_completion_tokens: 1000 } : { max_tokens: 1000 }),
-      ...(isNewModel ? {} : { temperature: 0.7 }),
+      ...(isCompletionTokensModel
+        ? { max_completion_tokens: 1000 }
+        : { max_tokens: 1000 }),
+      ...(isCompletionTokensModel ? {} : { temperature: 0.7 }),
     });
 
     const content =
