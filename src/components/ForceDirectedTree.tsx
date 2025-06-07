@@ -200,8 +200,7 @@ export default function ForceDirectedTree({
           .duration(200)
           .attr('r', () => {
             const node = d.data;
-            const baseSize =
-              node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
+            const baseSize = node.level === 0 ? 25 : node.level === 1 ? 20 : 15;
             const hasChildren = node.children && node.children.length > 0;
             return (hasChildren ? baseSize + 5 : baseSize) + 5;
           })
