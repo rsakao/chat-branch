@@ -564,7 +564,8 @@ body.no-scroll {
 
 .branch-btn,
 .quote-btn,
-.quote-selected-btn {
+.quote-selected-btn,
+.research-btn {
   padding: var(--space-4) var(--space-8);
   font-size: var(--font-size-sm);
   background-color: var(--color-secondary);
@@ -581,7 +582,8 @@ body.no-scroll {
 
 .branch-btn:hover,
 .quote-btn:hover,
-.quote-selected-btn:hover {
+.quote-selected-btn:hover,
+.research-btn:hover {
   background-color: var(--color-secondary-hover);
 }
 
@@ -590,15 +592,27 @@ body.no-scroll {
   color: var(--color-primary);
 }
 
+.research-btn {
+  color: var(--color-warning);
+}
+
 .quote-btn:hover,
 .quote-selected-btn:hover {
   background-color: rgba(33, 128, 141, 0.1);
+}
+
+.research-btn:hover {
+  background-color: rgba(168, 75, 47, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   .quote-btn:hover,
   .quote-selected-btn:hover {
     background-color: rgba(50, 184, 198, 0.2);
+  }
+  
+  .research-btn:hover {
+    background-color: rgba(255, 165, 100, 0.2);
   }
 }
 

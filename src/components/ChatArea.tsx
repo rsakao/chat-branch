@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import { Send, GitBranch, Eye, EyeOff, Quote, X } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -14,6 +14,173 @@ interface ChatAreaProps {
   onToggleTree: () => void
 }
 
+// ReactMarkdownのcomponents定義を外部化（再生成を防ぐ）
+const markdownComponents = {
+  p: ({ children }: any) => <p className="markdown-paragraph">{children}</p>,
+  h1: ({ children }: any) => <h1 className="markdown-h1">{children}</h1>,
+  h2: ({ children }: any) => <h2 className="markdown-h2">{children}</h2>,
+  h3: ({ children }: any) => <h3 className="markdown-h3">{children}</h3>,
+  h4: ({ children }: any) => <h4 className="markdown-h4">{children}</h4>,
+  h5: ({ children }: any) => <h5 className="markdown-h5">{children}</h5>,
+  h6: ({ children }: any) => <h6 className="markdown-h6">{children}</h6>,
+  ul: ({ children }: any) => <ul className="markdown-ul">{children}</ul>,
+  ol: ({ children }: any) => <ol className="markdown-ol">{children}</ol>,
+  li: ({ children }: any) => <li className="markdown-li">{children}</li>,
+  blockquote: ({ children }: any) => <blockquote className="markdown-blockquote">{children}</blockquote>,
+  hr: () => <hr className="markdown-hr" />,
+  code: ({ children, className, ...props }: any) => {
+    if (className?.startsWith('language-')) {
+      return <code className={`markdown-code-block ${className}`} {...props}>{children}</code>
+    }
+    return <code className="markdown-code-inline" {...props}>{children}</code>
+  },
+  pre: ({ children, ...props }: any) => (
+    <pre className="markdown-pre" {...props}>
+      {children}
+    </pre>
+  ),
+  table: ({ children }: any) => <table className="markdown-table">{children}</table>,
+  thead: ({ children }: any) => <thead className="markdown-thead">{children}</thead>,
+  tbody: ({ children }: any) => <tbody className="markdown-tbody">{children}</tbody>,
+  tr: ({ children }: any) => <tr className="markdown-tr">{children}</tr>,
+  th: ({ children }: any) => <th className="markdown-th">{children}</th>,
+  td: ({ children }: any) => <td className="markdown-td">{children}</td>,
+  a: ({ children, href, ...props }: any) => (
+    <a 
+      href={href} 
+      className="markdown-link" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+  strong: ({ children }: any) => <strong className="markdown-strong">{children}</strong>,
+  em: ({ children }: any) => <em className="markdown-em">{children}</em>,
+  input: ({ type, checked, ...props }: any) => {
+    if (type === 'checkbox') {
+      return (
+        <input 
+          type="checkbox" 
+          checked={checked}
+          readOnly
+          className="markdown-checkbox"
+          {...props}
+        />
+      )
+    }
+    return <input type={type} {...props} />
+  },
+}
+
+// メッセージ内容コンポーネント（React.memoで最適化）
+interface MessageContentProps {
+  message: Message
+}
+
+const MessageContent = memo(({ message }: MessageContentProps) => {
+  return (
+    <div className="message-content">
+      {message.role === 'assistant' ? (
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+          components={markdownComponents}
+        >
+          {message.content}
+        </ReactMarkdown>
+      ) : (
+        message.content
+      )}
+    </div>
+  )
+})
+
+MessageContent.displayName = 'MessageContent'
+
+// メッセージアクションボタンコンポーネント（React.memoで最適化）
+interface MessageActionsProps {
+  message: Message
+  selectedText: string
+  onQuoteSelection: (message: Message) => void
+  onResearch: (message: Message) => void
+  onMessageClick: (message: Message) => void
+  onCreateBranch: (messageId: string) => void
+}
+
+const MessageActions = memo(({ 
+  message, 
+  selectedText, 
+  onQuoteSelection, 
+  onResearch, 
+  onMessageClick, 
+  onCreateBranch 
+}: MessageActionsProps) => {
+  if (message.role !== 'assistant') return null
+
+  return (
+    <div className="message-actions">
+      <button
+        className="quote-btn"
+        onClick={(e) => {
+          e.stopPropagation()
+          onMessageClick(message)
+        }}
+        title="このメッセージ全体を引用"
+      >
+        <Quote size={14} />
+        全体を引用
+      </button>
+      <button
+        className="quote-selected-btn"
+        onClick={(e) => {
+          e.stopPropagation()
+          onQuoteSelection(message)
+        }}
+        disabled={!selectedText}
+        style={{ 
+          opacity: selectedText ? 1 : 0.3,
+          pointerEvents: selectedText ? 'auto' : 'none'
+        }}
+        title="選択したテキストを引用"
+      >
+        <Quote size={14} />
+        選択部分を引用
+      </button>
+      <button
+        className="quote-btn"
+        onClick={(e) => {
+          e.stopPropagation()
+          onResearch(message)
+        }}
+        disabled={!selectedText}
+        style={{ 
+          opacity: selectedText ? 1 : 0.3,
+          pointerEvents: selectedText ? 'auto' : 'none'
+        }}
+        title="選択範囲について調査"
+      >
+        <Quote size={14} />
+        調査
+      </button>
+      <button
+        className="branch-btn"
+        onClick={(e) => {
+          e.stopPropagation()
+          onCreateBranch(message.id)
+        }}
+        title="ここから分岐"
+      >
+        <GitBranch size={14} />
+        分岐
+      </button>
+    </div>
+  )
+})
+
+MessageActions.displayName = 'MessageActions'
+
 export default function ChatArea({
   conversation,
   messages,
@@ -26,6 +193,7 @@ export default function ChatArea({
   const [quotedMessage, setQuotedMessage] = useState<Message | null>(null)
   const [quotedText, setQuotedText] = useState<string>('')
   const [selectedText, setSelectedText] = useState<string>('')
+  const [justDeselected, setJustDeselected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,6 +204,29 @@ export default function ChatArea({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // 選択状態の監視（selectionchangeイベントを使用）
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection()
+      if (selection && selection.toString().trim()) {
+        setSelectedText(selection.toString().trim())
+        setJustDeselected(false)
+      } else {
+        const hadSelection = selectedText.length > 0
+        setSelectedText('')
+        
+        // 選択解除が発生した場合、短時間フラグを立てる
+        if (hadSelection) {
+          setJustDeselected(true)
+          setTimeout(() => setJustDeselected(false), 200)
+        }
+      }
+    }
+
+    document.addEventListener('selectionchange', handleSelectionChange)
+    return () => document.removeEventListener('selectionchange', handleSelectionChange)
+  }, [selectedText])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,25 +242,26 @@ export default function ChatArea({
     }
   }
 
-  const handleTextSelection = () => {
-    const selection = window.getSelection()
-    if (selection && selection.toString().trim()) {
-      setSelectedText(selection.toString().trim())
-    } else {
-      setSelectedText('')
-    }
-  }
-
   const handleQuoteSelection = (message: Message) => {
     if (selectedText) {
       setQuotedMessage(message)
       setQuotedText(selectedText)
-      setSelectedText('')
       textareaRef.current?.focus()
     }
   }
 
+  const handleResearch = (message: Message) => {
+    if (selectedText) {
+      const researchPrompt = `次のテキストについて詳しく調査して説明してください：\n\n「${selectedText}」`
+      onSendMessage(researchPrompt, message.id, message, selectedText)
+      setSelectedText('')
+    }
+  }
+
   const handleMessageClick = (message: Message) => {
+    // 選択解除直後のクリックは無視
+    if (justDeselected) return
+    
     if (message.role === 'assistant' && !selectedText) {
       setQuotedMessage(message)
       setQuotedText(message.content)
@@ -80,7 +272,6 @@ export default function ChatArea({
   const handleClearQuote = () => {
     setQuotedMessage(null)
     setQuotedText('')
-    setSelectedText('')
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -140,133 +331,24 @@ export default function ChatArea({
             {messages.map((message) => (
               <div 
                 key={message.id} 
-                className={`message ${message.role} ${message.role === 'assistant' ? 'clickable' : ''}`}
-                onClick={() => handleMessageClick(message)}
+                className={`message ${message.role}`}
               >
                 <div className="message-header">
                   <span className="message-role">
                     {message.role === 'user' ? 'あなた' : 'AI'}
                   </span>
-                  {message.role === 'assistant' && (
-                    <div className="message-actions">
-                      {selectedText && (
-                        <button
-                          className="quote-selected-btn"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleQuoteSelection(message)
-                          }}
-                          title="選択したテキストを引用"
-                        >
-                          <Quote size={14} />
-                          選択部分を引用
-                        </button>
-                      )}
-                      <button
-                        className="quote-btn"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleMessageClick(message)
-                        }}
-                        title="このメッセージ全体を引用"
-                      >
-                        <Quote size={14} />
-                        全体を引用
-                      </button>
-                      <button
-                        className="branch-btn"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onCreateBranch(message.id)
-                        }}
-                        title="ここから分岐"
-                      >
-                        <GitBranch size={14} />
-                        分岐
-                      </button>
-                    </div>
-                  )}
+                  <MessageActions
+                    message={message}
+                    selectedText={selectedText}
+                    onQuoteSelection={handleQuoteSelection}
+                    onResearch={handleResearch}
+                    onMessageClick={handleMessageClick}
+                    onCreateBranch={onCreateBranch}
+                  />
                 </div>
-                <div 
-                  className="message-content"
-                  onMouseUp={handleTextSelection}
-                  onKeyUp={handleTextSelection}
-                >
-                  {message.role === 'assistant' ? (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeHighlight]}
-                      components={{
-                        // カスタムコンポーネントの設定
-                        p: ({ children }) => <p className="markdown-paragraph">{children}</p>,
-                        h1: ({ children }) => <h1 className="markdown-h1">{children}</h1>,
-                        h2: ({ children }) => <h2 className="markdown-h2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="markdown-h3">{children}</h3>,
-                        h4: ({ children }) => <h4 className="markdown-h4">{children}</h4>,
-                        h5: ({ children }) => <h5 className="markdown-h5">{children}</h5>,
-                        h6: ({ children }) => <h6 className="markdown-h6">{children}</h6>,
-                        ul: ({ children }) => <ul className="markdown-ul">{children}</ul>,
-                        ol: ({ children }) => <ol className="markdown-ol">{children}</ol>,
-                        li: ({ children }) => <li className="markdown-li">{children}</li>,
-                        blockquote: ({ children }) => <blockquote className="markdown-blockquote">{children}</blockquote>,
-                        hr: () => <hr className="markdown-hr" />,
-                        code: ({ children, className, ...props }) => {
-                          // インラインコードとコードブロックを区別
-                          const match = /language-(\w+)/.exec(className || '')
-                          const language = match ? match[1] : ''
-                          
-                          if (className?.startsWith('language-')) {
-                            return <code className={`markdown-code-block ${className}`} {...props}>{children}</code>
-                          }
-                          return <code className="markdown-code-inline" {...props}>{children}</code>
-                        },
-                        pre: ({ children, ...props }) => (
-                          <pre className="markdown-pre" {...props}>
-                            {children}
-                          </pre>
-                        ),
-                        table: ({ children }) => <table className="markdown-table">{children}</table>,
-                        thead: ({ children }) => <thead className="markdown-thead">{children}</thead>,
-                        tbody: ({ children }) => <tbody className="markdown-tbody">{children}</tbody>,
-                        tr: ({ children }) => <tr className="markdown-tr">{children}</tr>,
-                        th: ({ children }) => <th className="markdown-th">{children}</th>,
-                        td: ({ children }) => <td className="markdown-td">{children}</td>,
-                        a: ({ children, href, ...props }) => (
-                          <a 
-                            href={href} 
-                            className="markdown-link" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            {...props}
-                          >
-                            {children}
-                          </a>
-                        ),
-                        strong: ({ children }) => <strong className="markdown-strong">{children}</strong>,
-                        em: ({ children }) => <em className="markdown-em">{children}</em>,
-                        input: ({ type, checked, ...props }) => {
-                          // チェックボックス用
-                          if (type === 'checkbox') {
-                            return (
-                              <input 
-                                type="checkbox" 
-                                checked={checked}
-                                readOnly
-                                className="markdown-checkbox"
-                                {...props}
-                              />
-                            )
-                          }
-                          return <input type={type} {...props} />
-                        },
-                      }}
-                    >
-                      {message.content}
-                    </ReactMarkdown>
-                  ) : (
-                    message.content
-                  )}
-                </div>
+                <MessageContent
+                  message={message}
+                />
               </div>
             ))}
             {isLoading && (
@@ -314,7 +396,7 @@ export default function ChatArea({
             placeholder={quotedMessage ? "引用メッセージに対する返信を入力してください..." : "メッセージを入力してください..."}
             value={inputValue}
             onChange={handleTextareaChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             disabled={isLoading}
             rows={1}
             style={{ resize: 'none', minHeight: '60px' }}
