@@ -10,7 +10,10 @@ export default function LanguageSelector() {
 
   return (
     <div className="language-selector">
-      <label htmlFor="language-select" className="block text-sm font-medium mb-2">
+      <label
+        htmlFor="language-select"
+        className="block text-sm font-medium mb-2"
+      >
         {t('language')}
       </label>
       <select

@@ -6,7 +6,8 @@ import LocaleProvider from '../components/LocaleProvider';
 
 export const metadata: Metadata = {
   title: 'Chat Branch',
-  description: 'Chat application with conversation branching feature using OpenAI API',
+  description:
+    'Chat application with conversation branching feature using OpenAI API',
 };
 
 export default function RootLayout({
@@ -24,9 +25,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <LocaleProvider>
-          {children}
-        </LocaleProvider>
+        <LocaleProvider>{children}</LocaleProvider>
         <Toaster
           position="top-right"
           toastOptions={{

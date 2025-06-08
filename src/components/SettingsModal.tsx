@@ -160,7 +160,9 @@ export default function SettingsModal({
               className="form-control"
             >
               <option value="enter">{t('sendBehaviorOptions.enter')}</option>
-              <option value="shift-enter">{t('sendBehaviorOptions.shiftEnter')}</option>
+              <option value="shift-enter">
+                {t('sendBehaviorOptions.shiftEnter')}
+              </option>
             </select>
           </div>
 
