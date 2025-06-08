@@ -1,29 +1,27 @@
 # Chat Branch
 
-テストメッセージ
-
 ---
 
 ![Conversation Tree Example](docs/screenshots/chat-tree-example.png)
 
-_例: 複数の枝を持つ会話ツリーのビュー。異なるトピックを並行して探索し、ツリーとして視覚化できます。_
+_例: 複数の枝を持つ会話ツリーのビュー。異なるトピックを並行して探索し、比較できるようにツリーとして視覚化されています。_
 
 ---
 
 [English](README.md) | [日本語](README.ja.md)
 
-OpenAI APIを使用した会話分岐機能を持つチャットアプリケーションです。ChatGPTのようですが、会話を分岐させて複数のトピックを並行して探索できます。
+OpenAI APIを使用した会話分岐機能を持つチャットアプリケーション。ChatGPTのようなものですが、会話を分岐させて複数のトピックを並行して探索できます。
 
-## 主な機能
+## Key Features
 
-- **会話分岐**: 任意のメッセージから新しい会話フローを作成
-- **ツリー視覚化**: 会話構造を視覚化（シンプルビューとアドバンスビュー）
+- **会話の分岐**: 任意のメッセージから新しい会話フローを作成
+- **ツリーの視覚化**: 会話の構造を視覚化（シンプルビューとアドバンスドビュー）
 - **会話管理**: 複数の会話を管理し、切り替え
 - **リアルタイムAI応答**: OpenAI APIを使用したリアルタイムの応答
 - **レスポンシブデザイン**: デスクトップおよびモバイルデバイスで動作
 - **多言語サポート**: 日本語と英語のUI
 
-## 技術スタック
+## Tech Stack
 
 - **フロントエンド**: Next.js 15, React 19, TypeScript
 - **スタイリング**: Tailwind CSS + カスタムCSS
@@ -31,7 +29,7 @@ OpenAI APIを使用した会話分岐機能を持つチャットアプリケー�
 - **ORM**: Prisma
 - **AI**: OpenAI API (GPT-4o-mini)
 - **UIコンポーネント**: Lucide React, React Hot Toast
-- **ツリー視覚化**: React Flow
+- **ツリーの視覚化**: React Flow
 - **国際化**: next-intl
 
 ## 🗄️ データベース設定
@@ -55,7 +53,7 @@ DATABASE_URL="postgresql://username:password@host:port/database"
 - SQLite: `DATABASE_URL="file:./dev.db"`
 - PostgreSQL: `DATABASE_URL="postgresql://..."`
 
-スキーマファイルは自動的に選択され、手動での切り替えは必要ありません。
+スキーマファイルは自動的に選択され、手動での切り替えは不要です。
 
 ## セットアップ
 
@@ -83,9 +81,9 @@ DATABASE_URL="file:./dev.db"
 
 > **注意**: `.env`ファイルには機密情報が含まれているため、`.gitignore`に含めることを確認してください。
 
-#### プロダクション環境（Vercel + PostgreSQL）
+#### プロダクション環境
 
-Vercelの環境変数に以下を追加します：
+デプロイ環境で以下の環境変数を設定します：
 
 ```env
 # OpenAI APIキー（必須）
@@ -95,7 +93,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 DATABASE_URL=postgresql://username:password@hostname:port/database
 ```
 
-### 3. データベース初期化
+### 3. データベースの初期化
 
 #### ローカル開発（SQLite）
 
@@ -124,59 +122,34 @@ npm run dev
 
 ## デプロイ
 
-### Vercelへのデプロイ
+### 自分のサーバーまたはクラウドにデプロイ
 
-1. **Vercelプロジェクトの作成**
-
+1. **サーバーまたはクラウド環境を準備**
+2. **上記の説明に従って環境変数を設定**
+3. **依存関係をインストールし、アプリをビルド**
    ```bash
-   npm i -g vercel
-   vercel
+   npm install
+   npm run build
+   npm start
    ```
+4. **データベースを設定（プロダクションにはPostgreSQLを推奨）**
+5. **必要に応じてリバースプロキシ（例：Nginx）を設定**
 
-2. **PostgreSQLデータベースの準備**
-
-   - Vercel Postgres、Supabase、PlanetScaleなどのサービスを使用
-   - データベース接続URLを取得
-
-3. **環境変数の設定**
-
-   - Vercelダッシュボードで以下の環境変数を設定：
-     - `OPENAI_API_KEY`: OpenAI APIキー
-     - `DATABASE_URL`: PostgreSQL接続URL
-
-4. **ビルドコマンドの設定**
-
-   - 自動マイグレーション実行のために、package.jsonに以下を追加することを推奨します：
-
-   ```json
-   {
-     "scripts": {
-       "build": "prisma generate && prisma migrate deploy && next build",
-       "vercel-build": "prisma generate && prisma migrate deploy && next build"
-     }
-   }
-   ```
-
-5. **デプロイ**
-   ```bash
-   vercel --prod
-   ```
-
-### 環境ごとの設定切り替え
+### 環境固有の設定切り替え
 
 アプリケーションは`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
 
 - SQLite: `DATABASE_URL="file:./dev.db"`（ローカル開発）
 - PostgreSQL: `DATABASE_URL="postgresql://..."`（プロダクション）
 
-## 使い方
+## 使用法
 
-### 基本的な使い方
+### 基本的な使用法
 
-1. **新しい会話を作成**: 左のサイドバーの「新しい会話」ボタンをクリック
+1. **新しい会話を作成**: 左のサイドバーで「新しい会話」ボタンをクリック
 2. **メッセージを送信**: 下部のテキストエリアにメッセージを入力して送信
 3. **会話を分岐**: 任意のメッセージの「分岐」ボタンをクリックして新しいトピックを開始
-4. **ツリービュー**: 右のサイドバーで会話構造を確認し、ナビゲート
+4. **ツリービュー**: 右のサイドバーで会話の構造を確認し、ナビゲート
 
 ## プロジェクト構造
 
@@ -184,15 +157,15 @@ npm run dev
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API Routes
-│   │   ├── chat/          # チャットAPI
-│   │   └── conversations/ # 会話管理API
+│   │   ├── chat/          # Chat API
+│   │   └── conversations/ # Conversation Management API
 │   ├── globals.css        # グローバルスタイル
 │   ├── layout.tsx         # ルートレイアウト
 │   └── page.tsx           # メインページ
 ├── components/            # Reactコンポーネント
 │   ├── ChatArea.tsx       # チャットエリア
 │   ├── ConversationSidebar.tsx # 会話サイドバー
-│   ├── ReactFlowTree.tsx  # React Flowツリー
+│   ├── ReactFlowTree.tsx  # React Flow Tree
 │   ├── SettingsModal.tsx  # 設定モーダル
 │   ├── TreeView.tsx       # ツリービュー
 │   ├── LocaleProvider.tsx # 国際化プロバイダー
@@ -245,7 +218,7 @@ npx prisma migrate deploy
 
 ### 翻訳の追加
 
-1. `src/i18n/messages/en.json`および`src/i18n/messages/ja.json`に翻訳キーを追加
+1. `src/i18n/messages/en.json`と`src/i18n/messages/ja.json`に翻訳キーを追加
 2. コンポーネントで`useTranslations`フックを使用
 3. 言語切り替え機能をテスト
 
@@ -254,13 +227,13 @@ npx prisma migrate deploy
 ### データベースの問題
 
 - **SQLiteがローカルで動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されているか確認
-- **PostgreSQLがVercelで動作しない**: 正しいPostgreSQL URLが設定されているか確認
-- **マイグレーションエラー**: プロダクションでは常に`prisma migrate deploy`を使用し、`prisma db push`は使用しない
+- **PostgreSQLがプロダクションで動作しない**: 正しいPostgreSQL URLが設定されているか確認
+- **マイグレーションエラー**: プロダクションでは常に`prisma migrate deploy`を使用し、`prisma db push`は使用しないでください
 
 ### 環境変数
 
 - ローカル: `.env`ファイル
-- Vercel: ダッシュボードの環境変数
+- プロダクション: サーバーまたはクラウドダッシュボードの環境変数
 - プロダクションには`OPENAI_API_KEY`と`DATABASE_URL`が必要
 
 ### 国際化の問題

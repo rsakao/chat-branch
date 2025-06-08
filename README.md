@@ -81,9 +81,9 @@ DATABASE_URL="file:./dev.db"
 
 > **Note**: Make sure the `.env` file is included in `.gitignore` as it contains sensitive information.
 
-#### Production Environment (Vercel + PostgreSQL)
+#### Production Environment
 
-Add the following in Vercel environment variables:
+Set the following environment variables in your deployment environment:
 
 ```env
 # OpenAI API Key (Required)
@@ -122,43 +122,18 @@ The application will start at `http://localhost:3000`.
 
 ## Deployment
 
-### Deploy to Vercel
+### Deploy to Your Own Server or Cloud
 
-1. **Create Vercel Project**
-
+1. **Prepare your server or cloud environment**
+2. **Set up environment variables as described above**
+3. **Install dependencies and build the app**
    ```bash
-   npm i -g vercel
-   vercel
+   npm install
+   npm run build
+   npm start
    ```
-
-2. **Prepare PostgreSQL Database**
-
-   - Use services like Vercel Postgres, Supabase, PlanetScale, etc.
-   - Obtain database connection URL
-
-3. **Set Environment Variables**
-
-   - Set the following environment variables in Vercel dashboard:
-     - `OPENAI_API_KEY`: OpenAI API key
-     - `DATABASE_URL`: PostgreSQL connection URL
-
-4. **Configure Build Commands**
-
-   - Recommended to add the following to package.json for automatic migration execution:
-
-   ```json
-   {
-     "scripts": {
-       "build": "prisma generate && prisma migrate deploy && next build",
-       "vercel-build": "prisma generate && prisma migrate deploy && next build"
-     }
-   }
-   ```
-
-5. **Deploy**
-   ```bash
-   vercel --prod
-   ```
+4. **Set up your database (PostgreSQL recommended for production)**
+5. **Configure reverse proxy (e.g., Nginx) if needed**
 
 ### Environment-specific Configuration Switching
 
@@ -252,13 +227,13 @@ npx prisma migrate deploy
 ### Database Issues
 
 - **SQLite not working locally**: Verify `DATABASE_URL="file:./dev.db"` is correctly set
-- **PostgreSQL not working on Vercel**: Verify correct PostgreSQL URL is set
+- **PostgreSQL not working in production**: Verify correct PostgreSQL URL is set
 - **Migration errors**: Always use `prisma migrate deploy` in production, never use `prisma db push`
 
 ### Environment Variables
 
 - Local: `.env` file
-- Vercel: Environment variables in dashboard
+- Production: Environment variables in your server or cloud dashboard
 - Production requires `OPENAI_API_KEY` and `DATABASE_URL`
 
 ### Internationalization Issues

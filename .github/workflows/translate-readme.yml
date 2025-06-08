@@ -43,8 +43,8 @@ jobs:
       - name: Commit README.ja.md changes
         if: steps.changes.outputs.changed == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add README.ja.md
           git commit -m "chore: update Japanese README translation [skip ci]"
           git push
