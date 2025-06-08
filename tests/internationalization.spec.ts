@@ -66,12 +66,14 @@ test.describe('Internationalization Features', () => {
     // 設定を開く
     await page.getByRole('button', { name: '設定' }).click();
     
-    // 英語に切り替え
+    // 英語に切り替え（ページが自動リロードされる）
     const languageSelector = page.locator('#language-select');
-    await languageSelector.selectOption('en');
     
-    // ページがリロードされるのを待つ
-    await page.waitForLoadState('domcontentloaded');
+    // リロードを待機
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded'),
+      languageSelector.selectOption('en')
+    ]);
     
     // 英語表示に切り替わっているかチェック
     const settingsButton = page.getByRole('button', { name: 'Settings' });
@@ -87,11 +89,15 @@ test.describe('Internationalization Features', () => {
     
     // 言語を英語に切り替え
     await page.getByRole('button', { name: '設定' }).click();
-    await page.locator('#language-select').selectOption('en');
-    await page.waitForLoadState('domcontentloaded');
     
-    // ページを再読み込み
-    await page.reload();
+    // 言語変更とリロードを同時に待機
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded'),
+      page.locator('#language-select').selectOption('en')
+    ]);
+    
+    // 新しいページで手動でページを訪問（リロードではなく）
+    await page.goto('/');
     
     // 英語設定が保持されているかチェック
     const settingsButton = page.getByRole('button', { name: 'Settings' });
@@ -107,8 +113,10 @@ test.describe('Internationalization Features', () => {
     
     // 英語に切り替え
     await page.getByRole('button', { name: '設定' }).click();
-    await page.locator('#language-select').selectOption('en');
-    await page.waitForLoadState('domcontentloaded');
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded'),
+      page.locator('#language-select').selectOption('en')
+    ]);
     
     // 設定を再度開く
     await page.getByRole('button', { name: 'Settings' }).click();
@@ -127,13 +135,17 @@ test.describe('Internationalization Features', () => {
     
     // まず英語に切り替え
     await page.getByRole('button', { name: '設定' }).click();
-    await page.locator('#language-select').selectOption('en');
-    await page.waitForLoadState('domcontentloaded');
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded'),
+      page.locator('#language-select').selectOption('en')
+    ]);
     
     // 日本語に戻す
     await page.getByRole('button', { name: 'Settings' }).click();
-    await page.locator('#language-select').selectOption('ja');
-    await page.waitForLoadState('domcontentloaded');
+    await Promise.all([
+      page.waitForLoadState('domcontentloaded'),
+      page.locator('#language-select').selectOption('ja')
+    ]);
     
     // 日本語表示に戻っているかチェック
     const settingsButton = page.getByRole('button', { name: '設定' });

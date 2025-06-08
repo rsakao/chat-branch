@@ -18,11 +18,23 @@ test.describe('Chat Branch App', () => {
     const settingsButton = page.getByRole('button', { name: /設定|Settings/ });
     await expect(settingsButton).toBeVisible();
     
-    // サイドバートグルボタンが存在するかチェック（モバイル用）
+    // モバイルナビゲーションボタンが存在するかチェック（DOMに存在することを確認）
+    const sidebarToggle = page.locator('.mobile-nav-btn').first();
+    await expect(sidebarToggle).toBeAttached();
+    
+    const treeToggle = page.locator('.mobile-nav-btn').last();
+    await expect(treeToggle).toBeAttached();
+  });
+
+  test('should have mobile navigation visible on small screens', async ({ page }) => {
+    // モバイルビューポートに設定
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/');
+    
+    // モバイルビューでナビゲーションボタンが表示されるかチェック
     const sidebarToggle = page.locator('.mobile-nav-btn').first();
     await expect(sidebarToggle).toBeVisible();
     
-    // ツリートグルボタンが存在するかチェック（モバイル用）
     const treeToggle = page.locator('.mobile-nav-btn').last();
     await expect(treeToggle).toBeVisible();
   });
@@ -73,5 +85,24 @@ test.describe('Chat Branch App', () => {
     // チャットエリアが存在するかチェック
     const chatArea = page.locator('[role="main"], .main-content');
     await expect(chatArea).toBeVisible();
+  });
+
+  test('should be able to open settings modal', async ({ page }) => {
+    await page.goto('/');
+    
+    // 設定ボタンをクリック
+    const settingsButton = page.getByRole('button', { name: /設定|Settings/ });
+    await settingsButton.click();
+    
+    // 設定モーダルが開くかチェック
+    const modal = page.locator('.modal');
+    await expect(modal).toBeVisible();
+    
+    // モーダルを閉じる
+    const closeButton = page.locator('.modal-close');
+    await closeButton.click();
+    
+    // モーダルが閉じられることをチェック
+    await expect(modal).not.toBeVisible();
   });
 });
