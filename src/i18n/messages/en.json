@@ -41,7 +41,10 @@
     "messageInputShiftEnter": "Type a message (Shift+Enter to send, Enter for new line)...",
     "removeQuote": "Remove quote",
     "collapse": "Collapse",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "quoteAll": "Quote All",
+    "quoteSelected": "Quote Selection",
+    "research": "Research"
   },
   "tree": {
     "title": "Conversation Tree",

@@ -220,6 +220,7 @@ const MessageActions = memo(
     onMessageClick,
     onCreateBranch,
   }: MessageActionsProps) => {
+    const t = useTranslations('chat');
     if (message.role !== 'assistant') return null;
 
     return (
@@ -230,10 +231,10 @@ const MessageActions = memo(
             e.stopPropagation();
             onMessageClick(message);
           }}
-          title="このメッセージ全体を引用"
+          title={t('quoteAll')}
         >
           <Quote size={14} />
-          全体を引用
+          {t('quoteAll')}
         </button>
         <button
           className="quote-selected-btn"
@@ -246,10 +247,10 @@ const MessageActions = memo(
             opacity: selectedText ? 1 : 0.3,
             pointerEvents: selectedText ? 'auto' : 'none',
           }}
-          title="選択したテキストを引用"
+          title={t('quoteSelected')}
         >
           <Quote size={14} />
-          選択部分を引用
+          {t('quoteSelected')}
         </button>
         <button
           className="quote-btn"
@@ -262,10 +263,10 @@ const MessageActions = memo(
             opacity: selectedText ? 1 : 0.3,
             pointerEvents: selectedText ? 'auto' : 'none',
           }}
-          title="選択範囲について調査"
+          title={t('research')}
         >
           <Quote size={14} />
-          調べる
+          {t('research')}
         </button>
         <button
           className="branch-btn"
@@ -273,10 +274,10 @@ const MessageActions = memo(
             e.stopPropagation();
             onCreateBranch(message.id);
           }}
-          title="ここから分岐"
+          title={t('branch')}
         >
           <GitBranch size={14} />
-          分岐
+          {t('branch')}
         </button>
       </div>
     );
