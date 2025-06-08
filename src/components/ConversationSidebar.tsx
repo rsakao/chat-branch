@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Conversation } from '@/types';
 import { formatDate, truncateText } from '@/utils/helpers';
 import { useState } from 'react';
@@ -21,6 +22,7 @@ export default function ConversationSidebar({
   onDeleteConversation,
   className = '',
 }: ConversationSidebarProps) {
+  const t = useTranslations('sidebar');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] =
     useState<Conversation | null>(null);
@@ -51,21 +53,21 @@ export default function ConversationSidebar({
   return (
     <aside className={className || 'sidebar'}>
       <div className="sidebar-header">
-        <h3>会話履歴</h3>
+        <h3>{t('conversationHistory')}</h3>
         <button
           className="btn btn--sm btn--outline"
           onClick={onNewConversation}
         >
           <Plus size={16} />
-          新規会話
+          {t('newConversation')}
         </button>
       </div>
 
       <div className="conversation-list">
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <p>会話がありません</p>
-            <p className="text-sm">新規会話を作成してください</p>
+            <p>{t('noConversations')}</p>
+            <p className="text-sm">{t('createNewConversation')}</p>
           </div>
         ) : (
           conversations.map((conversation) => (
@@ -89,7 +91,7 @@ export default function ConversationSidebar({
               <button
                 className="delete-button"
                 onClick={(e) => handleDeleteClick(e, conversation)}
-                title="会話を削除"
+                title={t('deleteConversation')}
               >
                 <Trash2 size={14} />
               </button>

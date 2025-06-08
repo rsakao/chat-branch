@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Chat Branch",
+    "description": "Chat application with conversation branching feature using OpenAI API"
+  },
+  "header": {
+    "conversationHistory": "Open conversation history",
+    "conversationTree": "Open conversation tree",
+    "settings": "Settings"
+  },
+  "status": {
+    "generating": "Generating response...",
+    "ready": "Ready"
+  },
+  "sidebar": {
+    "conversationHistory": "Conversation History",
+    "newConversation": "New Conversation",
+    "noConversations": "No conversations",
+    "createNewConversation": "Please create a new conversation",
+    "deleteConversation": "Delete conversation"
+  },
+  "chat": {
+    "branch": "Branch",
+    "quote": "Quote",
+    "copy": "Copy",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "newBranch": "New Branch",
+    "quotedMessage": "Quoted Message"
+  },
+  "tree": {
+    "title": "Conversation Tree",
+    "mode": {
+      "auto": "Auto Select",
+      "simple": "Simple View",
+      "advanced": "Advanced View"
+    },
+    "empty": "No messages"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "fontSize": "Font Size",
+    "treeMode": "Tree Display Mode",
+    "sendBehavior": "Send Method",
+    "debugMode": "Debug Mode",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto"
+    },
+    "fontSizeOptions": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "treeModeOptions": {
+      "auto": "Auto Select",
+      "simple": "Always Simple",
+      "advanced": "Always Advanced"
+    },
+    "sendBehaviorOptions": {
+      "enter": "Send with Enter (Shift+Enter for new line)",
+      "shiftEnter": "Send with Shift+Enter (Enter for new line)"
+    }
+  },
+  "messages": {
+    "branchCreated": "New branch created successfully",
+    "branchCreateError": "Failed to create branch",
+    "messageSendError": "Failed to send message",
+    "conversationCreated": "New conversation created successfully",
+    "conversationCreateError": "Failed to create conversation",
+    "conversationDeleted": "Conversation deleted successfully",
+    "conversationDeleteError": "Failed to delete conversation",
+    "messageCopied": "Message copied to clipboard"
+  },
+  "delete": {
+    "confirmTitle": "Delete Conversation",
+    "confirmMessage": "Are you sure you want to delete this conversation?",
+    "conversationTitle": "Conversation: {title}",
+    "thisActionCannotBeUndone": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  }
+}

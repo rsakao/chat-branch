@@ -46,3 +46,6 @@ dev.db
 # vscode
 *.code-workspace
 .vscode/
+
+# README synchronization cache
+.readme-cache.json

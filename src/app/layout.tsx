@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 import 'highlight.js/styles/atom-one-dark.css';
 import { Toaster } from 'react-hot-toast';
+import LocaleProvider from '../components/LocaleProvider';
 
 export const metadata: Metadata = {
-  title: 'AI分岐チャット',
-  description: 'OpenAI APIを使用した会話分岐機能付きチャットアプリケーション',
+  title: 'Chat Branch',
+  description: 'Chat application with conversation branching feature using OpenAI API',
 };
 
 export default function RootLayout({
@@ -23,7 +24,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
+        <LocaleProvider>
+          {children}
+        </LocaleProvider>
         <Toaster
           position="top-right"
           toastOptions={{

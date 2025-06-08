@@ -1,138 +1,142 @@
-# AI分岐チャット
+# Chat Branch
 
-OpenAI APIを使用した会話分岐機能付きチャットアプリケーションです。ChatGPTのようなUIで、会話を途中で分岐させて複数の話題を並行して進めることができます。
+[English](README.md) | [日本語](README.ja.md)
 
-## 主な機能
+A chat application with conversation branching features using OpenAI API. Like ChatGPT, but you can branch conversations to explore multiple topics in parallel.
 
-- **会話分岐**: 任意のメッセージから新しい会話の流れを作成
-- **ツリー表示**: 会話の構造を視覚的に表示（シンプル表示・高度表示）
-- **会話管理**: 複数の会話を管理し、切り替え可能
-- **リアルタイムAI応答**: OpenAI APIを使用したリアルタイム応答
-- **レスポンシブデザイン**: デスクトップ・モバイル対応
+## Key Features
 
-## 技術スタック
+- **Conversation Branching**: Create new conversation flows from any message
+- **Tree Visualization**: Visualize conversation structure (Simple & Advanced view)
+- **Conversation Management**: Manage and switch between multiple conversations
+- **Real-time AI Response**: Real-time responses using OpenAI API
+- **Responsive Design**: Works on desktop and mobile devices
+- **Multi-language Support**: Japanese and English UI
 
-- **フロントエンド**: Next.js 15, React 19, TypeScript
-- **スタイリング**: Tailwind CSS + カスタムCSS
-- **データベース**: SQLite (ローカル) / PostgreSQL (本番)
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS + Custom CSS
+- **Database**: SQLite (Local) / PostgreSQL (Production)
 - **ORM**: Prisma
 - **AI**: OpenAI API (GPT-4o-mini)
-- **UI コンポーネント**: Lucide React, React Hot Toast
-- **ツリー表示**: React Flow
+- **UI Components**: Lucide React, React Hot Toast
+- **Tree Visualization**: React Flow
+- **Internationalization**: next-intl
 
-## 🗄️ データベース設定
+## 🗄️ Database Configuration
 
-### ローカル開発（SQLite）
+### Local Development (SQLite)
 
 ```bash
 DATABASE_URL="file:./dev.db"
 ```
 
-### 本番環境（PostgreSQL）
+### Production Environment (PostgreSQL)
 
 ```bash
 DATABASE_URL="postgresql://username:password@host:port/database"
 ```
 
-## 🔄 自動スキーマ切り替え
+## 🔄 Automatic Schema Switching
 
-アプリケーションは`DATABASE_URL`に基づいて自動的にデータベースプロバイダーを切り替えます：
+The application automatically switches database providers based on `DATABASE_URL`:
 
 - SQLite: `DATABASE_URL="file:./dev.db"`
 - PostgreSQL: `DATABASE_URL="postgresql://..."`
 
-スキーマファイルは自動で選択されるため、手動切り替えは不要です。
+Schema files are automatically selected, no manual switching required.
 
-## セットアップ
+## Setup
 
-### 1. 依存関係のインストール
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. 環境変数の設定
+### 2. Environment Variables
 
-#### ローカル開発環境
+#### Local Development
 
-`.env` ファイルを作成し、以下の環境変数を設定してください：
+Create a `.env` file and set the following environment variables:
 
-> **重要**: Prismaは標準で`.env`ファイルを読み込みます。`.env.local`を使用するとPrismaがデータベース接続情報を読み込めません。
+> **Important**: Prisma reads `.env` files by default. Using `.env.local` will prevent Prisma from reading database connection information.
 
 ```env
-# OpenAI API Key (必須)
+# OpenAI API Key (Required)
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Database Configuration (ローカル開発用 - SQLite)
+# Database Configuration (Local Development - SQLite)
 DATABASE_URL="file:./dev.db"
 ```
 
-> **注意**: `.env`ファイルにはセンシティブな情報が含まれるため、必ず`.gitignore`に含まれていることを確認してください。
+> **Note**: Make sure the `.env` file is included in `.gitignore` as it contains sensitive information.
 
-#### 本番環境 (Vercel + PostgreSQL)
+#### Production Environment (Vercel + PostgreSQL)
 
-Vercelの環境変数設定で以下を追加：
+Add the following in Vercel environment variables:
 
 ```env
-# OpenAI API Key (必須)
+# OpenAI API Key (Required)
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Database Configuration (本番用 - PostgreSQL)
+# Database Configuration (Production - PostgreSQL)
 DATABASE_URL=postgresql://username:password@hostname:port/database
 ```
 
-### 3. データベースの初期化
+### 3. Database Initialization
 
-#### ローカル開発 (SQLite)
+#### Local Development (SQLite)
 
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-#### 本番環境 (PostgreSQL)
+#### Production Environment (PostgreSQL)
 
 ```bash
-# マイグレーション作成
+# Create migration
 npx prisma migrate dev --name init
 
-# 本番環境でのマイグレーション実行
+# Deploy migration to production
 npx prisma migrate deploy
 ```
 
-### 4. アプリケーションの起動
+### 4. Start Application
 
 ```bash
 npm run dev
 ```
 
-アプリケーションは `http://localhost:3000` で起動します。
+The application will start at `http://localhost:3000`.
 
-## デプロイ
+## Deployment
 
-### Vercelへのデプロイ
+### Deploy to Vercel
 
-1. **Vercelプロジェクトの作成**
+1. **Create Vercel Project**
 
    ```bash
    npm i -g vercel
    vercel
    ```
 
-2. **PostgreSQLデータベースの準備**
+2. **Prepare PostgreSQL Database**
 
-   - Vercel Postgres、Supabase、PlanetScale等のサービスを利用
-   - データベース接続URLを取得
+   - Use services like Vercel Postgres, Supabase, PlanetScale, etc.
+   - Obtain database connection URL
 
-3. **環境変数の設定**
+3. **Set Environment Variables**
 
-   - Vercelダッシュボードで以下の環境変数を設定：
-     - `OPENAI_API_KEY`: OpenAI APIキー
-     - `DATABASE_URL`: PostgreSQL接続URL
+   - Set the following environment variables in Vercel dashboard:
+     - `OPENAI_API_KEY`: OpenAI API key
+     - `DATABASE_URL`: PostgreSQL connection URL
 
-4. **ビルドコマンドの設定**
+4. **Configure Build Commands**
 
-   - Vercelでは自動的にマイグレーションが実行されるよう、以下をpackage.jsonに追加することを推奨：
+   - Recommended to add the following to package.json for automatic migration execution:
 
    ```json
    {
@@ -143,112 +147,138 @@ npm run dev
    }
    ```
 
-5. **デプロイ実行**
+5. **Deploy**
    ```bash
    vercel --prod
    ```
 
-### 環境別設定の切り替え
+### Environment-specific Configuration Switching
 
-アプリケーションは`DATABASE_URL`に基づいて自動的にデータベースプロバイダーを切り替えます：
+The application automatically switches database providers based on `DATABASE_URL`:
 
-- SQLite: `DATABASE_URL="file:./dev.db"`（ローカル開発用）
-- PostgreSQL: `DATABASE_URL="postgresql://..."`（本番環境用）
+- SQLite: `DATABASE_URL="file:./dev.db"` (Local development)
+- PostgreSQL: `DATABASE_URL="postgresql://..."` (Production)
 
-## 使用方法
+## Usage
 
-### 基本的な使い方
+### Basic Usage
 
-1. **新しい会話を作成**: 左サイドバーの「新規会話」ボタンをクリック
-2. **メッセージを送信**: 下部のテキストエリアにメッセージを入力して送信
-3. **会話を分岐**: 任意のメッセージの「分岐」ボタンをクリックして新しい話題を開始
-4. **ツリー表示**: 右サイドバーで会話の構造を確認・ナビゲート
+1. **Create New Conversation**: Click "New Conversation" button in the left sidebar
+2. **Send Message**: Enter message in the text area at the bottom and send
+3. **Branch Conversation**: Click "Branch" button on any message to start a new topic
+4. **Tree View**: Check and navigate conversation structure in the right sidebar
 
-### 分岐機能
+### Branching Feature
 
-- 任意のメッセージから新しい会話の流れを作成できます
-- 分岐した会話は独立して進行し、元の会話に戻ることも可能です
-- ツリー表示で全体の構造を把握できます
+- Create new conversation flows from any message
+- Branched conversations proceed independently and you can return to the original conversation
+- Understand the overall structure with tree visualization
 
-### ツリー表示モード
+### Tree Display Modes
 
-- **自動選択**: メッセージ数に応じて最適な表示方法を選択
-- **シンプル表示**: テキストベースの階層表示
-- **高度表示**: React Flowを使用したインタラクティブなノード表示
+- **Auto Select**: Choose the optimal display method based on message count
+- **Simple View**: Text-based hierarchical display
+- **Advanced View**: Interactive node display using React Flow
 
-## プロジェクト構造
+### Language Settings
+
+- Switch between Japanese and English in Settings
+- Language preference is saved locally
+
+## Project Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── api/               # API ルート
-│   │   ├── chat/          # チャット API
-│   │   └── conversations/ # 会話管理 API
-│   ├── globals.css        # グローバルスタイル
-│   ├── layout.tsx         # ルートレイアウト
-│   └── page.tsx           # メインページ
-├── components/            # Reactコンポーネント
-│   ├── ChatArea.tsx       # チャットエリア
-│   ├── ConversationSidebar.tsx # 会話サイドバー
-│   ├── ReactFlowTree.tsx  # React Flow ツリー
-│   ├── SettingsModal.tsx  # 設定モーダル
-│   └── TreeView.tsx       # ツリー表示
-├── hooks/                 # カスタムフック
-│   ├── useChat.ts         # チャット機能
-│   └── useConversations.ts # 会話管理
-├── types/                 # TypeScript型定義
+│   ├── api/               # API Routes
+│   │   ├── chat/          # Chat API
+│   │   └── conversations/ # Conversation Management API
+│   ├── globals.css        # Global Styles
+│   ├── layout.tsx         # Root Layout
+│   └── page.tsx           # Main Page
+├── components/            # React Components
+│   ├── ChatArea.tsx       # Chat Area
+│   ├── ConversationSidebar.tsx # Conversation Sidebar
+│   ├── ReactFlowTree.tsx  # React Flow Tree
+│   ├── SettingsModal.tsx  # Settings Modal
+│   ├── TreeView.tsx       # Tree View
+│   ├── LocaleProvider.tsx # Internationalization Provider
+│   └── LanguageSelector.tsx # Language Selector
+├── hooks/                 # Custom Hooks
+│   ├── useChat.ts         # Chat Functionality
+│   ├── useConversations.ts # Conversation Management
+│   └── useLocale.ts       # Language Management
+├── i18n/                  # Internationalization
+│   ├── config.ts          # i18n Configuration
+│   ├── request.ts         # next-intl Configuration
+│   └── messages/          # Translation Files
+│       ├── en.json        # English
+│       └── ja.json        # Japanese
+├── types/                 # TypeScript Type Definitions
 │   └── index.ts
-└── utils/                 # ユーティリティ関数
+└── utils/                 # Utility Functions
     └── helpers.ts
 ```
 
-## 開発
+## Development
 
-### 新機能の追加
+### Adding New Features
 
-1. 型定義を `src/types/index.ts` に追加
-2. 必要に応じてAPIルートを `src/app/api/` に作成
-3. コンポーネントを `src/components/` に追加
-4. カスタムフックを `src/hooks/` に追加
+1. Add type definitions to `src/types/index.ts`
+2. Create API routes in `src/app/api/` as needed
+3. Add components to `src/components/`
+4. Add custom hooks to `src/hooks/`
+5. Add translation keys to `src/i18n/messages/`
 
-### データベーススキーマの変更
+### Database Schema Changes
 
-#### ローカル開発
+#### Local Development
 
 ```bash
-# スキーマを編集後
+# After editing schema
 npx prisma db push
 npx prisma generate
 ```
 
-#### 本番環境
+#### Production Environment
 
 ```bash
-# マイグレーション作成
+# Create migration
 npx prisma migrate dev --name description_of_change
 
-# 本番環境への適用
+# Apply to production
 npx prisma migrate deploy
 ```
 
-## トラブルシューティング
+### Adding Translations
 
-### データベース関連
+1. Add translation keys to `src/i18n/messages/en.json` and `src/i18n/messages/ja.json`
+2. Use `useTranslations` hook in components
+3. Test language switching functionality
 
-- **ローカルでSQLiteが動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されているか確認
-- **VercelでPostgreSQLが動作しない**: 正しいPostgreSQL URLが設定されているか確認
-- **マイグレーションエラー**: 本番環境では必ず`prisma migrate deploy`を使用し、`prisma db push`は使用しない
+## Troubleshooting
 
-### 環境変数
+### Database Issues
 
-- ローカル: `.env`ファイル
-- Vercel: ダッシュボードの環境変数設定
-- 本番では`OPENAI_API_KEY`、`DATABASE_URL`が必要
+- **SQLite not working locally**: Verify `DATABASE_URL="file:./dev.db"` is correctly set
+- **PostgreSQL not working on Vercel**: Verify correct PostgreSQL URL is set
+- **Migration errors**: Always use `prisma migrate deploy` in production, never use `prisma db push`
 
-## ライセンス
+### Environment Variables
+
+- Local: `.env` file
+- Vercel: Environment variables in dashboard
+- Production requires `OPENAI_API_KEY` and `DATABASE_URL`
+
+### Internationalization Issues
+
+- **Translations not loading**: Check if translation files exist and have correct syntax
+- **Language not switching**: Verify localStorage is accessible and page reloads properly
+
+## License
 
 MIT License
 
-## 貢献
+## Contributing
 
-プルリクエストやイシューの報告を歓迎します。
+Pull requests and issue reports are welcome.

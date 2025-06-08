@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Chat Branch",
+    "description": "OpenAI APIを使用した会話分岐機能付きチャットアプリケーション"
+  },
+  "header": {
+    "conversationHistory": "会話履歴を開く",
+    "conversationTree": "会話ツリーを開く",
+    "settings": "設定"
+  },
+  "status": {
+    "generating": "応答生成中...",
+    "ready": "準備完了"
+  },
+  "sidebar": {
+    "conversationHistory": "会話履歴",
+    "newConversation": "新規会話",
+    "noConversations": "会話がありません",
+    "createNewConversation": "新規会話を作成してください",
+    "deleteConversation": "会話を削除"
+  },
+  "chat": {
+    "branch": "分岐",
+    "quote": "引用",
+    "copy": "コピー",
+    "placeholder": "メッセージを入力...",
+    "send": "送信",
+    "newBranch": "新しいブランチ",
+    "quotedMessage": "引用メッセージ"
+  },
+  "tree": {
+    "title": "会話ツリー",
+    "mode": {
+      "auto": "自動選択",
+      "simple": "シンプル表示",
+      "advanced": "高度表示"
+    },
+    "empty": "メッセージがありません"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "theme": "テーマ",
+    "fontSize": "フォントサイズ",
+    "treeMode": "ツリー表示モード",
+    "sendBehavior": "送信方法",
+    "debugMode": "デバッグモード",
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "themeOptions": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "自動"
+    },
+    "fontSizeOptions": {
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "treeModeOptions": {
+      "auto": "自動選択",
+      "simple": "常にシンプル",
+      "advanced": "常に高度表示"
+    },
+    "sendBehaviorOptions": {
+      "enter": "Enterで送信（Shift+Enterで改行）",
+      "shiftEnter": "Shift+Enterで送信（Enterで改行）"
+    }
+  },
+  "messages": {
+    "branchCreated": "新しいブランチを作成しました",
+    "branchCreateError": "ブランチの作成に失敗しました",
+    "messageSendError": "メッセージの送信に失敗しました",
+    "conversationCreated": "新しい会話を作成しました",
+    "conversationCreateError": "会話の作成に失敗しました",
+    "conversationDeleted": "会話を削除しました",
+    "conversationDeleteError": "会話の削除に失敗しました",
+    "messageCopied": "メッセージをコピーしました"
+  },
+  "delete": {
+    "confirmTitle": "会話の削除",
+    "confirmMessage": "本当にこの会話を削除しますか？",
+    "conversationTitle": "会話: {title}",
+    "thisActionCannotBeUndone": "この操作は取り消すことができません。",
+    "cancel": "キャンセル",
+    "delete": "削除"
+  }
+}
