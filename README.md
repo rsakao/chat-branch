@@ -1,5 +1,13 @@
 # Chat Branch
 
+---
+
+![Conversation Tree Example](docs/screenshots/chat-tree-example.png)
+
+*Example: The conversation tree view with multiple branches. You can explore and compare different topics in parallel, visualized as a tree.*
+
+---
+
 [English](README.md) | [日本語](README.ja.md)
 
 A chat application with conversation branching features using OpenAI API. Like ChatGPT, but you can branch conversations to explore multiple topics in parallel.
@@ -167,23 +175,6 @@ The application automatically switches database providers based on `DATABASE_URL
 2. **Send Message**: Enter message in the text area at the bottom and send
 3. **Branch Conversation**: Click "Branch" button on any message to start a new topic
 4. **Tree View**: Check and navigate conversation structure in the right sidebar
-
-### Branching Feature
-
-- Create new conversation flows from any message
-- Branched conversations proceed independently and you can return to the original conversation
-- Understand the overall structure with tree visualization
-
-### Tree Display Modes
-
-- **Auto Select**: Choose the optimal display method based on message count
-- **Simple View**: Text-based hierarchical display
-- **Advanced View**: Interactive node display using React Flow
-
-### Language Settings
-
-- Switch between Japanese and English in Settings
-- Language preference is saved locally
 
 ## Project Structure
 
