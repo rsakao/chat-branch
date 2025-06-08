@@ -1,27 +1,35 @@
 # Chat Branch
 
+---
+
+![Conversation Tree Example](docs/screenshots/chat-tree-example.png)
+
+_例: 複数の枝を持つ会話ツリーのビュー。異なるトピックを並行して探索し、比較することができ、ツリーとして視覚化されています。_
+
+---
+
 [English](README.md) | [日本語](README.ja.md)
 
-OpenAI APIを使用した会話分岐機能付きチャットアプリケーションです。ChatGPTのようなUIで、会話を途中で分岐させて複数の話題を並行して進めることができます。
+OpenAI APIを使用した会話分岐機能を持つチャットアプリケーション。ChatGPTのようですが、会話を分岐させて複数のトピックを並行して探索できます。
 
-## 主な機能
+## Key Features
 
-- **会話分岐**: 任意のメッセージから新しい会話の流れを作成
-- **ツリー表示**: 会話の構造を視覚的に表示（シンプル表示・高度表示）
-- **会話管理**: 複数の会話を管理し、切り替え可能
+- **会話分岐**: 任意のメッセージから新しい会話フローを作成
+- **ツリー視覚化**: 会話構造を視覚化（シンプルビューとアドバンスドビュー）
+- **会話管理**: 複数の会話を管理し、切り替え
 - **リアルタイムAI応答**: OpenAI APIを使用したリアルタイム応答
-- **レスポンシブデザイン**: デスクトップ・モバイル対応
-- **多言語対応**: 日本語・英語のUI切り替え
+- **レスポンシブデザイン**: デスクトップおよびモバイルデバイスで動作
+- **多言語サポート**: 日本語と英語のUI
 
-## 技術スタック
+## Tech Stack
 
 - **フロントエンド**: Next.js 15, React 19, TypeScript
 - **スタイリング**: Tailwind CSS + カスタムCSS
-- **データベース**: SQLite (ローカル) / PostgreSQL (本番)
+- **データベース**: SQLite（ローカル） / PostgreSQL（プロダクション）
 - **ORM**: Prisma
 - **AI**: OpenAI API (GPT-4o-mini)
-- **UI コンポーネント**: Lucide React, React Hot Toast
-- **ツリー表示**: React Flow
+- **UIコンポーネント**: Lucide React, React Hot Toast
+- **ツリー視覚化**: React Flow
 - **国際化**: next-intl
 
 ## 🗄️ データベース設定
@@ -32,7 +40,7 @@ OpenAI APIを使用した会話分岐機能付きチャットアプリケーシ�
 DATABASE_URL="file:./dev.db"
 ```
 
-### 本番環境（PostgreSQL）
+### プロダクション環境（PostgreSQL）
 
 ```bash
 DATABASE_URL="postgresql://username:password@host:port/database"
@@ -40,12 +48,12 @@ DATABASE_URL="postgresql://username:password@host:port/database"
 
 ## 🔄 自動スキーマ切り替え
 
-アプリケーションは`DATABASE_URL`に基づいて自動的にデータベースプロバイダーを切り替えます：
+アプリケーションは`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
 
 - SQLite: `DATABASE_URL="file:./dev.db"`
 - PostgreSQL: `DATABASE_URL="postgresql://..."`
 
-スキーマファイルは自動で選択されるため、手動切り替えは不要です。
+スキーマファイルは自動的に選択され、手動での切り替えは不要です。
 
 ## セットアップ
 
@@ -55,52 +63,52 @@ DATABASE_URL="postgresql://username:password@host:port/database"
 npm install
 ```
 
-### 2. 環境変数の設定
+### 2. 環境変数
 
-#### ローカル開発環境
+#### ローカル開発
 
-`.env` ファイルを作成し、以下の環境変数を設定してください：
+`.env`ファイルを作成し、以下の環境変数を設定します：
 
-> **重要**: Prismaは標準で`.env`ファイルを読み込みます。`.env.local`を使用するとPrismaがデータベース接続情報を読み込めません。
+> **重要**: Prismaはデフォルトで`.env`ファイルを読み取ります。`.env.local`を使用すると、Prismaがデータベース接続情報を読み取るのを防ぎます。
 
 ```env
-# OpenAI API Key (必須)
+# OpenAI APIキー（必須）
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Database Configuration (ローカル開発用 - SQLite)
+# データベース設定（ローカル開発 - SQLite）
 DATABASE_URL="file:./dev.db"
 ```
 
-> **注意**: `.env`ファイルにはセンシティブな情報が含まれるため、必ず`.gitignore`に含まれていることを確認してください。
+> **注意**: `.env`ファイルには機密情報が含まれているため、`.gitignore`に含めることを確認してください。
 
-#### 本番環境 (Vercel + PostgreSQL)
+#### プロダクション環境（Vercel + PostgreSQL）
 
-Vercelの環境変数設定で以下を追加：
+Vercelの環境変数に以下を追加します：
 
 ```env
-# OpenAI API Key (必須)
+# OpenAI APIキー（必須）
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Database Configuration (本番用 - PostgreSQL)
+# データベース設定（プロダクション - PostgreSQL）
 DATABASE_URL=postgresql://username:password@hostname:port/database
 ```
 
-### 3. データベースの初期化
+### 3. データベース初期化
 
-#### ローカル開発 (SQLite)
+#### ローカル開発（SQLite）
 
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-#### 本番環境 (PostgreSQL)
+#### プロダクション環境（PostgreSQL）
 
 ```bash
-# マイグレーション作成
+# マイグレーションの作成
 npx prisma migrate dev --name init
 
-# 本番環境でのマイグレーション実行
+# プロダクションにマイグレーションをデプロイ
 npx prisma migrate deploy
 ```
 
@@ -110,7 +118,7 @@ npx prisma migrate deploy
 npm run dev
 ```
 
-アプリケーションは `http://localhost:3000` で起動します。
+アプリケーションは`http://localhost:3000`で起動します。
 
 ## デプロイ
 
@@ -125,18 +133,18 @@ npm run dev
 
 2. **PostgreSQLデータベースの準備**
 
-   - Vercel Postgres、Supabase、PlanetScale等のサービスを利用
+   - Vercel Postgres、Supabase、PlanetScaleなどのサービスを使用
    - データベース接続URLを取得
 
 3. **環境変数の設定**
 
-   - Vercelダッシュボードで以下の環境変数を設定：
+   - Vercelダッシュボードで以下の環境変数を設定します：
      - `OPENAI_API_KEY`: OpenAI APIキー
      - `DATABASE_URL`: PostgreSQL接続URL
 
 4. **ビルドコマンドの設定**
 
-   - Vercelでは自動的にマイグレーションが実行されるよう、以下をpackage.jsonに追加することを推奨：
+   - 自動マイグレーション実行のために、package.jsonに以下を追加することをお勧めします：
 
    ```json
    {
@@ -147,70 +155,53 @@ npm run dev
    }
    ```
 
-5. **デプロイ実行**
+5. **デプロイ**
    ```bash
    vercel --prod
    ```
 
-### 環境別設定の切り替え
+### 環境ごとの設定切り替え
 
-アプリケーションは`DATABASE_URL`に基づいて自動的にデータベースプロバイダーを切り替えます：
+アプリケーションは`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
 
-- SQLite: `DATABASE_URL="file:./dev.db"`（ローカル開発用）
-- PostgreSQL: `DATABASE_URL="postgresql://..."`（本番環境用）
+- SQLite: `DATABASE_URL="file:./dev.db"`（ローカル開発）
+- PostgreSQL: `DATABASE_URL="postgresql://..."`（プロダクション）
 
-## 使用方法
+## 使用法
 
-### 基本的な使い方
+### 基本的な使用法
 
-1. **新しい会話を作成**: 左サイドバーの「新規会話」ボタンをクリック
+1. **新しい会話を作成**: 左のサイドバーで「新しい会話」ボタンをクリック
 2. **メッセージを送信**: 下部のテキストエリアにメッセージを入力して送信
-3. **会話を分岐**: 任意のメッセージの「分岐」ボタンをクリックして新しい話題を開始
-4. **ツリー表示**: 右サイドバーで会話の構造を確認・ナビゲート
-
-### 分岐機能
-
-- 任意のメッセージから新しい会話の流れを作成できます
-- 分岐した会話は独立して進行し、元の会話に戻ることも可能です
-- ツリー表示で全体の構造を把握できます
-
-### ツリー表示モード
-
-- **自動選択**: メッセージ数に応じて最適な表示方法を選択
-- **シンプル表示**: テキストベースの階層表示
-- **高度表示**: React Flowを使用したインタラクティブなノード表示
-
-### 言語設定
-
-- 設定画面から日本語・英語の切り替えが可能
-- 言語設定はローカルに保存されます
+3. **会話を分岐**: 任意のメッセージで「分岐」ボタンをクリックして新しいトピックを開始
+4. **ツリービュー**: 右のサイドバーで会話構造を確認し、ナビゲート
 
 ## プロジェクト構造
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── api/               # API ルート
-│   │   ├── chat/          # チャット API
-│   │   └── conversations/ # 会話管理 API
+│   ├── api/               # API Routes
+│   │   ├── chat/          # Chat API
+│   │   └── conversations/ # Conversation Management API
 │   ├── globals.css        # グローバルスタイル
 │   ├── layout.tsx         # ルートレイアウト
 │   └── page.tsx           # メインページ
 ├── components/            # Reactコンポーネント
 │   ├── ChatArea.tsx       # チャットエリア
 │   ├── ConversationSidebar.tsx # 会話サイドバー
-│   ├── ReactFlowTree.tsx  # React Flow ツリー
+│   ├── ReactFlowTree.tsx  # React Flow Tree
 │   ├── SettingsModal.tsx  # 設定モーダル
-│   ├── TreeView.tsx       # ツリー表示
+│   ├── TreeView.tsx       # ツリービュー
 │   ├── LocaleProvider.tsx # 国際化プロバイダー
-│   └── LanguageSelector.tsx # 言語選択
+│   └── LanguageSelector.tsx # 言語セレクター
 ├── hooks/                 # カスタムフック
 │   ├── useChat.ts         # チャット機能
 │   ├── useConversations.ts # 会話管理
 │   └── useLocale.ts       # 言語管理
 ├── i18n/                  # 国際化
-│   ├── config.ts          # i18n 設定
-│   ├── request.ts         # next-intl 設定
+│   ├── config.ts          # i18n設定
+│   ├── request.ts         # next-intl設定
 │   └── messages/          # 翻訳ファイル
 │       ├── en.json        # 英語
 │       └── ja.json        # 日本語
@@ -224,61 +215,61 @@ src/
 
 ### 新機能の追加
 
-1. 型定義を `src/types/index.ts` に追加
-2. 必要に応じてAPIルートを `src/app/api/` に作成
-3. コンポーネントを `src/components/` に追加
-4. カスタムフックを `src/hooks/` に追加
-5. 翻訳キーを `src/i18n/messages/` に追加
+1. `src/types/index.ts`に型定義を追加
+2. 必要に応じて`src/app/api/`にAPIルートを作成
+3. `src/components/`にコンポーネントを追加
+4. `src/hooks/`にカスタムフックを追加
+5. `src/i18n/messages/`に翻訳キーを追加
 
 ### データベーススキーマの変更
 
 #### ローカル開発
 
 ```bash
-# スキーマを編集後
+# スキーマを編集した後
 npx prisma db push
 npx prisma generate
 ```
 
-#### 本番環境
+#### プロダクション環境
 
 ```bash
-# マイグレーション作成
+# マイグレーションの作成
 npx prisma migrate dev --name description_of_change
 
-# 本番環境への適用
+# プロダクションに適用
 npx prisma migrate deploy
 ```
 
 ### 翻訳の追加
 
-1. `src/i18n/messages/en.json` と `src/i18n/messages/ja.json` に翻訳キーを追加
-2. コンポーネントで `useTranslations` フックを使用
+1. `src/i18n/messages/en.json`と`src/i18n/messages/ja.json`に翻訳キーを追加
+2. コンポーネントで`useTranslations`フックを使用
 3. 言語切り替え機能をテスト
 
 ## トラブルシューティング
 
-### データベース関連
+### データベースの問題
 
-- **ローカルでSQLiteが動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されているか確認
+- **SQLiteがローカルで動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されているか確認
 - **VercelでPostgreSQLが動作しない**: 正しいPostgreSQL URLが設定されているか確認
-- **マイグレーションエラー**: 本番環境では必ず`prisma migrate deploy`を使用し、`prisma db push`は使用しない
+- **マイグレーションエラー**: プロダクションでは常に`prisma migrate deploy`を使用し、`prisma db push`は使用しない
 
 ### 環境変数
 
 - ローカル: `.env`ファイル
-- Vercel: ダッシュボードの環境変数設定
-- 本番では`OPENAI_API_KEY`、`DATABASE_URL`が必要
+- Vercel: ダッシュボードの環境変数
+- プロダクションには`OPENAI_API_KEY`と`DATABASE_URL`が必要
 
-### 国際化に関する問題
+### 国際化の問題
 
-- **翻訳が読み込まれない**: 翻訳ファイルが存在し、正しい文法であることを確認
-- **言語が切り替わらない**: localStorageがアクセス可能で、ページが正しく再読み込みされることを確認
+- **翻訳が読み込まれない**: 翻訳ファイルが存在し、正しい構文であるか確認
+- **言語が切り替わらない**: localStorageがアクセス可能で、ページが正しくリロードされるか確認
 
-## ライセンス
+## License
 
 MIT License
 
-## 貢献
+## Contributing
 
-プルリクエストやイシューの報告を歓迎します。
+プルリクエストと問題報告を歓迎します。

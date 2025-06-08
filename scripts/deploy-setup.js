@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES moduleでは__dirnameが利用できないため、代替手段を使用
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Check if DATABASE_URL contains postgresql or postgres
 const databaseUrl = process.env.DATABASE_URL;
