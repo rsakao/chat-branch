@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { prisma } from '@/lib/prisma';
-import {
-  buildEnhancedQuotedPrompt,
-  getSystemPrompt,
-} from '@/utils/prompts';
+import { buildEnhancedQuotedPrompt, getSystemPrompt } from '@/utils/prompts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,7 +77,9 @@ export async function POST(request: NextRequest) {
 
     const content =
       completion.choices[0]?.message?.content ||
-      (locale === 'ja' ? '申し訳ございませんが、応答を生成できませんでした。' : 'Sorry, I could not generate a response.');
+      (locale === 'ja'
+        ? '申し訳ございませんが、応答を生成できませんでした。'
+        : 'Sorry, I could not generate a response.');
 
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {

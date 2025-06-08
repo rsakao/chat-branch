@@ -15,7 +15,7 @@ export default function DeleteConfirmDialog({
   conversationTitle,
 }: DeleteConfirmDialogProps) {
   const t = useTranslations('delete');
-  
+
   if (!isOpen) return null;
 
   return (
@@ -27,7 +27,11 @@ export default function DeleteConfirmDialog({
 
         <div className="modal-body">
           <p>{t('confirmMessage')}</p>
-          <p><strong>{t('conversationTitle', { title: conversationTitle })}</strong></p>
+          <p>
+            <strong>
+              {t('conversationTitle', { title: conversationTitle })}
+            </strong>
+          </p>
           <p className="warning-text">{t('thisActionCannotBeUndone')}</p>
         </div>
 

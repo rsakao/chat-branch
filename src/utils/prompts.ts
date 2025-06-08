@@ -26,7 +26,7 @@ export function getSystemPrompt(locale: string = 'en'): string {
 
 重要：ユーザーが日本語で質問した場合は日本語で、英語で質問した場合は英語で、その他の言語で質問した場合はその言語で回答してください。`;
   }
-  
+
   return `You are a helpful and knowledgeable AI assistant. Please respond in the language that the user is using.
 
 When a user quotes specific text from previous messages and asks questions, please pay attention to the following points:
@@ -50,8 +50,9 @@ export function buildQuotedPrompt(
   quotedText: string,
   locale: string = 'en'
 ): string {
-  const truncatedQuotedText = quotedText.length > 300 ? quotedText.substring(0, 300) + '...' : quotedText;
-  
+  const truncatedQuotedText =
+    quotedText.length > 300 ? quotedText.substring(0, 300) + '...' : quotedText;
+
   if (locale === 'ja') {
     return `以下の部分を引用してお聞きします：
 
@@ -63,7 +64,7 @@ ${userMessage}
 
 この引用部分について回答してください。`;
   }
-  
+
   return `I am quoting the following text:
 
 【Quote】
@@ -87,7 +88,7 @@ export function buildEnhancedQuotedPrompt(
   const quoteType = quotedMessage
     ? getQuoteType(quotedText, quotedMessage.content)
     : 'partial';
-  
+
   const isPartialQuote = quoteType === 'partial';
   const isFromUser = quotedMessage?.role === 'user';
 
@@ -100,7 +101,7 @@ export function buildEnhancedQuotedPrompt(
 
 上記の引用について：${userMessage}`;
   }
-  
+
   const quoteTypeText = isPartialQuote ? 'Partial Quote' : 'Full Quote';
   const senderText = isFromUser ? 'User Message' : 'AI Response';
 
@@ -113,14 +114,17 @@ Regarding the above quote: ${userMessage}`;
 /**
  * 引用タイプを判定する（部分引用 or 全文引用）
  */
-function getQuoteType(quotedText: string, originalContent: string): 'partial' | 'full' {
+function getQuoteType(
+  quotedText: string,
+  originalContent: string
+): 'partial' | 'full' {
   const normalizedQuoted = quotedText.trim().replace(/\s+/g, ' ');
   const normalizedOriginal = originalContent.trim().replace(/\s+/g, ' ');
-  
+
   if (normalizedQuoted === normalizedOriginal) {
     return 'full';
   }
-  
+
   return 'partial';
 }
 

@@ -28,7 +28,7 @@ export default function ConversationSidebar({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] =
     useState<Conversation | null>(null);
-  
+
   // 国際化対応の時刻フォーマット関数
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -38,7 +38,8 @@ export default function ConversationSidebar({
     );
 
     if (diffInMinutes < 1) return tTime('justNow');
-    if (diffInMinutes < 60) return tTime('minutesAgo', { minutes: diffInMinutes });
+    if (diffInMinutes < 60)
+      return tTime('minutesAgo', { minutes: diffInMinutes });
 
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return tTime('hoursAgo', { hours: diffInHours });

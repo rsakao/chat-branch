@@ -9,7 +9,10 @@ interface LanguageSelectorProps {
   onChange: (locale: Locale) => void;
 }
 
-export default function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
+export default function LanguageSelector({
+  value,
+  onChange,
+}: LanguageSelectorProps) {
   const t = useTranslations('settings');
   const { availableLocales } = useLocale();
 

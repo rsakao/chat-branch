@@ -49,19 +49,25 @@ export default function HomePage() {
         const savedSettings = localStorage.getItem('chatAppSettings');
         if (savedSettings) {
           const settings = JSON.parse(savedSettings);
-          
+
           // テーマ適用
           if (settings.theme && settings.theme !== 'auto') {
-            document.documentElement.setAttribute('data-color-scheme', settings.theme);
+            document.documentElement.setAttribute(
+              'data-color-scheme',
+              settings.theme
+            );
           } else {
             document.documentElement.removeAttribute('data-color-scheme');
           }
-          
+
           // フォントサイズ適用
           if (settings.fontSize) {
-            document.documentElement.setAttribute('data-font-size', settings.fontSize);
+            document.documentElement.setAttribute(
+              'data-font-size',
+              settings.fontSize
+            );
           }
-          
+
           // ツリー表示モード適用
           if (settings.treeViewMode) {
             setTreeMode(settings.treeViewMode);
@@ -80,7 +86,7 @@ export default function HomePage() {
     };
 
     window.addEventListener('settingsUpdated', handleSettingsUpdate);
-    
+
     return () => {
       window.removeEventListener('settingsUpdated', handleSettingsUpdate);
     };

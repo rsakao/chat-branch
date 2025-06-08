@@ -12,7 +12,9 @@ interface LocaleProviderProps {
 const messageCache = new Map<string, Record<string, unknown>>();
 
 // メッセージをプリロード
-async function preloadMessages(locale: string): Promise<Record<string, unknown>> {
+async function preloadMessages(
+  locale: string
+): Promise<Record<string, unknown>> {
   if (messageCache.has(locale)) {
     return messageCache.get(locale)!;
   }
@@ -34,7 +36,9 @@ async function preloadMessages(locale: string): Promise<Record<string, unknown>>
 
 export default function LocaleProvider({ children }: LocaleProviderProps) {
   const { locale, isLoading } = useLocale();
-  const [messages, setMessages] = useState<Record<string, unknown> | null>(null);
+  const [messages, setMessages] = useState<Record<string, unknown> | null>(
+    null
+  );
   const [isMessagesLoading, setIsMessagesLoading] = useState(true);
 
   useEffect(() => {
@@ -81,21 +85,25 @@ export default function LocaleProvider({ children }: LocaleProviderProps) {
           </div>
         </div>
         <main className="main-content">
-          <div style={{ 
-            padding: '2rem', 
-            textAlign: 'center', 
-            color: '#666',
-            opacity: 0.7
-          }}>
-            <div style={{ 
-              display: 'inline-block',
-              width: '20px',
-              height: '20px', 
-              border: '2px solid #f3f3f3',
-              borderTop: '2px solid #3498db',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              color: '#666',
+              opacity: 0.7,
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-block',
+                width: '20px',
+                height: '20px',
+                border: '2px solid #f3f3f3',
+                borderTop: '2px solid #3498db',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
           </div>
         </main>
       </div>

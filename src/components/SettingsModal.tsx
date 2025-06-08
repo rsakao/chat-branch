@@ -133,7 +133,7 @@ export default function SettingsModal({
         </div>
 
         <div className="modal-body">
-          <LanguageSelector 
+          <LanguageSelector
             value={localSettings.language}
             onChange={(language: Locale) =>
               setLocalSettings((prev) => ({ ...prev, language }))
@@ -210,7 +210,9 @@ export default function SettingsModal({
               className="form-control"
             >
               <option value="enter">{t('sendBehaviorOptions.enter')}</option>
-              <option value="shift-enter">{t('sendBehaviorOptions.shiftEnter')}</option>
+              <option value="shift-enter">
+                {t('sendBehaviorOptions.shiftEnter')}
+              </option>
             </select>
           </div>
 

@@ -14,18 +14,20 @@ export function formatDate(dateString: string): string {
   );
 
   // ブラウザの言語設定に基づいて表示を変更
-  const isJapanese = typeof window !== 'undefined' 
-    ? navigator.language.startsWith('ja') 
-    : true;
+  const isJapanese =
+    typeof window !== 'undefined' ? navigator.language.startsWith('ja') : true;
 
   if (diffInMinutes < 1) return isJapanese ? 'たった今' : 'just now';
-  if (diffInMinutes < 60) return isJapanese ? `${diffInMinutes}分前` : `${diffInMinutes} min ago`;
+  if (diffInMinutes < 60)
+    return isJapanese ? `${diffInMinutes}分前` : `${diffInMinutes} min ago`;
 
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return isJapanese ? `${diffInHours}時間前` : `${diffInHours}h ago`;
+  if (diffInHours < 24)
+    return isJapanese ? `${diffInHours}時間前` : `${diffInHours}h ago`;
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return isJapanese ? `${diffInDays}日前` : `${diffInDays}d ago`;
+  if (diffInDays < 7)
+    return isJapanese ? `${diffInDays}日前` : `${diffInDays}d ago`;
 
   return date.toLocaleDateString(isJapanese ? 'ja-JP' : 'en-US');
 }

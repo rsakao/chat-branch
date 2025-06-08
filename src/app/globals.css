@@ -24,8 +24,6 @@
   --light-info: rgba(98, 108, 113, 1);
   --light-focus-ring: rgba(33, 128, 141, 0.4);
 
-
-
   /* Colors - Light theme (default, using light theme variables) */
   --color-background: var(--light-background);
   --color-surface: var(--light-surface);
@@ -133,7 +131,7 @@
 }
 
 /* Explicit dark mode via data attribute */
-[data-color-scheme="dark"] {
+[data-color-scheme='dark'] {
   --color-background: var(--dark-background);
   --color-surface: var(--dark-surface);
   --color-text: var(--dark-text);
@@ -156,7 +154,7 @@
 }
 
 /* Explicit light mode via data attribute */
-[data-color-scheme="light"] {
+[data-color-scheme='light'] {
   --color-background: var(--light-background);
   --color-surface: var(--light-surface);
   --color-text: var(--light-text);
@@ -179,26 +177,26 @@
 }
 
 /* 明示的なダークモード設定時のスタイル */
-[data-color-scheme="dark"] .react-flow__controls {
+[data-color-scheme='dark'] .react-flow__controls {
   background-color: rgba(51, 65, 85, 0.95) !important;
   border: 1px solid rgba(119, 124, 124, 0.45) !important;
 }
 
-[data-color-scheme="dark"] .react-flow__controls-button {
+[data-color-scheme='dark'] .react-flow__controls-button {
   background-color: transparent !important;
   color: rgba(255, 255, 255, 0.95) !important;
   border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
 }
 
-[data-color-scheme="dark"] .react-flow__controls-button:hover {
+[data-color-scheme='dark'] .react-flow__controls-button:hover {
   background-color: rgba(119, 124, 124, 0.3) !important;
 }
 
-[data-color-scheme="dark"] .react-flow__controls-button:last-child {
+[data-color-scheme='dark'] .react-flow__controls-button:last-child {
   border-bottom: none !important;
 }
 
-[data-color-scheme="dark"] .react-flow__controls-zoom {
+[data-color-scheme='dark'] .react-flow__controls-zoom {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
@@ -1816,8 +1814,12 @@ body.no-scroll {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Skeleton Loading */
@@ -1828,8 +1830,12 @@ body.no-scroll {
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {

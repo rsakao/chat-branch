@@ -98,23 +98,26 @@ export default function ReactFlowTree({
   useEffect(() => {
     const checkDarkMode = () => {
       // アプリの明示的な設定を確認
-      const explicitTheme = document.documentElement.getAttribute('data-color-scheme');
+      const explicitTheme =
+        document.documentElement.getAttribute('data-color-scheme');
       if (explicitTheme) {
         setIsDarkMode(explicitTheme === 'dark');
       } else {
         // 明示的な設定がない場合のみシステム設定を使用
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = window.matchMedia(
+          '(prefers-color-scheme: dark)'
+        ).matches;
         setIsDarkMode(isDark);
       }
     };
 
     checkDarkMode();
-    
+
     // data-color-scheme属性の変更を監視
     const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-color-scheme']
+      attributeFilter: ['data-color-scheme'],
     });
 
     // システムのprefers-color-scheme変更も監視（明示的設定がない場合用）

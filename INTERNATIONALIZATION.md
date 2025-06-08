@@ -5,15 +5,18 @@
 ## 実装した機能
 
 ### 🌐 言語サポート
+
 - **日本語 (ja)**: デフォルト言語
 - **英語 (en)**: 追加言語
 
 ### 🎛️ 言語切り替え機能
+
 - 設定画面での言語選択
 - ローカルストレージに設定を保存
 - 即座に言語切り替え（ページリロード）
 
 ### 📱 UI多言語化
+
 - すべてのボタンテキスト
 - エラーメッセージとステータス表示
 - モーダルダイアログ
@@ -21,11 +24,13 @@
 - 設定画面のラベルとオプション
 
 ### 📖 README多言語化
+
 - 英語標準のREADME.md
 - 日本語版README.ja.md
 - 言語選択リンクを各READMEの先頭に配置
 
 ### 🤖 自動README同期
+
 - OpenAI APIを使用した自動翻訳
 - ローカル実行コマンド
 - GitHub Actions による自動同期
@@ -33,10 +38,12 @@
 ## 技術実装
 
 ### 使用ライブラリ
+
 - **next-intl**: Next.js用の国際化ライブラリ
 - **OpenAI API**: README自動翻訳用
 
 ### ファイル構造
+
 ```
 src/
 ├── i18n/
@@ -59,6 +66,7 @@ scripts/
 ```
 
 ### 翻訳キーの構造
+
 ```json
 {
   "app": { "title": "Chat Branch" },
@@ -77,8 +85,10 @@ scripts/
 ### 開発者向け
 
 #### 新しい翻訳の追加
+
 1. `src/i18n/messages/ja.json` と `src/i18n/messages/en.json` に翻訳キーを追加
 2. コンポーネントで `useTranslations` フックを使用
+
 ```tsx
 import { useTranslations } from 'next-intl';
 
@@ -89,6 +99,7 @@ function MyComponent() {
 ```
 
 #### README同期
+
 ```bash
 # ローカルでREADME同期を実行
 npm run sync-readme
@@ -100,6 +111,7 @@ npm run sync-readme:check
 ### エンドユーザー向け
 
 #### 言語切り替え方法
+
 1. 右上の「設定」ボタンをクリック
 2. 「言語」セクションで希望の言語を選択
 3. 選択すると自動的にページが再読み込みされ、新しい言語で表示
@@ -107,11 +119,13 @@ npm run sync-readme:check
 ## 自動化機能
 
 ### GitHub Actions による README 同期
+
 - **トリガー**: README.md または README.ja.md の変更
 - **動作**: 変更されたファイルを検出し、もう一方の言語に自動翻訳
 - **結果**: 自動コミットまたはプルリクエスト作成
 
 ### 設定方法
+
 1. GitHub リポジトリの Secrets に `OPENAI_API_KEY` を追加
 2. README ファイルを編集してコミット
 3. GitHub Actions が自動的に翻訳と同期を実行
@@ -119,20 +133,25 @@ npm run sync-readme:check
 ## 開発時の注意点
 
 ### コンポーネントの多言語化
+
 - ハードコーディングされたテキストは使用しない
 - 必ず `useTranslations` フックを使用
 - 翻訳キーは階層構造で整理
 
 ### 動的テキストの処理
+
 ```tsx
 // パラメータありの翻訳
-t('delete.conversationTitle', { title: conversationTitle })
+t('delete.conversationTitle', { title: conversationTitle });
 
 // 条件分岐
-{isLoading ? t('status.generating') : t('status.ready')}
+{
+  isLoading ? t('status.generating') : t('status.ready');
+}
 ```
 
 ### ローカルストレージの扱い
+
 - 言語設定は `localStorage` に保存
 - サーバーサイドでは常にデフォルト言語を使用
 - クライアントサイドで動的に言語を読み込み
@@ -142,16 +161,19 @@ t('delete.conversationTitle', { title: conversationTitle })
 ### よくある問題
 
 #### 翻訳が表示されない
+
 - 翻訳ファイルの JSON 構文をチェック
 - 翻訳キーのパスが正しいか確認
 - `LocaleProvider` が適切にコンポーネントをラップしているか確認
 
 #### 言語切り替えが機能しない
+
 - ローカルストレージが有効か確認
 - ページリロードが正常に実行されるか確認
 - ブラウザのコンソールでエラーをチェック
 
 #### README同期が失敗する
+
 - `OPENAI_API_KEY` 環境変数が設定されているか確認
 - API キーに十分な権限があるか確認
 - ネットワーク接続とAPI制限をチェック
@@ -159,6 +181,7 @@ t('delete.conversationTitle', { title: conversationTitle })
 ## 今後の拡張
 
 ### 追加可能な機能
+
 - より多くの言語サポート（中国語、韓国語、スペイン語等）
 - 地域別設定（日付・時刻フォーマット）
 - 右から左へのテキスト（RTL）サポート
@@ -166,6 +189,7 @@ t('delete.conversationTitle', { title: conversationTitle })
 - 翻訳の品質向上（コンテキスト情報の追加）
 
 ### 実装のベストプラクティス
+
 - 翻訳キーは意味のある名前を使用
 - コンポーネント単位で翻訳を分割
 - 定期的な翻訳レビューとアップデート

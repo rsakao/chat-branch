@@ -193,10 +193,11 @@ export function useChat(conversationId: string | null) {
       } catch (error) {
         console.error('Failed to send message:', error);
         // フォールバック応答（言語に応じてメッセージを変更）
-        const errorMessage = locale === 'ja' 
-          ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
-          : 'Sorry, I cannot generate a response at the moment. Please try again later.';
-        
+        const errorMessage =
+          locale === 'ja'
+            ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
+            : 'Sorry, I cannot generate a response at the moment. Please try again later.';
+
         const aiMessage: Message = {
           id: generateId('msg'),
           role: 'assistant',

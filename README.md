@@ -4,7 +4,7 @@
 
 ![Conversation Tree Example](docs/screenshots/chat-tree-example.png)
 
-*Example: The conversation tree view with multiple branches. You can explore and compare different topics in parallel, visualized as a tree.*
+_Example: The conversation tree view with multiple branches. You can explore and compare different topics in parallel, visualized as a tree._
 
 ---
 
