@@ -1,10 +1,12 @@
 # Chat Branch
 
+テストメッセージ
+
 ---
 
 ![Conversation Tree Example](docs/screenshots/chat-tree-example.png)
 
-_例: 複数の枝を持つ会話ツリーのビュー。異なるトピックを並行して探索し、比較することができ、ツリーとして視覚化されています。_
+_例: 複数の枝を持つ会話ツリーのビュー。異なるトピックを並行して探索し、ツリーとして視覚化できます。_
 
 ---
 
@@ -12,24 +14,24 @@ _例: 複数の枝を持つ会話ツリーのビュー。異なるトピック�
 
 OpenAI APIを使用した会話分岐機能を持つチャットアプリケーション。ChatGPTのようですが、会話を分岐させて複数のトピックを並行して探索できます。
 
-## Key Features
+## 主な機能
 
 - **会話分岐**: 任意のメッセージから新しい会話フローを作成
-- **ツリー視覚化**: 会話構造を視覚化（シンプルビューとアドバンスドビュー）
+- **ツリーの視覚化**: 会話構造を視覚化（シンプルビューとアドバンスドビュー）
 - **会話管理**: 複数の会話を管理し、切り替え
-- **リアルタイムAI応答**: OpenAI APIを使用したリアルタイム応答
+- **リアルタイムAI応答**: OpenAI APIを使用したリアルタイムの応答
 - **レスポンシブデザイン**: デスクトップおよびモバイルデバイスで動作
 - **多言語サポート**: 日本語と英語のUI
 
-## Tech Stack
+## 技術スタック
 
 - **フロントエンド**: Next.js 15, React 19, TypeScript
 - **スタイリング**: Tailwind CSS + カスタムCSS
-- **データベース**: SQLite（ローカル） / PostgreSQL（プロダクション）
+- **データベース**: SQLite（ローカル）/ PostgreSQL（プロダクション）
 - **ORM**: Prisma
 - **AI**: OpenAI API (GPT-4o-mini)
 - **UIコンポーネント**: Lucide React, React Hot Toast
-- **ツリー視覚化**: React Flow
+- **ツリーの視覚化**: React Flow
 - **国際化**: next-intl
 
 ## 🗄️ データベース設定
@@ -48,7 +50,7 @@ DATABASE_URL="postgresql://username:password@host:port/database"
 
 ## 🔄 自動スキーマ切り替え
 
-アプリケーションは`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
+アプリケーションは、`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
 
 - SQLite: `DATABASE_URL="file:./dev.db"`
 - PostgreSQL: `DATABASE_URL="postgresql://..."`
@@ -93,7 +95,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 DATABASE_URL=postgresql://username:password@hostname:port/database
 ```
 
-### 3. データベース初期化
+### 3. データベースの初期化
 
 #### ローカル開発（SQLite）
 
@@ -105,7 +107,7 @@ npx prisma db push
 #### プロダクション環境（PostgreSQL）
 
 ```bash
-# マイグレーションの作成
+# マイグレーションを作成
 npx prisma migrate dev --name init
 
 # プロダクションにマイグレーションをデプロイ
@@ -138,13 +140,13 @@ npm run dev
 
 3. **環境変数の設定**
 
-   - Vercelダッシュボードで以下の環境変数を設定します：
+   - Vercelダッシュボードで以下の環境変数を設定：
      - `OPENAI_API_KEY`: OpenAI APIキー
      - `DATABASE_URL`: PostgreSQL接続URL
 
 4. **ビルドコマンドの設定**
 
-   - 自動マイグレーション実行のために、package.jsonに以下を追加することをお勧めします：
+   - 自動マイグレーション実行のために、package.jsonに以下を追加することを推奨します：
 
    ```json
    {
@@ -162,7 +164,7 @@ npm run dev
 
 ### 環境ごとの設定切り替え
 
-アプリケーションは`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
+アプリケーションは、`DATABASE_URL`に基づいてデータベースプロバイダーを自動的に切り替えます：
 
 - SQLite: `DATABASE_URL="file:./dev.db"`（ローカル開発）
 - PostgreSQL: `DATABASE_URL="postgresql://..."`（プロダクション）
@@ -190,7 +192,7 @@ src/
 ├── components/            # Reactコンポーネント
 │   ├── ChatArea.tsx       # チャットエリア
 │   ├── ConversationSidebar.tsx # 会話サイドバー
-│   ├── ReactFlowTree.tsx  # React Flow Tree
+│   ├── ReactFlowTree.tsx  # React Flowツリー
 │   ├── SettingsModal.tsx  # 設定モーダル
 │   ├── TreeView.tsx       # ツリービュー
 │   ├── LocaleProvider.tsx # 国際化プロバイダー
@@ -234,7 +236,7 @@ npx prisma generate
 #### プロダクション環境
 
 ```bash
-# マイグレーションの作成
+# マイグレーションを作成
 npx prisma migrate dev --name description_of_change
 
 # プロダクションに適用
@@ -243,7 +245,7 @@ npx prisma migrate deploy
 
 ### 翻訳の追加
 
-1. `src/i18n/messages/en.json`と`src/i18n/messages/ja.json`に翻訳キーを追加
+1. `src/i18n/messages/en.json`および`src/i18n/messages/ja.json`に翻訳キーを追加
 2. コンポーネントで`useTranslations`フックを使用
 3. 言語切り替え機能をテスト
 
@@ -251,25 +253,25 @@ npx prisma migrate deploy
 
 ### データベースの問題
 
-- **SQLiteがローカルで動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されているか確認
-- **VercelでPostgreSQLが動作しない**: 正しいPostgreSQL URLが設定されているか確認
+- **SQLiteがローカルで動作しない**: `DATABASE_URL="file:./dev.db"`が正しく設定されていることを確認
+- **PostgreSQLがVercelで動作しない**: 正しいPostgreSQL URLが設定されていることを確認
 - **マイグレーションエラー**: プロダクションでは常に`prisma migrate deploy`を使用し、`prisma db push`は使用しない
 
 ### 環境変数
 
 - ローカル: `.env`ファイル
 - Vercel: ダッシュボードの環境変数
-- プロダクションには`OPENAI_API_KEY`と`DATABASE_URL`が必要
+- プロダクションでは`OPENAI_API_KEY`と`DATABASE_URL`が必要
 
 ### 国際化の問題
 
-- **翻訳が読み込まれない**: 翻訳ファイルが存在し、正しい構文であるか確認
-- **言語が切り替わらない**: localStorageがアクセス可能で、ページが正しくリロードされるか確認
+- **翻訳が読み込まれない**: 翻訳ファイルが存在し、正しい構文であることを確認
+- **言語が切り替わらない**: localStorageがアクセス可能で、ページが正しくリロードされることを確認
 
-## License
+## ライセンス
 
-MIT License
+MITライセンス
 
-## Contributing
+## 貢献
 
 プルリクエストと問題報告を歓迎します。
