@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is "AI分岐チャット" (AI Branching Chat) - a Next.js application that enables branching conversations with AI. Users can fork conversations at any message to explore different discussion paths, visualized through an interactive tree interface.
+This is "Chat Branch" (AI Branching Chat) - a Next.js application that enables branching conversations with AI. Users can fork conversations at any message to explore different discussion paths, visualized through an interactive tree interface.
 
 ## Development Commands
 
