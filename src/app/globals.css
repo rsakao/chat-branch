@@ -3,26 +3,68 @@
 @tailwind utilities;
 
 :root {
-  /* Colors */
-  --color-background: rgba(252, 252, 249, 1);
-  --color-surface: rgba(255, 255, 253, 1);
-  --color-text: rgba(19, 52, 59, 1);
-  --color-text-secondary: rgba(98, 108, 113, 1);
-  --color-primary: rgba(33, 128, 141, 1);
-  --color-primary-hover: rgba(29, 116, 128, 1);
-  --color-primary-active: rgba(26, 104, 115, 1);
-  --color-secondary: rgba(94, 82, 64, 0.12);
-  --color-secondary-hover: rgba(94, 82, 64, 0.2);
-  --color-secondary-active: rgba(94, 82, 64, 0.25);
-  --color-border: rgba(94, 82, 64, 0.2);
-  --color-btn-primary-text: rgba(252, 252, 249, 1);
-  --color-card-border: rgba(94, 82, 64, 0.12);
-  --color-card-border-inner: rgba(94, 82, 64, 0.12);
-  --color-error: rgba(192, 21, 47, 1);
-  --color-success: rgba(33, 128, 141, 1);
-  --color-warning: rgba(168, 75, 47, 1);
-  --color-info: rgba(98, 108, 113, 1);
-  --color-focus-ring: rgba(33, 128, 141, 0.4);
+  /* Light theme colors - default light theme */
+  --light-background: rgba(252, 252, 249, 1);
+  --light-surface: rgba(255, 255, 253, 1);
+  --light-text: rgba(19, 52, 59, 1);
+  --light-text-secondary: rgba(98, 108, 113, 1);
+  --light-primary: rgba(33, 128, 141, 1);
+  --light-primary-hover: rgba(29, 116, 128, 1);
+  --light-primary-active: rgba(26, 104, 115, 1);
+  --light-secondary: rgba(94, 82, 64, 0.12);
+  --light-secondary-hover: rgba(94, 82, 64, 0.2);
+  --light-secondary-active: rgba(94, 82, 64, 0.25);
+  --light-border: rgba(94, 82, 64, 0.2);
+  --light-btn-primary-text: rgba(252, 252, 249, 1);
+  --light-card-border: rgba(94, 82, 64, 0.12);
+  --light-card-border-inner: rgba(94, 82, 64, 0.12);
+  --light-error: rgba(192, 21, 47, 1);
+  --light-success: rgba(33, 128, 141, 1);
+  --light-warning: rgba(168, 75, 47, 1);
+  --light-info: rgba(98, 108, 113, 1);
+  --light-focus-ring: rgba(33, 128, 141, 0.4);
+
+  /* Colors - Light theme (default, using light theme variables) */
+  --color-background: var(--light-background);
+  --color-surface: var(--light-surface);
+  --color-text: var(--light-text);
+  --color-text-secondary: var(--light-text-secondary);
+  --color-primary: var(--light-primary);
+  --color-primary-hover: var(--light-primary-hover);
+  --color-primary-active: var(--light-primary-active);
+  --color-secondary: var(--light-secondary);
+  --color-secondary-hover: var(--light-secondary-hover);
+  --color-secondary-active: var(--light-secondary-active);
+  --color-border: var(--light-border);
+  --color-btn-primary-text: var(--light-btn-primary-text);
+  --color-card-border: var(--light-card-border);
+  --color-card-border-inner: var(--light-card-border-inner);
+  --color-error: var(--light-error);
+  --color-success: var(--light-success);
+  --color-warning: var(--light-warning);
+  --color-info: var(--light-info);
+  --color-focus-ring: var(--light-focus-ring);
+
+  /* Dark theme colors - stored as separate variables */
+  --dark-background: rgba(18, 20, 22, 1);
+  --dark-surface: rgba(25, 28, 31, 1);
+  --dark-text: rgba(255, 255, 255, 0.95);
+  --dark-text-secondary: rgba(200, 202, 204, 0.85);
+  --dark-primary: rgba(50, 184, 198, 1);
+  --dark-primary-hover: rgba(45, 166, 178, 1);
+  --dark-primary-active: rgba(41, 150, 161, 1);
+  --dark-secondary: rgba(119, 124, 124, 0.2);
+  --dark-secondary-hover: rgba(119, 124, 124, 0.35);
+  --dark-secondary-active: rgba(119, 124, 124, 0.45);
+  --dark-border: rgba(119, 124, 124, 0.45);
+  --dark-error: rgba(255, 100, 105, 1);
+  --dark-success: rgba(50, 184, 198, 1);
+  --dark-warning: rgba(255, 165, 100, 1);
+  --dark-info: rgba(200, 202, 204, 1);
+  --dark-focus-ring: rgba(50, 184, 198, 0.5);
+  --dark-btn-primary-text: rgba(255, 255, 255, 1);
+  --dark-card-border: rgba(119, 124, 124, 0.35);
+  --dark-card-border-inner: rgba(119, 124, 124, 0.25);
 
   /* Typography */
   --font-family-base:
@@ -63,29 +105,99 @@
   --duration-normal: 250ms;
 }
 
-/* Dark mode colors */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: rgba(18, 20, 22, 1);
-    --color-surface: rgba(25, 28, 31, 1);
-    --color-text: rgba(255, 255, 255, 0.95);
-    --color-text-secondary: rgba(200, 202, 204, 0.85);
-    --color-primary: rgba(50, 184, 198, 1);
-    --color-primary-hover: rgba(45, 166, 178, 1);
-    --color-primary-active: rgba(41, 150, 161, 1);
-    --color-secondary: rgba(119, 124, 124, 0.2);
-    --color-secondary-hover: rgba(119, 124, 124, 0.35);
-    --color-secondary-active: rgba(119, 124, 124, 0.45);
-    --color-border: rgba(119, 124, 124, 0.45);
-    --color-error: rgba(255, 100, 105, 1);
-    --color-success: rgba(50, 184, 198, 1);
-    --color-warning: rgba(255, 165, 100, 1);
-    --color-info: rgba(200, 202, 204, 1);
-    --color-focus-ring: rgba(50, 184, 198, 0.5);
-    --color-btn-primary-text: rgba(255, 255, 255, 1);
-    --color-card-border: rgba(119, 124, 124, 0.35);
-    --color-card-border-inner: rgba(119, 124, 124, 0.25);
+/* System dark mode preference - only applies when no explicit theme is set */
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    --color-background: var(--dark-background);
+    --color-surface: var(--dark-surface);
+    --color-text: var(--dark-text);
+    --color-text-secondary: var(--dark-text-secondary);
+    --color-primary: var(--dark-primary);
+    --color-primary-hover: var(--dark-primary-hover);
+    --color-primary-active: var(--dark-primary-active);
+    --color-secondary: var(--dark-secondary);
+    --color-secondary-hover: var(--dark-secondary-hover);
+    --color-secondary-active: var(--dark-secondary-active);
+    --color-border: var(--dark-border);
+    --color-error: var(--dark-error);
+    --color-success: var(--dark-success);
+    --color-warning: var(--dark-warning);
+    --color-info: var(--dark-info);
+    --color-focus-ring: var(--dark-focus-ring);
+    --color-btn-primary-text: var(--dark-btn-primary-text);
+    --color-card-border: var(--dark-card-border);
+    --color-card-border-inner: var(--dark-card-border-inner);
   }
+}
+
+/* Explicit dark mode via data attribute */
+[data-color-scheme='dark'] {
+  --color-background: var(--dark-background);
+  --color-surface: var(--dark-surface);
+  --color-text: var(--dark-text);
+  --color-text-secondary: var(--dark-text-secondary);
+  --color-primary: var(--dark-primary);
+  --color-primary-hover: var(--dark-primary-hover);
+  --color-primary-active: var(--dark-primary-active);
+  --color-secondary: var(--dark-secondary);
+  --color-secondary-hover: var(--dark-secondary-hover);
+  --color-secondary-active: var(--dark-secondary-active);
+  --color-border: var(--dark-border);
+  --color-error: var(--dark-error);
+  --color-success: var(--dark-success);
+  --color-warning: var(--dark-warning);
+  --color-info: var(--dark-info);
+  --color-focus-ring: var(--dark-focus-ring);
+  --color-btn-primary-text: var(--dark-btn-primary-text);
+  --color-card-border: var(--dark-card-border);
+  --color-card-border-inner: var(--dark-card-border-inner);
+}
+
+/* Explicit light mode via data attribute */
+[data-color-scheme='light'] {
+  --color-background: var(--light-background);
+  --color-surface: var(--light-surface);
+  --color-text: var(--light-text);
+  --color-text-secondary: var(--light-text-secondary);
+  --color-primary: var(--light-primary);
+  --color-primary-hover: var(--light-primary-hover);
+  --color-primary-active: var(--light-primary-active);
+  --color-secondary: var(--light-secondary);
+  --color-secondary-hover: var(--light-secondary-hover);
+  --color-secondary-active: var(--light-secondary-active);
+  --color-border: var(--light-border);
+  --color-error: var(--light-error);
+  --color-success: var(--light-success);
+  --color-warning: var(--light-warning);
+  --color-info: var(--light-info);
+  --color-focus-ring: var(--light-focus-ring);
+  --color-btn-primary-text: var(--light-btn-primary-text);
+  --color-card-border: var(--light-card-border);
+  --color-card-border-inner: var(--light-card-border-inner);
+}
+
+/* 明示的なダークモード設定時のスタイル */
+[data-color-scheme='dark'] .react-flow__controls {
+  background-color: rgba(51, 65, 85, 0.95) !important;
+  border: 1px solid rgba(119, 124, 124, 0.45) !important;
+}
+
+[data-color-scheme='dark'] .react-flow__controls-button {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
+}
+
+[data-color-scheme='dark'] .react-flow__controls-button:hover {
+  background-color: rgba(119, 124, 124, 0.3) !important;
+}
+
+[data-color-scheme='dark'] .react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+[data-color-scheme='dark'] .react-flow__controls-zoom {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 html {
@@ -413,21 +525,23 @@ body.no-scroll {
   background-color: rgba(192, 21, 47, 0.1);
 }
 
-/* ダークモードでのホバー・アクティブ状態 */
-@media (prefers-color-scheme: dark) {
-  .delete-button:hover {
-    color: var(--color-error);
-    background-color: rgba(255, 100, 105, 0.15);
-  }
+/* ダークモードでのホバー・アクティブ状態 - アプリ設定がない場合のみ */
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .delete-button:hover {
+      color: var(--color-error);
+      background-color: rgba(255, 100, 105, 0.15);
+    }
 
-  .conversation-item:hover .conversation-date {
-    color: rgba(200, 202, 204, 1);
-    background-color: rgba(200, 202, 204, 0.15);
-  }
+    .conversation-item:hover .conversation-date {
+      color: rgba(200, 202, 204, 1);
+      background-color: rgba(200, 202, 204, 0.15);
+    }
 
-  .conversation-item.active .conversation-date {
-    color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(255, 255, 255, 0.2);
+    .conversation-item.active .conversation-date {
+      color: rgba(255, 255, 255, 0.95);
+      background-color: rgba(255, 255, 255, 0.2);
+    }
   }
 }
 
@@ -448,11 +562,13 @@ body.no-scroll {
   transition: all var(--duration-fast);
 }
 
-/* ダークモードでの時間表示の改善 */
-@media (prefers-color-scheme: dark) {
-  .conversation-date {
-    color: rgba(200, 202, 204, 0.9);
-    background-color: rgba(200, 202, 204, 0.1);
+/* ダークモードでの時間表示の改善 - アプリ設定がない場合のみ */
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .conversation-date {
+      color: rgba(200, 202, 204, 0.9);
+      background-color: rgba(200, 202, 204, 0.1);
+    }
   }
 }
 
@@ -512,8 +628,11 @@ body.no-scroll {
 }
 
 .message-actions {
-  opacity: 0;
-  transition: opacity var(--duration-fast);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 4px; /* 上下8px・左右12pxの余白 */
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .message:hover .message-actions {
@@ -608,14 +727,16 @@ body.no-scroll {
   background-color: rgba(168, 75, 47, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  .quote-btn:hover,
-  .quote-selected-btn:hover {
-    background-color: rgba(50, 184, 198, 0.2);
-  }
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .quote-btn:hover,
+    .quote-selected-btn:hover {
+      background-color: rgba(50, 184, 198, 0.2);
+    }
 
-  .research-btn:hover {
-    background-color: rgba(255, 165, 100, 0.2);
+    .research-btn:hover {
+      background-color: rgba(255, 165, 100, 0.2);
+    }
   }
 }
 
@@ -797,29 +918,31 @@ body.no-scroll {
   line-height: 1;
 }
 
-/* ダークモード対応 */
-@media (prefers-color-scheme: dark) {
-  .clear-quote-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-  }
+/* ダークモード対応 - アプリ設定がない場合のみ */
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .clear-quote-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
 
-  .quoted-message-content {
-    color: var(--color-text-secondary);
-    background: rgba(119, 124, 124, 0.05);
-  }
+    .quoted-message-content {
+      color: var(--color-text-secondary);
+      background: rgba(119, 124, 124, 0.05);
+    }
 
-  .quoted-message {
-    background: linear-gradient(
-      135deg,
-      rgba(119, 124, 124, 0.1) 0%,
-      rgba(50, 184, 198, 0.1) 100%
-    );
-    border-color: rgba(50, 184, 198, 0.6);
-    box-shadow: 0 2px 8px rgba(50, 184, 198, 0.1);
-  }
+    .quoted-message {
+      background: linear-gradient(
+        135deg,
+        rgba(119, 124, 124, 0.1) 0%,
+        rgba(50, 184, 198, 0.1) 100%
+      );
+      border-color: rgba(50, 184, 198, 0.6);
+      box-shadow: 0 2px 8px rgba(50, 184, 198, 0.1);
+    }
 
-  .quoted-message:hover {
-    box-shadow: 0 4px 12px rgba(50, 184, 198, 0.2);
+    .quoted-message:hover {
+      box-shadow: 0 4px 12px rgba(50, 184, 198, 0.2);
+    }
   }
 }
 
@@ -1013,30 +1136,32 @@ body.no-scroll {
   height: 100%;
 }
 
-/* ReactFlow ダークモード対応 */
-@media (prefers-color-scheme: dark) {
-  .react-flow__controls {
-    background-color: rgba(51, 65, 85, 0.95) !important;
-    border: 1px solid rgba(119, 124, 124, 0.45) !important;
-  }
+/* ReactFlow ダークモード対応 - アプリ設定がない場合のみ */
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .react-flow__controls {
+      background-color: rgba(51, 65, 85, 0.95) !important;
+      border: 1px solid rgba(119, 124, 124, 0.45) !important;
+    }
 
-  .react-flow__controls-button {
-    background-color: transparent !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
-  }
+    .react-flow__controls-button {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom: 1px solid rgba(119, 124, 124, 0.3) !important;
+    }
 
-  .react-flow__controls-button:hover {
-    background-color: rgba(119, 124, 124, 0.3) !important;
-  }
+    .react-flow__controls-button:hover {
+      background-color: rgba(119, 124, 124, 0.3) !important;
+    }
 
-  .react-flow__controls-button:last-child {
-    border-bottom: none !important;
-  }
+    .react-flow__controls-button:last-child {
+      border-bottom: none !important;
+    }
 
-  /* ReactFlowのズーム表示テキスト */
-  .react-flow__controls-zoom {
-    color: rgba(255, 255, 255, 0.95) !important;
+    /* ReactFlowのズーム表示テキスト */
+    .react-flow__controls-zoom {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
   }
 }
 
@@ -1050,10 +1175,12 @@ body.no-scroll {
   animation: spin 1s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  .loading-spinner {
-    border: 2px solid rgba(119, 124, 124, 0.3);
-    border-top: 2px solid var(--color-primary);
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .loading-spinner {
+      border: 2px solid rgba(119, 124, 124, 0.3);
+      border-top: 2px solid var(--color-primary);
+    }
   }
 }
 
@@ -1190,9 +1317,11 @@ body.no-scroll {
   background-color: var(--color-secondary);
 }
 
-@media (prefers-color-scheme: dark) {
-  .modal-close:hover {
-    background-color: rgba(119, 124, 124, 0.3);
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .modal-close:hover {
+      background-color: rgba(119, 124, 124, 0.3);
+    }
   }
 }
 
@@ -1419,10 +1548,12 @@ body.no-scroll {
   color: var(--color-text-secondary);
 }
 
-@media (prefers-color-scheme: dark) {
-  .markdown-blockquote {
-    background-color: rgba(50, 184, 198, 0.1);
-    border-left-color: var(--color-primary);
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .markdown-blockquote {
+      background-color: rgba(50, 184, 198, 0.1);
+      border-left-color: var(--color-primary);
+    }
   }
 }
 
@@ -1437,10 +1568,12 @@ body.no-scroll {
   font-weight: var(--font-weight-medium);
 }
 
-@media (prefers-color-scheme: dark) {
-  .markdown-code-inline {
-    background-color: rgba(50, 184, 198, 0.15);
-    color: var(--color-primary);
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .markdown-code-inline {
+      background-color: rgba(50, 184, 198, 0.15);
+      color: var(--color-primary);
+    }
   }
 }
 
@@ -1511,13 +1644,15 @@ body.no-scroll {
   background-color: rgba(33, 128, 141, 0.02);
 }
 
-@media (prefers-color-scheme: dark) {
-  .markdown-tr:nth-child(even) .markdown-td {
-    background-color: rgba(50, 184, 198, 0.05);
-  }
+:root:not([data-color-scheme]) {
+  @media (prefers-color-scheme: dark) {
+    .markdown-tr:nth-child(even) .markdown-td {
+      background-color: rgba(50, 184, 198, 0.05);
+    }
 
-  .markdown-table {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    .markdown-table {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
@@ -1670,4 +1805,41 @@ body.no-scroll {
   .markdown-h2 {
     font-size: var(--font-size-base);
   }
+}
+
+/* Loading Animation */
+.locale-loading {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-text {
+  height: 1rem;
+  border-radius: 4px;
+  margin: 0.25rem 0;
 }

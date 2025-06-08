@@ -5,6 +5,7 @@ export function generateId(prefix: string = 'id'): string {
   return `${prefix}_${uuidv4().replace(/-/g, '').substring(0, 8)}`;
 }
 
+// レガシー関数 - 新しいコンポーネントではConversationSidebar内の国際化対応関数を使用してください
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -12,16 +13,23 @@ export function formatDate(dateString: string): string {
     (now.getTime() - date.getTime()) / (1000 * 60)
   );
 
-  if (diffInMinutes < 1) return 'たった今';
-  if (diffInMinutes < 60) return `${diffInMinutes}分前`;
+  // ブラウザの言語設定に基づいて表示を変更
+  const isJapanese =
+    typeof window !== 'undefined' ? navigator.language.startsWith('ja') : true;
+
+  if (diffInMinutes < 1) return isJapanese ? 'たった今' : 'just now';
+  if (diffInMinutes < 60)
+    return isJapanese ? `${diffInMinutes}分前` : `${diffInMinutes} min ago`;
 
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours}時間前`;
+  if (diffInHours < 24)
+    return isJapanese ? `${diffInHours}時間前` : `${diffInHours}h ago`;
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays}日前`;
+  if (diffInDays < 7)
+    return isJapanese ? `${diffInDays}日前` : `${diffInDays}d ago`;
 
-  return date.toLocaleDateString('ja-JP');
+  return date.toLocaleDateString(isJapanese ? 'ja-JP' : 'en-US');
 }
 
 export function truncateText(text: string, maxLength: number = 50): string {

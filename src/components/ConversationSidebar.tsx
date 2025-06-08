@@ -1,6 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Conversation } from '@/types';
-import { formatDate, truncateText } from '@/utils/helpers';
+import { truncateText } from '@/utils/helpers';
 import { useState } from 'react';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 
@@ -21,9 +22,34 @@ export default function ConversationSidebar({
   onDeleteConversation,
   className = '',
 }: ConversationSidebarProps) {
+  const t = useTranslations('sidebar');
+  const tTime = useTranslations('time');
+  const locale = useLocale();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] =
     useState<Conversation | null>(null);
+
+  // 国際化対応の時刻フォーマット関数
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 1) return tTime('justNow');
+    if (diffInMinutes < 60)
+      return tTime('minutesAgo', { minutes: diffInMinutes });
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return tTime('hoursAgo', { hours: diffInHours });
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return tTime('daysAgo', { days: diffInDays });
+
+    // 1週間以上前の場合は locale に基づく日付表示
+    return date.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US');
+  };
 
   const handleDeleteClick = (
     e: React.MouseEvent,
@@ -51,21 +77,21 @@ export default function ConversationSidebar({
   return (
     <aside className={className || 'sidebar'}>
       <div className="sidebar-header">
-        <h3>会話履歴</h3>
+        <h3>{t('conversationHistory')}</h3>
         <button
           className="btn btn--sm btn--outline"
           onClick={onNewConversation}
         >
           <Plus size={16} />
-          新規会話
+          {t('newConversation')}
         </button>
       </div>
 
       <div className="conversation-list">
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <p>会話がありません</p>
-            <p className="text-sm">新規会話を作成してください</p>
+            <p>{t('noConversations')}</p>
+            <p className="text-sm">{t('createNewConversation')}</p>
           </div>
         ) : (
           conversations.map((conversation) => (
@@ -89,7 +115,7 @@ export default function ConversationSidebar({
               <button
                 className="delete-button"
                 onClick={(e) => handleDeleteClick(e, conversation)}
-                title="会話を削除"
+                title={t('deleteConversation')}
               >
                 <Trash2 size={14} />
               </button>

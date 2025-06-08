@@ -11,6 +11,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+import { useTranslations } from 'next-intl';
 import { Conversation, Message } from '@/types';
 
 interface ChatAreaProps {
@@ -139,6 +140,7 @@ interface MessageContentProps {
 }
 
 const MessageContent = memo(({ message }: MessageContentProps) => {
+  const t = useTranslations('chat');
   const [isExpanded, setIsExpanded] = useState(false);
   const contentLength = message.content.length;
   const shouldShowToggle = contentLength > 500; // 500文字以上で折りたたみ表示
@@ -183,12 +185,12 @@ const MessageContent = memo(({ message }: MessageContentProps) => {
           {isExpanded ? (
             <>
               <ChevronUp size={12} />
-              折りたたむ
+              {t('collapse')}
             </>
           ) : (
             <>
               <ChevronDown size={12} />
-              続きを読む
+              {t('readMore')}
             </>
           )}
         </button>
@@ -218,6 +220,7 @@ const MessageActions = memo(
     onMessageClick,
     onCreateBranch,
   }: MessageActionsProps) => {
+    const t = useTranslations('chat');
     if (message.role !== 'assistant') return null;
 
     return (
@@ -228,10 +231,10 @@ const MessageActions = memo(
             e.stopPropagation();
             onMessageClick(message);
           }}
-          title="このメッセージ全体を引用"
+          title={t('quoteAll')}
         >
           <Quote size={14} />
-          全体を引用
+          {t('quoteAll')}
         </button>
         <button
           className="quote-selected-btn"
@@ -244,10 +247,10 @@ const MessageActions = memo(
             opacity: selectedText ? 1 : 0.3,
             pointerEvents: selectedText ? 'auto' : 'none',
           }}
-          title="選択したテキストを引用"
+          title={t('quoteSelected')}
         >
           <Quote size={14} />
-          選択部分を引用
+          {t('quoteSelected')}
         </button>
         <button
           className="quote-btn"
@@ -260,10 +263,10 @@ const MessageActions = memo(
             opacity: selectedText ? 1 : 0.3,
             pointerEvents: selectedText ? 'auto' : 'none',
           }}
-          title="選択範囲について調査"
+          title={t('research')}
         >
           <Quote size={14} />
-          調べる
+          {t('research')}
         </button>
         <button
           className="branch-btn"
@@ -271,10 +274,10 @@ const MessageActions = memo(
             e.stopPropagation();
             onCreateBranch(message.id);
           }}
-          title="ここから分岐"
+          title={t('branch')}
         >
           <GitBranch size={14} />
-          分岐
+          {t('branch')}
         </button>
       </div>
     );
@@ -291,6 +294,7 @@ export default function ChatArea({
   onCreateBranch,
   onToggleTree,
 }: ChatAreaProps) {
+  const t = useTranslations('chat');
   const [inputValue, setInputValue] = useState('');
   const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
   const [quotedText, setQuotedText] = useState<string>('');
@@ -489,10 +493,10 @@ export default function ChatArea({
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-xl font-semibold mb-4">
-              会話を選択してください
+              {t('selectConversation')}
             </h2>
             <p className="text-gray-600">
-              左のサイドバーから会話を選択するか、新しい会話を作成してください。
+              {t('selectConversationDescription')}
             </p>
           </div>
         </div>
@@ -507,7 +511,7 @@ export default function ChatArea({
         <div className="tree-toggle">
           <button className="btn btn--sm btn--secondary" onClick={onToggleTree}>
             <Eye size={16} />
-            ツリー表示切り替え
+            {t('treeToggle')}
           </button>
         </div>
       </div>
@@ -517,10 +521,10 @@ export default function ChatArea({
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <h3 className="text-lg font-medium mb-2">
-                新しい会話を始めましょう
+                {t('startNewConversation')}
               </h3>
               <p className="text-gray-600">
-                下のメッセージボックスに質問や話題を入力してください。
+                {t('startNewConversationDescription')}
               </p>
             </div>
           </div>
@@ -530,7 +534,7 @@ export default function ChatArea({
               <div key={message.id} className={`message ${message.role}`}>
                 <div className="message-header">
                   <span className="message-role">
-                    {message.role === 'user' ? 'あなた' : 'AI'}
+                    {message.role === 'user' ? t('you') : t('ai')}
                   </span>
                   <MessageActions
                     message={message}
@@ -547,12 +551,12 @@ export default function ChatArea({
             {isLoading && (
               <div className="message assistant">
                 <div className="message-header">
-                  <span className="message-role">AI</span>
+                  <span className="message-role">{t('ai')}</span>
                 </div>
                 <div className="message-content">
                   <div className="flex items-center gap-2">
                     <div className="loading-spinner"></div>
-                    <span>応答を生成中...</span>
+                    <span>{t('generating')}</span>
                   </div>
                 </div>
               </div>
@@ -567,11 +571,11 @@ export default function ChatArea({
           <div className="quoted-message">
             <div className="quoted-message-header">
               <Quote size={16} />
-              <span>引用メッセージ</span>
+              <span>{t('quotedMessage')}</span>
               <button
                 className="clear-quote-btn"
                 onClick={handleClearQuote}
-                title="引用を削除"
+                title={t('removeQuote')}
               >
                 <X size={16} />
               </button>
@@ -588,10 +592,10 @@ export default function ChatArea({
             className="form-control"
             placeholder={
               quotedMessage
-                ? '引用メッセージに対する返信を入力してください...'
+                ? t('quotedMessageReply')
                 : sendBehavior === 'enter'
-                  ? 'メッセージを入力してください（Enterで送信、Shift+Enterで改行）...'
-                  : 'メッセージを入力してください（Shift+Enterで送信、Enterで改行）...'
+                  ? t('messageInputEnter')
+                  : t('messageInputShiftEnter')
             }
             value={inputValue}
             onChange={handleTextareaChange}
@@ -619,7 +623,7 @@ export default function ChatArea({
               disabled={!inputValue.trim() || isLoading}
             >
               <Send size={16} />
-              送信
+              {t('send')}
             </button>
           </div>
         </form>

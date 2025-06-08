@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { prisma } from '@/lib/prisma';
-import {
-  buildEnhancedQuotedPrompt,
-  SYSTEM_PROMPT_WITH_QUOTE,
-} from '@/utils/prompts';
+import { buildEnhancedQuotedPrompt, getSystemPrompt } from '@/utils/prompts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +11,7 @@ export async function POST(request: NextRequest) {
       quotedMessage,
       quotedText,
       model = 'gpt-4o-mini',
+      locale = 'en', // デフォルトは英語
     } = await request.json();
 
     if (!message) {
@@ -35,13 +33,17 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     });
 
+    // 言語に応じたシステムプロンプトを取得
+    const systemPrompt = getSystemPrompt(locale);
+
     // 引用メッセージがある場合の高度なプロンプト構築
     let userPrompt = message;
     if (quotedMessage && quotedText) {
       userPrompt = buildEnhancedQuotedPrompt(
         message,
         quotedText,
-        quotedMessage
+        quotedMessage,
+        locale
       );
     }
 
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: SYSTEM_PROMPT_WITH_QUOTE,
+          content: systemPrompt,
         },
         {
           role: 'user',
@@ -75,7 +77,9 @@ export async function POST(request: NextRequest) {
 
     const content =
       completion.choices[0]?.message?.content ||
-      '申し訳ございませんが、応答を生成できませんでした。';
+      (locale === 'ja'
+        ? '申し訳ございませんが、応答を生成できませんでした。'
+        : 'Sorry, I could not generate a response.');
 
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {
@@ -85,10 +89,11 @@ export async function POST(request: NextRequest) {
           include: { messages: true },
         });
 
-        // メッセージが1つもない、または「新しい会話」のままの場合はタイトルを更新
+        // メッセージが1つもない、またはデフォルトタイトルのままの場合はタイトルを更新
         if (
           conversation &&
           (conversation.messages.length === 0 ||
+            conversation.title === 'New Conversation' ||
             conversation.title === '新しい会話')
         ) {
           const title =

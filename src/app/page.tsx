@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import { Settings, GitBranch, Menu } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import ConversationSidebar from '@/components/ConversationSidebar';
 import ChatArea from '@/components/ChatArea';
 import TreeView from '@/components/TreeView';
@@ -12,6 +13,7 @@ import { useConversations } from '@/hooks/useConversations';
 import { Message } from '@/types';
 
 export default function HomePage() {
+  const t = useTranslations();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTreeVisible, setIsTreeVisible] = useState(true);
   const [treeMode, setTreeMode] = useState<'auto' | 'simple' | 'advanced'>(
@@ -39,6 +41,56 @@ export default function HomePage() {
   } = useChat(currentConversationId);
 
   const statusRef = useRef<HTMLDivElement>(null);
+
+  // ページロード時に保存された設定を適用
+  useEffect(() => {
+    const applySettings = () => {
+      try {
+        const savedSettings = localStorage.getItem('chatAppSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+
+          // テーマ適用
+          if (settings.theme && settings.theme !== 'auto') {
+            document.documentElement.setAttribute(
+              'data-color-scheme',
+              settings.theme
+            );
+          } else {
+            document.documentElement.removeAttribute('data-color-scheme');
+          }
+
+          // フォントサイズ適用
+          if (settings.fontSize) {
+            document.documentElement.setAttribute(
+              'data-font-size',
+              settings.fontSize
+            );
+          }
+
+          // ツリー表示モード適用
+          if (settings.treeViewMode) {
+            setTreeMode(settings.treeViewMode);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to apply saved settings:', error);
+      }
+    };
+
+    applySettings();
+
+    // settingsUpdated イベントをリッスンして設定変更を反映
+    const handleSettingsUpdate = () => {
+      applySettings();
+    };
+
+    window.addEventListener('settingsUpdated', handleSettingsUpdate);
+
+    return () => {
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+    };
+  }, []);
 
   // 初回ロード時に会話を取得
   useEffect(() => {
@@ -70,30 +122,30 @@ export default function HomePage() {
       if (quotedMessageId) {
         // 引用メッセージから分岐を作成してメッセージを送信
         await sendMessage(content, quotedMessageId, quotedMessage, quotedText);
-        toast.success('新しいブランチを作成しました');
+        toast.success(t('messages.branchCreated'));
       } else {
         await sendMessage(content, undefined, quotedMessage, quotedText);
       }
     } catch {
-      toast.error('メッセージの送信に失敗しました');
+      toast.error(t('messages.messageSendError'));
     }
   };
 
   const handleCreateBranch = async (messageId: string) => {
     try {
       await createBranch(messageId);
-      toast.success('新しいブランチを作成しました');
+      toast.success(t('messages.branchCreated'));
     } catch {
-      toast.error('ブランチの作成に失敗しました');
+      toast.error(t('messages.branchCreateError'));
     }
   };
 
   const handleNewConversation = async () => {
     try {
       await createConversation();
-      toast.success('新しい会話を作成しました');
+      toast.success(t('messages.conversationCreated'));
     } catch {
-      toast.error('会話の作成に失敗しました');
+      toast.error(t('messages.conversationCreateError'));
     }
   };
 
@@ -101,14 +153,14 @@ export default function HomePage() {
     try {
       const success = await deleteConversation(conversationId);
       if (success) {
-        toast.success('会話を削除しました');
+        toast.success(t('messages.conversationDeleted'));
         return true;
       } else {
-        toast.error('会話の削除に失敗しました');
+        toast.error(t('messages.conversationDeleteError'));
         return false;
       }
     } catch {
-      toast.error('会話の削除に失敗しました');
+      toast.error(t('messages.conversationDeleteError'));
       return false;
     }
   };
@@ -128,16 +180,16 @@ export default function HomePage() {
               setIsSidebarOpen(!isSidebarOpen);
               if (!isSidebarOpen) setIsTreeOpen(false); // サイドバーを開く時はツリーを閉じる
             }}
-            aria-label="会話履歴を開く"
+            aria-label={t('header.conversationHistory')}
           >
             <Menu size={20} />
           </button>
-          <h1>AI分岐チャット</h1>
+          <h1>{t('app.title')}</h1>
         </div>
         <div className="header-controls">
           <div className="status-indicator" ref={statusRef}>
             <span className="status-text">
-              {isLoading ? '応答生成中...' : '準備完了'}
+              {isLoading ? t('status.generating') : t('status.ready')}
             </span>
             {isLoading && <div className="loading-spinner"></div>}
           </div>
@@ -147,7 +199,7 @@ export default function HomePage() {
               setIsTreeOpen(!isTreeOpen);
               if (!isTreeOpen) setIsSidebarOpen(false); // ツリーを開く時はサイドバーを閉じる
             }}
-            aria-label="会話ツリーを開く"
+            aria-label={t('header.conversationTree')}
           >
             <GitBranch size={20} />
           </button>
@@ -156,7 +208,7 @@ export default function HomePage() {
             onClick={() => setIsSettingsOpen(true)}
           >
             <Settings size={16} />
-            設定
+            {t('header.settings')}
           </button>
         </div>
       </header>

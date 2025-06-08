@@ -1,0 +1,116 @@
+{
+  "app": {
+    "title": "Chat Branch",
+    "description": "OpenAI APIを使用した会話分岐機能付きチャットアプリケーション"
+  },
+  "header": {
+    "conversationHistory": "会話履歴を開く",
+    "conversationTree": "会話ツリーを開く",
+    "settings": "設定"
+  },
+  "status": {
+    "generating": "応答生成中...",
+    "ready": "準備完了"
+  },
+  "sidebar": {
+    "conversationHistory": "会話履歴",
+    "newConversation": "新規会話",
+    "noConversations": "会話がありません",
+    "createNewConversation": "新規会話を作成してください",
+    "deleteConversation": "会話を削除",
+    "defaultConversationTitle": "新しい会話"
+  },
+  "chat": {
+    "branch": "分岐",
+    "quote": "引用",
+    "copy": "コピー",
+    "placeholder": "メッセージを入力...",
+    "send": "送信",
+    "newBranch": "新しいブランチ",
+    "quotedMessage": "引用メッセージ",
+    "selectConversation": "会話を選択してください",
+    "selectConversationDescription": "左のサイドバーから会話を選択するか、新しい会話を作成してください。",
+    "startNewConversation": "新しい会話を始めましょう",
+    "startNewConversationDescription": "下のメッセージボックスに質問や話題を入力してください。",
+    "you": "あなた",
+    "ai": "AI",
+    "generating": "応答を生成中...",
+    "treeToggle": "ツリー表示切り替え",
+    "quotedMessageReply": "引用メッセージに対する返信を入力してください...",
+    "messageInputEnter": "メッセージを入力してください（Enterで送信、Shift+Enterで改行）...",
+    "messageInputShiftEnter": "メッセージを入力してください（Shift+Enterで送信、Enterで改行）...",
+    "removeQuote": "引用を削除",
+    "collapse": "折りたたむ",
+    "readMore": "続きを読む",
+    "quoteAll": "全体を引用",
+    "quoteSelected": "選択部分を引用",
+    "research": "調べる"
+  },
+  "tree": {
+    "title": "会話ツリー",
+    "mode": {
+      "auto": "自動選択",
+      "simple": "シンプル表示",
+      "advanced": "高度表示"
+    },
+    "empty": "メッセージがありません",
+    "selectConversation": "会話を選択してください",
+    "simpleDisplay": "シンプル表示",
+    "treeLayout": "ツリーレイアウト"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "theme": "テーマ",
+    "fontSize": "フォントサイズ",
+    "treeMode": "ツリー表示モード",
+    "sendBehavior": "送信方法",
+    "debugMode": "デバッグモード",
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "themeOptions": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "自動"
+    },
+    "fontSizeOptions": {
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "treeModeOptions": {
+      "auto": "自動選択",
+      "simple": "常にシンプル",
+      "advanced": "常に高度表示"
+    },
+    "sendBehaviorOptions": {
+      "enter": "Enterで送信（Shift+Enterで改行）",
+      "shiftEnter": "Shift+Enterで送信（Enterで改行）"
+    }
+  },
+  "messages": {
+    "branchCreated": "新しいブランチを作成しました",
+    "branchCreateError": "ブランチの作成に失敗しました",
+    "messageSendError": "メッセージの送信に失敗しました",
+    "conversationCreated": "新しい会話を作成しました",
+    "conversationCreateError": "会話の作成に失敗しました",
+    "conversationDeleted": "会話を削除しました",
+    "conversationDeleteError": "会話の削除に失敗しました",
+    "messageCopied": "メッセージをコピーしました"
+  },
+  "delete": {
+    "confirmTitle": "会話の削除",
+    "confirmMessage": "本当にこの会話を削除しますか？",
+    "conversationTitle": "会話: {title}",
+    "thisActionCannotBeUndone": "この操作は取り消すことができません。",
+    "cancel": "キャンセル",
+    "delete": "削除"
+  },
+  "time": {
+    "justNow": "たった今",
+    "minutesAgo": "{minutes}分前",
+    "hoursAgo": "{hours}時間前",
+    "daysAgo": "{days}日前"
+  }
+}

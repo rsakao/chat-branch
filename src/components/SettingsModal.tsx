@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import LanguageSelector from './LanguageSelector';
+import { useLocale } from '../hooks/useLocale';
+import { Locale } from '../i18n/config';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,7 +18,10 @@ export default function SettingsModal({
   treeMode,
   onTreeModeChange,
 }: SettingsModalProps) {
+  const t = useTranslations('settings');
+  const { locale, setLocale } = useLocale();
   const [localSettings, setLocalSettings] = useState({
+    language: locale,
     theme: 'auto' as 'light' | 'dark' | 'auto',
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
@@ -22,12 +29,57 @@ export default function SettingsModal({
     sendBehavior: 'enter' as 'enter' | 'shift-enter',
   });
 
+  // Load saved settings from localStorage
+  const loadSavedSettings = () => {
+    const saved = localStorage.getItem('chatAppSettings');
+    if (saved) {
+      try {
+        const settings = JSON.parse(saved);
+        return {
+          language: locale,
+          theme: settings.theme || 'auto',
+          fontSize: settings.fontSize || 'medium',
+          treeViewMode: treeMode,
+          debugMode: settings.debugMode || false,
+          sendBehavior: settings.sendBehavior || 'enter',
+        };
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+        return {
+          language: locale,
+          theme: 'auto' as 'light' | 'dark' | 'auto',
+          fontSize: 'medium' as 'small' | 'medium' | 'large',
+          treeViewMode: treeMode,
+          debugMode: false,
+          sendBehavior: 'enter' as 'enter' | 'shift-enter',
+        };
+      }
+    }
+    return {
+      language: locale,
+      theme: 'auto' as 'light' | 'dark' | 'auto',
+      fontSize: 'medium' as 'small' | 'medium' | 'large',
+      treeViewMode: treeMode,
+      debugMode: false,
+      sendBehavior: 'enter' as 'enter' | 'shift-enter',
+    };
+  };
+
+  // Reset to saved settings when modal opens
   useEffect(() => {
-    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
-  }, [treeMode]);
+    if (isOpen) {
+      const savedSettings = loadSavedSettings();
+      setLocalSettings(savedSettings);
+    }
+  }, [isOpen, locale, treeMode]);
 
   const handleSave = () => {
     onTreeModeChange(localSettings.treeViewMode);
+
+    // Apply language change
+    if (localSettings.language !== locale) {
+      setLocale(localSettings.language);
+    }
 
     // Apply theme
     if (localSettings.theme !== 'auto') {
@@ -55,22 +107,18 @@ export default function SettingsModal({
   };
 
   const handleCancel = () => {
-    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
+    // Reset to saved settings
+    const savedSettings = loadSavedSettings();
+    setLocalSettings(savedSettings);
     onClose();
   };
 
-  useEffect(() => {
-    // Load settings from localStorage
-    const saved = localStorage.getItem('chatAppSettings');
-    if (saved) {
-      try {
-        const settings = JSON.parse(saved);
-        setLocalSettings((prev) => ({ ...prev, ...settings }));
-      } catch (error) {
-        console.error('Failed to load settings:', error);
-      }
-    }
-  }, []);
+  const handleClose = () => {
+    // Reset to saved settings when closing with X button
+    const savedSettings = loadSavedSettings();
+    setLocalSettings(savedSettings);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -78,15 +126,22 @@ export default function SettingsModal({
     <div className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>設定</h3>
-          <button className="modal-close" onClick={onClose}>
+          <h3>{t('title')}</h3>
+          <button className="modal-close" onClick={handleClose}>
             <X size={20} />
           </button>
         </div>
 
         <div className="modal-body">
+          <LanguageSelector
+            value={localSettings.language}
+            onChange={(language: Locale) =>
+              setLocalSettings((prev) => ({ ...prev, language }))
+            }
+          />
+
           <div className="form-group">
-            <label className="form-label">テーマ</label>
+            <label className="form-label">{t('theme')}</label>
             <select
               value={localSettings.theme}
               onChange={(e) =>
@@ -97,14 +152,14 @@ export default function SettingsModal({
               }
               className="form-control"
             >
-              <option value="light">ライト</option>
-              <option value="dark">ダーク</option>
-              <option value="auto">自動</option>
+              <option value="light">{t('themeOptions.light')}</option>
+              <option value="dark">{t('themeOptions.dark')}</option>
+              <option value="auto">{t('themeOptions.auto')}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label className="form-label">フォントサイズ</label>
+            <label className="form-label">{t('fontSize')}</label>
             <select
               value={localSettings.fontSize}
               onChange={(e) =>
@@ -115,14 +170,14 @@ export default function SettingsModal({
               }
               className="form-control"
             >
-              <option value="small">小</option>
-              <option value="medium">中</option>
-              <option value="large">大</option>
+              <option value="small">{t('fontSizeOptions.small')}</option>
+              <option value="medium">{t('fontSizeOptions.medium')}</option>
+              <option value="large">{t('fontSizeOptions.large')}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label className="form-label">ツリー表示モード</label>
+            <label className="form-label">{t('treeMode')}</label>
             <select
               value={localSettings.treeViewMode}
               onChange={(e) =>
@@ -136,14 +191,14 @@ export default function SettingsModal({
               }
               className="form-control"
             >
-              <option value="auto">自動選択</option>
-              <option value="simple">常にシンプル</option>
-              <option value="advanced">常に高度表示</option>
+              <option value="auto">{t('treeModeOptions.auto')}</option>
+              <option value="simple">{t('treeModeOptions.simple')}</option>
+              <option value="advanced">{t('treeModeOptions.advanced')}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label className="form-label">送信方法</label>
+            <label className="form-label">{t('sendBehavior')}</label>
             <select
               value={localSettings.sendBehavior}
               onChange={(e) =>
@@ -154,9 +209,9 @@ export default function SettingsModal({
               }
               className="form-control"
             >
-              <option value="enter">Enterで送信（Shift+Enterで改行）</option>
+              <option value="enter">{t('sendBehaviorOptions.enter')}</option>
               <option value="shift-enter">
-                Shift+Enterで送信（Enterで改行）
+                {t('sendBehaviorOptions.shiftEnter')}
               </option>
             </select>
           </div>
@@ -174,17 +229,17 @@ export default function SettingsModal({
                 }
                 style={{ marginRight: '8px' }}
               />
-              デバッグモード
+              {t('debugMode')}
             </label>
           </div>
         </div>
 
         <div className="modal-footer">
           <button className="btn btn--secondary" onClick={handleCancel}>
-            キャンセル
+            {t('cancel')}
           </button>
           <button className="btn btn--primary" onClick={handleSave}>
-            保存
+            {t('save')}
           </button>
         </div>
       </div>

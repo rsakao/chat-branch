@@ -40,17 +40,42 @@ export default function ForceDirectedTree({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [treeKey, setTreeKey] = useState(0); // ツリーの強制再レンダリング用
 
-  // ダークモード検出
+  // テーマ検出（アプリ設定を優先）
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
     const checkDarkMode = () => {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(isDark);
+      // アプリの明示的な設定を確認
+      const explicitTheme =
+        document.documentElement.getAttribute('data-color-scheme');
+      if (explicitTheme) {
+        setIsDarkMode(explicitTheme === 'dark');
+      } else {
+        // 明示的な設定がない場合のみシステム設定を使用
+        const isDark = window.matchMedia(
+          '(prefers-color-scheme: dark)'
+        ).matches;
+        setIsDarkMode(isDark);
+      }
     };
+
     checkDarkMode();
+
+    // data-color-scheme属性の変更を監視
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-color-scheme'],
+    });
+
+    // システムのprefers-color-scheme変更も監視（明示的設定がない場合用）
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     mediaQuery.addEventListener('change', checkDarkMode);
-    return () => mediaQuery.removeEventListener('change', checkDarkMode);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', checkDarkMode);
+    };
   }, []);
 
   // コンテナサイズの監視

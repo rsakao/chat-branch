@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Conversation } from '@/types';
 import { generateId } from '@/utils/helpers';
 
 export function useConversations() {
+  const t = useTranslations('sidebar');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<
     string | null
@@ -36,7 +38,7 @@ export function useConversations() {
   const createConversation = useCallback(async () => {
     const newConversation: Conversation = {
       id: generateId('conv'),
-      title: '新しい会話',
+      title: t('defaultConversationTitle'),
       messages: {},
       rootMessageId: undefined,
       currentPath: [],
@@ -70,7 +72,7 @@ export function useConversations() {
     setCurrentConversationId(newConversation.id);
     localStorage.setItem('lastConversationId', newConversation.id);
     return newConversation;
-  }, []);
+  }, [t]);
 
   const switchConversation = useCallback((conversationId: string) => {
     setCurrentConversationId(conversationId);

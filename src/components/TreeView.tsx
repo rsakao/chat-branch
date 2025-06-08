@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
+import { useTranslations } from 'next-intl';
 import { Conversation, Message } from '@/types';
 import { truncateText } from '@/utils/helpers';
 import ForceDirectedTree from './ForceDirectedTree';
@@ -26,6 +27,7 @@ export default function TreeView({
   onSelectMessage,
   className = '',
 }: TreeViewProps) {
+  const t = useTranslations('tree');
   // リサイズ機能（デフォルト幅を450pxに設定して自動選択でツリーレイアウトになるようにする）
   const [treeWidth, setTreeWidth] = useState(450);
   const [isResizing, setIsResizing] = useState(false);
@@ -198,7 +200,7 @@ export default function TreeView({
         style={{ width: `${treeWidth}px` }}
       >
         <div className="tree-header">
-          <h3>会話ツリー</h3>
+          <h3>{t('title')}</h3>
           <div className="tree-mode-selector">
             <select
               value={treeMode}
@@ -209,15 +211,15 @@ export default function TreeView({
               }
               className="form-control"
             >
-              <option value="auto">自動選択</option>
-              <option value="simple">シンプル表示</option>
-              <option value="advanced">ツリーレイアウト</option>
+              <option value="auto">{t('mode.auto')}</option>
+              <option value="simple">{t('simpleDisplay')}</option>
+              <option value="advanced">{t('treeLayout')}</option>
             </select>
           </div>
         </div>
         <div className="tree-container">
           <div className="tree-loading">
-            <p>会話を選択してください</p>
+            <p>{t('selectConversation')}</p>
           </div>
         </div>
       </aside>
@@ -243,7 +245,7 @@ export default function TreeView({
         style={{ width: `${treeWidth}px` }}
       >
         <div className="tree-header">
-          <h3>会話ツリー</h3>
+          <h3>{t('title')}</h3>
           <div className="tree-mode-selector">
             <select
               value={treeMode}
@@ -254,9 +256,9 @@ export default function TreeView({
               }
               className="form-control"
             >
-              <option value="auto">自動選択</option>
-              <option value="simple">シンプル表示</option>
-              <option value="advanced">ツリーレイアウト</option>
+              <option value="auto">{t('mode.auto')}</option>
+              <option value="simple">{t('simpleDisplay')}</option>
+              <option value="advanced">{t('treeLayout')}</option>
             </select>
           </div>
           {debugMode && conversation && (
@@ -281,7 +283,7 @@ export default function TreeView({
         <div className="tree-container">
           {Object.keys(allMessages).length === 0 ? (
             <div className="tree-loading">
-              <p>メッセージがありません</p>
+              <p>{t('empty')}</p>
             </div>
           ) : useAdvanced ? (
             <ForceDirectedTree
