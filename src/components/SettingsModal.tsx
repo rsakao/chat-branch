@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import LanguageSelector from './LanguageSelector';
+import { useLocale } from '../hooks/useLocale';
+import { Locale } from '../i18n/config';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -17,7 +19,9 @@ export default function SettingsModal({
   onTreeModeChange,
 }: SettingsModalProps) {
   const t = useTranslations('settings');
+  const { locale, setLocale } = useLocale();
   const [localSettings, setLocalSettings] = useState({
+    language: locale,
     theme: 'auto' as 'light' | 'dark' | 'auto',
     fontSize: 'medium' as 'small' | 'medium' | 'large',
     treeViewMode: treeMode,
@@ -25,12 +29,57 @@ export default function SettingsModal({
     sendBehavior: 'enter' as 'enter' | 'shift-enter',
   });
 
+  // Load saved settings from localStorage
+  const loadSavedSettings = () => {
+    const saved = localStorage.getItem('chatAppSettings');
+    if (saved) {
+      try {
+        const settings = JSON.parse(saved);
+        return {
+          language: locale,
+          theme: settings.theme || 'auto',
+          fontSize: settings.fontSize || 'medium',
+          treeViewMode: treeMode,
+          debugMode: settings.debugMode || false,
+          sendBehavior: settings.sendBehavior || 'enter',
+        };
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+        return {
+          language: locale,
+          theme: 'auto' as 'light' | 'dark' | 'auto',
+          fontSize: 'medium' as 'small' | 'medium' | 'large',
+          treeViewMode: treeMode,
+          debugMode: false,
+          sendBehavior: 'enter' as 'enter' | 'shift-enter',
+        };
+      }
+    }
+    return {
+      language: locale,
+      theme: 'auto' as 'light' | 'dark' | 'auto',
+      fontSize: 'medium' as 'small' | 'medium' | 'large',
+      treeViewMode: treeMode,
+      debugMode: false,
+      sendBehavior: 'enter' as 'enter' | 'shift-enter',
+    };
+  };
+
+  // Reset to saved settings when modal opens
   useEffect(() => {
-    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
-  }, [treeMode]);
+    if (isOpen) {
+      const savedSettings = loadSavedSettings();
+      setLocalSettings(savedSettings);
+    }
+  }, [isOpen, locale, treeMode]);
 
   const handleSave = () => {
     onTreeModeChange(localSettings.treeViewMode);
+
+    // Apply language change
+    if (localSettings.language !== locale) {
+      setLocale(localSettings.language);
+    }
 
     // Apply theme
     if (localSettings.theme !== 'auto') {
@@ -58,22 +107,18 @@ export default function SettingsModal({
   };
 
   const handleCancel = () => {
-    setLocalSettings((prev) => ({ ...prev, treeViewMode: treeMode }));
+    // Reset to saved settings
+    const savedSettings = loadSavedSettings();
+    setLocalSettings(savedSettings);
     onClose();
   };
 
-  useEffect(() => {
-    // Load settings from localStorage
-    const saved = localStorage.getItem('chatAppSettings');
-    if (saved) {
-      try {
-        const settings = JSON.parse(saved);
-        setLocalSettings((prev) => ({ ...prev, ...settings }));
-      } catch (error) {
-        console.error('Failed to load settings:', error);
-      }
-    }
-  }, []);
+  const handleClose = () => {
+    // Reset to saved settings when closing with X button
+    const savedSettings = loadSavedSettings();
+    setLocalSettings(savedSettings);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -82,13 +127,18 @@ export default function SettingsModal({
       <div className="modal-content">
         <div className="modal-header">
           <h3>{t('title')}</h3>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={handleClose}>
             <X size={20} />
           </button>
         </div>
 
         <div className="modal-body">
-          <LanguageSelector />
+          <LanguageSelector 
+            value={localSettings.language}
+            onChange={(language: Locale) =>
+              setLocalSettings((prev) => ({ ...prev, language }))
+            }
+          />
 
           <div className="form-group">
             <label className="form-label">{t('theme')}</label>

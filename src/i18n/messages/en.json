@@ -26,7 +26,21 @@
     "placeholder": "Type a message...",
     "send": "Send",
     "newBranch": "New Branch",
-    "quotedMessage": "Quoted Message"
+    "quotedMessage": "Quoted Message",
+    "selectConversation": "Please select a conversation",
+    "selectConversationDescription": "Please select a conversation from the left sidebar or create a new conversation.",
+    "startNewConversation": "Let's start a new conversation",
+    "startNewConversationDescription": "Please enter a question or topic in the message box below.",
+    "you": "You",
+    "ai": "AI",
+    "generating": "Generating response...",
+    "treeToggle": "Toggle Tree View",
+    "quotedMessageReply": "Enter your reply to the quoted message...",
+    "messageInputEnter": "Type a message (Enter to send, Shift+Enter for new line)...",
+    "messageInputShiftEnter": "Type a message (Shift+Enter to send, Enter for new line)...",
+    "removeQuote": "Remove quote",
+    "collapse": "Collapse",
+    "readMore": "Read more"
   },
   "tree": {
     "title": "Conversation Tree",
@@ -35,7 +49,10 @@
       "simple": "Simple View",
       "advanced": "Advanced View"
     },
-    "empty": "No messages"
+    "empty": "No messages",
+    "selectConversation": "Please select a conversation",
+    "simpleDisplay": "Simple View",
+    "treeLayout": "Tree Layout"
   },
   "settings": {
     "title": "Settings",

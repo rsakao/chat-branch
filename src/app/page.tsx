@@ -42,6 +42,50 @@ export default function HomePage() {
 
   const statusRef = useRef<HTMLDivElement>(null);
 
+  // ページロード時に保存された設定を適用
+  useEffect(() => {
+    const applySettings = () => {
+      try {
+        const savedSettings = localStorage.getItem('chatAppSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          
+          // テーマ適用
+          if (settings.theme && settings.theme !== 'auto') {
+            document.documentElement.setAttribute('data-color-scheme', settings.theme);
+          } else {
+            document.documentElement.removeAttribute('data-color-scheme');
+          }
+          
+          // フォントサイズ適用
+          if (settings.fontSize) {
+            document.documentElement.setAttribute('data-font-size', settings.fontSize);
+          }
+          
+          // ツリー表示モード適用
+          if (settings.treeViewMode) {
+            setTreeMode(settings.treeViewMode);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to apply saved settings:', error);
+      }
+    };
+
+    applySettings();
+
+    // settingsUpdated イベントをリッスンして設定変更を反映
+    const handleSettingsUpdate = () => {
+      applySettings();
+    };
+
+    window.addEventListener('settingsUpdated', handleSettingsUpdate);
+    
+    return () => {
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+    };
+  }, []);
+
   // 初回ロード時に会話を取得
   useEffect(() => {
     loadConversations();
