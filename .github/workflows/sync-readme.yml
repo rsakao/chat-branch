@@ -5,13 +5,6 @@ on:
   pull_request:
     paths:
       - 'README.md'
-      - 'README.ja.md'
-  push:
-    branches:
-      - main
-    paths:
-      - 'README.md'
-      - 'README.ja.md'
 
 jobs:
   sync-readme:
@@ -33,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Sync README files
+      - name: Translate README to Japanese
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npm run sync-readme
@@ -41,31 +34,17 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet; then
+          if git diff --quiet README.ja.md; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit and push changes
-        if: steps.changes.outputs.changed == 'true' && github.event_name != 'pull_request'
+      - name: Commit README.ja.md changes
+        if: steps.changes.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md README.ja.md
-          git commit -m "chore: sync README translations [skip ci]"
+          git add README.ja.md
+          git commit -m "chore: update Japanese README translation [skip ci]"
           git push
-
-      - name: Create Pull Request
-        if: steps.changes.outputs.changed == 'true' && github.event_name == 'pull_request'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: sync README translations"
-          title: "🔄 Sync README translations"
-          body: |
-            This PR automatically syncs README translations.
-            
-            Changes detected in README files and automatically translated.
-          branch: sync-readme-${{ github.event.number }}
-          delete-branch: true

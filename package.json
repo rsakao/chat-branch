@@ -2,6 +2,7 @@
   "name": "chat-branch",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
@@ -11,8 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"*.{js,jsx,ts,tsx,json,md}\"",
     "vercel-build": "node scripts/deploy-setup.js && prisma generate && prisma migrate deploy && next build",
     "postinstall": "prisma generate",
-    "sync-readme": "node scripts/sync-readme.js",
-    "sync-readme:check": "node scripts/sync-readme.js --check-only"
+    "sync-readme": "node scripts/sync-readme.js"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
