@@ -1,7 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Conversation } from '@/types';
-import { formatDate, truncateText } from '@/utils/helpers';
+import { truncateText } from '@/utils/helpers';
 import { useState } from 'react';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 
@@ -23,9 +23,32 @@ export default function ConversationSidebar({
   className = '',
 }: ConversationSidebarProps) {
   const t = useTranslations('sidebar');
+  const tTime = useTranslations('time');
+  const locale = useLocale();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] =
     useState<Conversation | null>(null);
+  
+  // 国際化対応の時刻フォーマット関数
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 1) return tTime('justNow');
+    if (diffInMinutes < 60) return tTime('minutesAgo', { minutes: diffInMinutes });
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return tTime('hoursAgo', { hours: diffInHours });
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return tTime('daysAgo', { days: diffInDays });
+
+    // 1週間以上前の場合は locale に基づく日付表示
+    return date.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US');
+  };
 
   const handleDeleteClick = (
     e: React.MouseEvent,

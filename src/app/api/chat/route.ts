@@ -85,10 +85,11 @@ export async function POST(request: NextRequest) {
           include: { messages: true },
         });
 
-        // メッセージが1つもない、または「新しい会話」のままの場合はタイトルを更新
+        // メッセージが1つもない、またはデフォルトタイトルのままの場合はタイトルを更新
         if (
           conversation &&
           (conversation.messages.length === 0 ||
+            conversation.title === 'New Conversation' ||
             conversation.title === '新しい会話')
         ) {
           const title =

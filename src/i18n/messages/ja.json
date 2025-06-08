@@ -17,7 +17,8 @@
     "newConversation": "新規会話",
     "noConversations": "会話がありません",
     "createNewConversation": "新規会話を作成してください",
-    "deleteConversation": "会話を削除"
+    "deleteConversation": "会話を削除",
+    "defaultConversationTitle": "新しい会話"
   },
   "chat": {
     "branch": "分岐",
@@ -102,5 +103,11 @@
     "thisActionCannotBeUndone": "この操作は取り消すことができません。",
     "cancel": "キャンセル",
     "delete": "削除"
+  },
+  "time": {
+    "justNow": "たった今",
+    "minutesAgo": "{minutes}分前",
+    "hoursAgo": "{hours}時間前",
+    "daysAgo": "{days}日前"
   }
 }

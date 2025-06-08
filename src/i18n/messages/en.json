@@ -17,7 +17,8 @@
     "newConversation": "New Conversation",
     "noConversations": "No conversations",
     "createNewConversation": "Please create a new conversation",
-    "deleteConversation": "Delete conversation"
+    "deleteConversation": "Delete conversation",
+    "defaultConversationTitle": "New Conversation"
   },
   "chat": {
     "branch": "Branch",
@@ -102,5 +103,11 @@
     "thisActionCannotBeUndone": "This action cannot be undone.",
     "cancel": "Cancel",
     "delete": "Delete"
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{minutes} min ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago"
   }
 }
