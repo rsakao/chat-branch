@@ -630,8 +630,11 @@ body.no-scroll {
 }
 
 .message-actions {
-  opacity: 0;
-  transition: opacity var(--duration-fast);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 4px; /* 上下8px・左右12pxの余白 */
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .message:hover .message-actions {
