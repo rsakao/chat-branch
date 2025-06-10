@@ -1,0 +1,54 @@
+{
+  "name": "Chat Branch Development",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-json",
+        "ms-vscode.vscode-markdown"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "emmet.includeLanguages": {
+          "javascript": "javascriptreact",
+          "typescript": "typescriptreact"
+        }
+      }
+    }
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "postStartCommand": "npx prisma generate && npx prisma db push",
+  "remoteEnv": {
+    "DATABASE_URL": "file:./dev.db"
+  },
+  "containerEnv": {
+    "NODE_ENV": "development"
+  },
+  "remoteUser": "node",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+}
