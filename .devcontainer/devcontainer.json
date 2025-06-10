@@ -49,9 +49,6 @@
   "containerEnv": {
     "NODE_ENV": "development"
   },
-  "mounts": [
-    "source=chat-branch-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
-  ],
   "remoteUser": "node",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
 }
