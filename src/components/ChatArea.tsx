@@ -315,6 +315,7 @@ export default function ChatArea({
   const [selectedText, setSelectedText] = useState<string>('');
   const [justDeselected, setJustDeselected] = useState(false);
   const [selectedModel, setSelectedModel] = useState('o4-mini');
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [sendBehavior, setSendBehavior] = useState<'enter' | 'shift-enter'>(
     'enter'
   );
@@ -342,6 +343,9 @@ export default function ChatArea({
           }
           if (settings.sendBehavior) {
             setSendBehavior(settings.sendBehavior);
+          }
+          if (settings.webSearchEnabled !== undefined) {
+            setWebSearchEnabled(settings.webSearchEnabled);
           }
         }
       } catch (error) {
@@ -501,6 +505,24 @@ export default function ChatArea({
     }
   };
 
+  const handleWebSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = e.target.checked;
+    setWebSearchEnabled(enabled);
+
+    // Save to localStorage
+    try {
+      const savedSettings = localStorage.getItem('chatAppSettings');
+      let settings = {};
+      if (savedSettings) {
+        settings = JSON.parse(savedSettings);
+      }
+      settings = { ...settings, webSearchEnabled: enabled };
+      localStorage.setItem('chatAppSettings', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Failed to save web search setting:', error);
+    }
+  };
+
   if (!conversation) {
     return (
       <section className="chat-area">
@@ -633,6 +655,15 @@ export default function ChatArea({
             style={{ resize: 'none', minHeight: '60px' }}
           />
           <div className="input-controls">
+            <label className="web-search-checkbox">
+              <input
+                type="checkbox"
+                checked={webSearchEnabled}
+                onChange={handleWebSearchChange}
+                disabled={isLoading}
+              />
+              <span>{t('webSearch')}</span>
+            </label>
             <select
               value={selectedModel}
               onChange={handleModelChange}

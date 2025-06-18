@@ -45,7 +45,8 @@
     "readMore": "続きを読む",
     "quoteAll": "全体を引用",
     "quoteSelected": "選択部分を引用",
-    "research": "調べる"
+    "research": "調べる",
+    "webSearch": "ウェブ検索"
   },
   "tree": {
     "title": "会話ツリー",

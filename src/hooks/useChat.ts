@@ -203,16 +203,18 @@ export function useChat(conversationId: string | null) {
       let messagesForFallback = updatedMessages;
 
       try {
-        // 保存された設定からモデルを取得
+        // 保存された設定からモデルとウェブ検索設定を取得
         let selectedModel = 'o4-mini';
+        let webSearchEnabled = false;
         try {
           const savedSettings = localStorage.getItem('chatAppSettings');
           if (savedSettings) {
             const settings = JSON.parse(savedSettings);
             selectedModel = settings.aiModel || 'o4-mini';
+            webSearchEnabled = settings.webSearchEnabled || false;
           }
         } catch (error) {
-          console.error('Failed to load model setting:', error);
+          console.error('Failed to load settings:', error);
         }
 
         // AI応答を生成（ストリーミング対応）
@@ -257,6 +259,7 @@ export function useChat(conversationId: string | null) {
             quotedMessage,
             quotedText,
             model: selectedModel,
+            webSearchEnabled,
             locale,
           }),
         });

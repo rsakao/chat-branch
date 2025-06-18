@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       quotedMessage,
       quotedText,
       model = 'gpt-4o-mini',
+      webSearchEnabled = false,
       locale = 'en', // デフォルトは英語
     } = await request.json();
 
@@ -51,8 +52,9 @@ export async function POST(request: NextRequest) {
     const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(
       model
     );
-    // Enable streaming
-    const stream = await openai.chat.completions.create({
+    
+    // ウェブ検索が有効な場合の設定
+    const completionConfig: any = {
       model: model,
       messages: [
         {
@@ -68,7 +70,14 @@ export async function POST(request: NextRequest) {
       ...(useMaxCompletionTokens
         ? { max_completion_tokens: 4000 }
         : { max_tokens: 1000, temperature: 0.7 }),
-    });
+    };
+
+    // ウェブ検索が有効な場合、ツールを追加
+    if (webSearchEnabled) {
+      completionConfig.tools = [{ type: 'web_search' }];
+    }
+
+    const stream = await openai.chat.completions.create(completionConfig);
 
     let fullContent = '';
     let usage = null;
