@@ -35,6 +35,7 @@ export default function HomePage() {
     messages,
     allMessages,
     isLoading,
+    streamingMessageId,
     sendMessage,
     createBranch,
     selectMessage,
@@ -247,6 +248,7 @@ export default function HomePage() {
           conversation={currentConversation}
           messages={messages}
           isLoading={isLoading}
+          streamingMessageId={streamingMessageId}
           onSendMessage={handleSendMessage}
           onCreateBranch={handleCreateBranch}
           onToggleTree={() => setIsTreeVisible(!isTreeVisible)}

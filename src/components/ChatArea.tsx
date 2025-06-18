@@ -18,6 +18,7 @@ interface ChatAreaProps {
   conversation?: Conversation;
   messages: Message[];
   isLoading: boolean;
+  streamingMessageId?: string | null;
   onSendMessage: (
     content: string,
     branchFromMessageId?: string,
@@ -137,9 +138,10 @@ const markdownComponents = {
 // メッセージ内容コンポーネント（React.memoで最適化）
 interface MessageContentProps {
   message: Message;
+  isStreaming?: boolean;
 }
 
-const MessageContent = memo(({ message }: MessageContentProps) => {
+const MessageContent = memo(({ message, isStreaming }: MessageContentProps) => {
   const t = useTranslations('chat');
   const [isExpanded, setIsExpanded] = useState(false);
   const contentLength = message.content.length;
@@ -153,13 +155,24 @@ const MessageContent = memo(({ message }: MessageContentProps) => {
   return (
     <div className="message-content">
       {message.role === 'assistant' ? (
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeHighlight]}
-          components={markdownComponents}
-        >
-          {displayContent}
-        </ReactMarkdown>
+        <div className="assistant-content">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
+            components={markdownComponents}
+          >
+            {displayContent}
+          </ReactMarkdown>
+          {isStreaming && (
+            <div className="streaming-indicator">
+              <div className="streaming-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         displayContent
       )}
@@ -290,6 +303,7 @@ export default function ChatArea({
   conversation,
   messages,
   isLoading,
+  streamingMessageId,
   onSendMessage,
   onCreateBranch,
   onToggleTree,
@@ -530,25 +544,29 @@ export default function ChatArea({
           </div>
         ) : (
           <>
-            {messages.map((message) => (
-              <div key={message.id} className={`message ${message.role}`}>
-                <div className="message-header">
-                  <span className="message-role">
-                    {message.role === 'user' ? t('you') : t('ai')}
-                  </span>
-                  <MessageActions
-                    message={message}
-                    selectedText={selectedText}
-                    onQuoteSelection={handleQuoteSelection}
-                    onResearch={handleResearch}
-                    onMessageClick={handleMessageClick}
-                    onCreateBranch={onCreateBranch}
-                  />
+            {messages.map((message) => {
+              const isStreaming = streamingMessageId === message.id;
+              return (
+                <div key={message.id} className={`message ${message.role} ${isStreaming ? 'streaming' : ''}`}>
+                  <div className="message-header">
+                    <span className="message-role">
+                      {message.role === 'user' ? t('you') : t('ai')}
+                      {isStreaming && <span className="streaming-label"> ({t('streaming')})</span>}
+                    </span>
+                    <MessageActions
+                      message={message}
+                      selectedText={selectedText}
+                      onQuoteSelection={handleQuoteSelection}
+                      onResearch={handleResearch}
+                      onMessageClick={handleMessageClick}
+                      onCreateBranch={onCreateBranch}
+                    />
+                  </div>
+                  <MessageContent message={message} isStreaming={isStreaming} />
                 </div>
-                <MessageContent message={message} />
-              </div>
-            ))}
-            {isLoading && (
+              );
+            })}
+            {isLoading && !streamingMessageId && (
               <div className="message assistant">
                 <div className="message-header">
                   <span className="message-role">{t('ai')}</span>
