@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(
       model
     );
-    const completion = await openai.chat.completions.create({
+    // Enable streaming
+    const stream = await openai.chat.completions.create({
       model: model,
       messages: [
         {
@@ -63,23 +64,58 @@ export async function POST(request: NextRequest) {
           content: userPrompt,
         },
       ],
+      stream: true,
       ...(useMaxCompletionTokens
         ? { max_completion_tokens: 4000 }
         : { max_tokens: 1000, temperature: 0.7 }),
     });
 
-    console.log('OpenAI Response:', JSON.stringify(completion, null, 2));
-    console.log('Response choices:', completion.choices);
-    console.log(
-      'First choice content:',
-      completion.choices[0]?.message?.content
-    );
+    let fullContent = '';
+    let usage = null;
 
-    const content =
-      completion.choices[0]?.message?.content ||
-      (locale === 'ja'
-        ? '申し訳ございませんが、応答を生成できませんでした。'
-        : 'Sorry, I could not generate a response.');
+    // Create a ReadableStream for Server-Sent Events
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const delta = chunk.choices[0]?.delta?.content || '';
+            if (delta) {
+              fullContent += delta;
+              // Send streaming data as Server-Sent Events
+              const data = JSON.stringify({
+                type: 'content',
+                content: delta,
+                fullContent: fullContent,
+              });
+              controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+            }
+
+            // Capture usage information if available
+            if (chunk.usage) {
+              usage = chunk.usage;
+            }
+          }
+
+          // Send completion event
+          const completionData = JSON.stringify({
+            type: 'complete',
+            fullContent: fullContent,
+            usage: usage,
+          });
+          controller.enqueue(encoder.encode(`data: ${completionData}\n\n`));
+        } catch (error) {
+          console.error('Streaming error:', error);
+          const errorData = JSON.stringify({
+            type: 'error',
+            error: 'Failed to stream response',
+          });
+          controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {
@@ -108,9 +144,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      content,
-      usage: completion.usage,
+    // Return streaming response
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
     });
   } catch (error) {
     console.error('Chat API error:', error);

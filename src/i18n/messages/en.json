@@ -35,6 +35,7 @@
     "you": "You",
     "ai": "AI",
     "generating": "Generating response...",
+    "streaming": "streaming",
     "treeToggle": "Toggle Tree View",
     "quotedMessageReply": "Enter your reply to the quoted message...",
     "messageInputEnter": "Type a message (Enter to send, Shift+Enter for new line)...",

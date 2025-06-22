@@ -3,11 +3,80 @@ import { Message } from '@/types';
 import { generateId, buildPathToMessage } from '@/utils/helpers';
 import { useLocale } from './useLocale';
 
+// Helper function to handle error fallback for AI messages
+const handleErrorFallback = async (
+  userMessage: Message,
+  updatedMessages: Record<string, Message>,
+  updatedPath: string[],
+  locale: string,
+  setMessages: React.Dispatch<React.SetStateAction<Record<string, Message>>>,
+  setCurrentPath: React.Dispatch<React.SetStateAction<string[]>>,
+  saveMessages: (messages: Message[], path: string[]) => Promise<void>
+) => {
+  // フォールバック応答（言語に応じてメッセージを変更）
+  const errorMessage =
+    locale === 'ja'
+      ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
+      : 'Sorry, I cannot generate a response at the moment. Please try again later.';
+
+  // 既に作成されたAIメッセージがある場合は更新、なければ新規作成
+  const existingAiMessage = Object.values(updatedMessages).find(
+    (msg) => msg.parentId === userMessage.id && msg.role === 'assistant'
+  );
+
+  if (existingAiMessage) {
+    // 既存のAIメッセージを更新
+    setMessages((prev) => ({
+      ...prev,
+      [existingAiMessage.id]: {
+        ...existingAiMessage,
+        content: errorMessage,
+      },
+    }));
+
+    await saveMessages(
+      [userMessage, { ...existingAiMessage, content: errorMessage }],
+      [...updatedPath, existingAiMessage.id]
+    );
+  } else {
+    // 新しいエラーメッセージを作成
+    const aiMessage: Message = {
+      id: generateId('msg'),
+      role: 'assistant',
+      content: errorMessage,
+      conversationId: userMessage.conversationId,
+      parentId: userMessage.id,
+      children: [],
+      branchIndex: 0,
+      timestamp: new Date().toISOString(),
+    };
+
+    const finalUpdatedMessages = {
+      ...updatedMessages,
+      [userMessage.id]: {
+        ...updatedMessages[userMessage.id],
+        children: [aiMessage.id],
+      },
+      [aiMessage.id]: aiMessage,
+    };
+    setMessages(finalUpdatedMessages);
+
+    const finalPath = [...updatedPath, aiMessage.id];
+    setCurrentPath(finalPath);
+
+    // フォールバック応答もデータベースに保存
+    await saveMessages([userMessage, aiMessage], finalPath);
+  }
+};
+
 export function useChat(conversationId: string | null) {
   const { locale } = useLocale();
   const [messages, setMessages] = useState<Record<string, Message>>({});
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null
+  );
 
   const loadMessages = useCallback(async () => {
     if (!conversationId) return;
@@ -130,6 +199,9 @@ export function useChat(conversationId: string | null) {
       const updatedPath = [...newPath, userMessage.id];
       setCurrentPath(updatedPath);
 
+      // フォールバック時に使用するメッセージのスナップショット
+      let messagesForFallback = updatedMessages;
+
       try {
         // 保存された設定からモデルを取得
         let selectedModel = 'o4-mini';
@@ -143,7 +215,38 @@ export function useChat(conversationId: string | null) {
           console.error('Failed to load model setting:', error);
         }
 
-        // AI応答を生成（引用メッセージの情報を含める）
+        // AI応答を生成（ストリーミング対応）
+        const aiMessageId = generateId('msg');
+        const aiMessage: Message = {
+          id: aiMessageId,
+          role: 'assistant',
+          content: '',
+          conversationId,
+          parentId: userMessage.id,
+          children: [],
+          branchIndex: 0,
+          timestamp: new Date().toISOString(),
+        };
+
+        // 空のAIメッセージを先に追加してストリーミング開始
+        const messagesWithAi = {
+          ...updatedMessages,
+          [userMessage.id]: {
+            ...updatedMessages[userMessage.id],
+            children: [aiMessage.id],
+          },
+          [aiMessage.id]: aiMessage,
+        };
+        setMessages(messagesWithAi);
+        setStreamingMessageId(aiMessageId);
+        // スナップショットを更新
+        messagesForFallback = messagesWithAi;
+
+        // パスを更新
+        const finalPath = [...updatedPath, aiMessage.id];
+        setCurrentPath(finalPath);
+
+        // ストリーミングAPIを呼び出し
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -158,68 +261,92 @@ export function useChat(conversationId: string | null) {
           }),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          const aiMessage: Message = {
-            id: generateId('msg'),
-            role: 'assistant',
-            content: data.content,
-            conversationId,
-            parentId: userMessage.id,
-            children: [],
-            branchIndex: 0,
-            timestamp: new Date().toISOString(),
-          };
+        if (response.ok && response.body) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullContent = '';
+          let usage = null;
 
-          // ユーザーメッセージに子を追加
-          const finalMessages = {
-            ...updatedMessages,
-            [userMessage.id]: {
-              ...updatedMessages[userMessage.id],
-              children: [aiMessage.id],
-            },
-            [aiMessage.id]: aiMessage,
-          };
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
-          setMessages(finalMessages);
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
 
-          // パスを更新
-          const finalPath = [...updatedPath, aiMessage.id];
-          setCurrentPath(finalPath);
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
 
-          // データベースに保存
-          await saveMessages([userMessage, aiMessage], finalPath);
+                    if (data.type === 'content') {
+                      fullContent = data.fullContent;
+                      // メッセージ内容を更新
+                      setMessages((prev) => ({
+                        ...prev,
+                        [aiMessageId]: {
+                          ...prev[aiMessageId],
+                          content: fullContent,
+                        },
+                      }));
+                    } else if (data.type === 'complete') {
+                      fullContent = data.fullContent;
+                      usage = data.usage;
+                      // 最終的なメッセージ内容を設定
+                      setMessages((prev) => ({
+                        ...prev,
+                        [aiMessageId]: {
+                          ...prev[aiMessageId],
+                          content: fullContent,
+                          usage: usage,
+                        },
+                      }));
+                      break;
+                    } else if (data.type === 'error') {
+                      throw new Error(data.error);
+                    }
+                  } catch (parseError) {
+                    console.error(
+                      'Failed to parse streaming data:',
+                      parseError
+                    );
+                  }
+                }
+              }
+            }
+
+            // ストリーミング完了
+            setStreamingMessageId(null);
+
+            // データベースに保存
+            const finalAiMessage = {
+              ...aiMessage,
+              content: fullContent,
+              usage: usage || undefined,
+            };
+            await saveMessages([userMessage, finalAiMessage], finalPath);
+          } catch (streamError) {
+            console.error('Streaming error:', streamError);
+            throw streamError;
+          }
+        } else {
+          throw new Error('Failed to get streaming response');
         }
       } catch (error) {
         console.error('Failed to send message:', error);
-        // フォールバック応答（言語に応じてメッセージを変更）
-        const errorMessage =
-          locale === 'ja'
-            ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
-            : 'Sorry, I cannot generate a response at the moment. Please try again later.';
+        // ストリーミングエラーの場合のクリーンアップ
+        setStreamingMessageId(null);
 
-        const aiMessage: Message = {
-          id: generateId('msg'),
-          role: 'assistant',
-          content: errorMessage,
-          conversationId,
-          parentId: updatedPath[updatedPath.length - 1],
-          children: [],
-          branchIndex: 0,
-          timestamp: new Date().toISOString(),
-        };
-
-        const finalUpdatedMessages = {
-          ...updatedMessages,
-          [aiMessage.id]: aiMessage,
-        };
-        setMessages(finalUpdatedMessages);
-
-        const finalPath = [...updatedPath, aiMessage.id];
-        setCurrentPath(finalPath);
-
-        // フォールバック応答もデータベースに保存
-        await saveMessages([aiMessage], finalPath);
+        await handleErrorFallback(
+          userMessage,
+          messagesForFallback,
+          updatedPath,
+          locale,
+          setMessages,
+          setCurrentPath,
+          saveMessages
+        );
       } finally {
         setIsLoading(false);
       }
@@ -280,6 +407,7 @@ export function useChat(conversationId: string | null) {
     allMessages: messages,
     currentPath,
     isLoading,
+    streamingMessageId,
     sendMessage,
     createBranch,
     selectMessage,
