@@ -199,6 +199,9 @@ export function useChat(conversationId: string | null) {
       const updatedPath = [...newPath, userMessage.id];
       setCurrentPath(updatedPath);
 
+      // フォールバック時に使用するメッセージのスナップショット
+      let messagesForFallback = updatedMessages;
+
       try {
         // 保存された設定からモデルを取得
         let selectedModel = 'o4-mini';
@@ -236,6 +239,8 @@ export function useChat(conversationId: string | null) {
         };
         setMessages(messagesWithAi);
         setStreamingMessageId(aiMessageId);
+        // スナップショットを更新
+        messagesForFallback = messagesWithAi;
 
         // パスを更新
         const finalPath = [...updatedPath, aiMessage.id];
@@ -294,6 +299,7 @@ export function useChat(conversationId: string | null) {
                         [aiMessageId]: {
                           ...prev[aiMessageId],
                           content: fullContent,
+                          usage: usage,
                         },
                       }));
                       break;
@@ -317,6 +323,7 @@ export function useChat(conversationId: string | null) {
             const finalAiMessage = {
               ...aiMessage,
               content: fullContent,
+              usage: usage || undefined,
             };
             await saveMessages([userMessage, finalAiMessage], finalPath);
           } catch (streamError) {
@@ -333,7 +340,7 @@ export function useChat(conversationId: string | null) {
 
         await handleErrorFallback(
           userMessage,
-          updatedMessages,
+          messagesForFallback,
           updatedPath,
           locale,
           setMessages,

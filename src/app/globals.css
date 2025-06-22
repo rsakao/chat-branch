@@ -1901,6 +1901,7 @@ body.no-scroll {
 /* Streaming Message Effects */
 .message.streaming {
   position: relative;
+  padding: var(--space-8);
   animation: streamingGlow 2s infinite;
 }
 

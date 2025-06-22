@@ -7,6 +7,12 @@ export interface Message {
   children: string[];
   branchIndex: number;
   timestamp: string;
+  usage?: Usage;
+}
+
+export interface Usage {
+  input_tokens: number;
+  output_tokens: number;
 }
 
 // Prismaから取得されるメッセージの型
