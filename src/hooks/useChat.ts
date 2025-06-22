@@ -8,7 +8,9 @@ export function useChat(conversationId: string | null) {
   const [messages, setMessages] = useState<Record<string, Message>>({});
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null
+  );
 
   const loadMessages = useCallback(async () => {
     if (!conversationId) return;
@@ -206,11 +208,11 @@ export function useChat(conversationId: string | null) {
                 if (line.startsWith('data: ')) {
                   try {
                     const data = JSON.parse(line.slice(6));
-                    
+
                     if (data.type === 'content') {
                       fullContent = data.fullContent;
                       // メッセージ内容を更新
-                      setMessages(prev => ({
+                      setMessages((prev) => ({
                         ...prev,
                         [aiMessageId]: {
                           ...prev[aiMessageId],
@@ -221,7 +223,7 @@ export function useChat(conversationId: string | null) {
                       fullContent = data.fullContent;
                       usage = data.usage;
                       // 最終的なメッセージ内容を設定
-                      setMessages(prev => ({
+                      setMessages((prev) => ({
                         ...prev,
                         [aiMessageId]: {
                           ...prev[aiMessageId],
@@ -233,7 +235,10 @@ export function useChat(conversationId: string | null) {
                       throw new Error(data.error);
                     }
                   } catch (parseError) {
-                    console.error('Failed to parse streaming data:', parseError);
+                    console.error(
+                      'Failed to parse streaming data:',
+                      parseError
+                    );
                   }
                 }
               }
@@ -241,14 +246,13 @@ export function useChat(conversationId: string | null) {
 
             // ストリーミング完了
             setStreamingMessageId(null);
-            
+
             // データベースに保存
             const finalAiMessage = {
               ...aiMessage,
               content: fullContent,
             };
             await saveMessages([userMessage, finalAiMessage], finalPath);
-            
           } catch (streamError) {
             console.error('Streaming error:', streamError);
             throw streamError;
@@ -260,7 +264,7 @@ export function useChat(conversationId: string | null) {
         console.error('Failed to send message:', error);
         // ストリーミングエラーの場合のクリーンアップ
         setStreamingMessageId(null);
-        
+
         // フォールバック応答（言語に応じてメッセージを変更）
         const errorMessage =
           locale === 'ja'
@@ -269,20 +273,23 @@ export function useChat(conversationId: string | null) {
 
         // 既に作成されたAIメッセージがある場合は更新、なければ新規作成
         const existingAiMessage = Object.values(messages).find(
-          msg => msg.parentId === userMessage.id && msg.role === 'assistant'
+          (msg) => msg.parentId === userMessage.id && msg.role === 'assistant'
         );
-        
+
         if (existingAiMessage) {
           // 既存のAIメッセージを更新
-          setMessages(prev => ({
+          setMessages((prev) => ({
             ...prev,
             [existingAiMessage.id]: {
               ...existingAiMessage,
               content: errorMessage,
             },
           }));
-          
-          await saveMessages([userMessage, { ...existingAiMessage, content: errorMessage }], [...updatedPath, existingAiMessage.id]);
+
+          await saveMessages(
+            [userMessage, { ...existingAiMessage, content: errorMessage }],
+            [...updatedPath, existingAiMessage.id]
+          );
         } else {
           // 新しいエラーメッセージを作成
           const aiMessage: Message = {

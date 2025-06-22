@@ -547,11 +547,19 @@ export default function ChatArea({
             {messages.map((message) => {
               const isStreaming = streamingMessageId === message.id;
               return (
-                <div key={message.id} className={`message ${message.role} ${isStreaming ? 'streaming' : ''}`}>
+                <div
+                  key={message.id}
+                  className={`message ${message.role} ${isStreaming ? 'streaming' : ''}`}
+                >
                   <div className="message-header">
                     <span className="message-role">
                       {message.role === 'user' ? t('you') : t('ai')}
-                      {isStreaming && <span className="streaming-label"> ({t('streaming')})</span>}
+                      {isStreaming && (
+                        <span className="streaming-label">
+                          {' '}
+                          ({t('streaming')})
+                        </span>
+                      )}
                     </span>
                     <MessageActions
                       message={message}

@@ -83,33 +83,32 @@ export async function POST(request: NextRequest) {
             if (delta) {
               fullContent += delta;
               // Send streaming data as Server-Sent Events
-              const data = JSON.stringify({ 
-                type: 'content', 
+              const data = JSON.stringify({
+                type: 'content',
                 content: delta,
-                fullContent: fullContent 
+                fullContent: fullContent,
               });
               controller.enqueue(encoder.encode(`data: ${data}\n\n`));
             }
-            
+
             // Capture usage information if available
             if (chunk.usage) {
               usage = chunk.usage;
             }
           }
-          
+
           // Send completion event
-          const completionData = JSON.stringify({ 
-            type: 'complete', 
+          const completionData = JSON.stringify({
+            type: 'complete',
             fullContent: fullContent,
-            usage: usage
+            usage: usage,
           });
           controller.enqueue(encoder.encode(`data: ${completionData}\n\n`));
-          
         } catch (error) {
           console.error('Streaming error:', error);
-          const errorData = JSON.stringify({ 
-            type: 'error', 
-            error: 'Failed to stream response' 
+          const errorData = JSON.stringify({
+            type: 'error',
+            error: 'Failed to stream response',
           });
           controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
         } finally {
@@ -118,9 +117,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const content = fullContent || (locale === 'ja'
-      ? '申し訳ございませんが、応答を生成できませんでした。'
-      : 'Sorry, I could not generate a response.');
+    const content =
+      fullContent ||
+      (locale === 'ja'
+        ? '申し訳ございませんが、応答を生成できませんでした。'
+        : 'Sorry, I could not generate a response.');
 
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
