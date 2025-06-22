@@ -117,7 +117,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {
       try {
