@@ -3,6 +3,72 @@ import { Message } from '@/types';
 import { generateId, buildPathToMessage } from '@/utils/helpers';
 import { useLocale } from './useLocale';
 
+// Helper function to handle error fallback for AI messages
+const handleErrorFallback = async (
+  userMessage: Message,
+  updatedMessages: Record<string, Message>,
+  updatedPath: string[],
+  locale: string,
+  setMessages: React.Dispatch<React.SetStateAction<Record<string, Message>>>,
+  setCurrentPath: React.Dispatch<React.SetStateAction<string[]>>,
+  saveMessages: (messages: Message[], path: string[]) => Promise<void>
+) => {
+  // フォールバック応答（言語に応じてメッセージを変更）
+  const errorMessage =
+    locale === 'ja'
+      ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
+      : 'Sorry, I cannot generate a response at the moment. Please try again later.';
+
+  // 既に作成されたAIメッセージがある場合は更新、なければ新規作成
+  const existingAiMessage = Object.values(updatedMessages).find(
+    (msg) => msg.parentId === userMessage.id && msg.role === 'assistant'
+  );
+
+  if (existingAiMessage) {
+    // 既存のAIメッセージを更新
+    setMessages((prev) => ({
+      ...prev,
+      [existingAiMessage.id]: {
+        ...existingAiMessage,
+        content: errorMessage,
+      },
+    }));
+
+    await saveMessages(
+      [userMessage, { ...existingAiMessage, content: errorMessage }],
+      [...updatedPath, existingAiMessage.id]
+    );
+  } else {
+    // 新しいエラーメッセージを作成
+    const aiMessage: Message = {
+      id: generateId('msg'),
+      role: 'assistant',
+      content: errorMessage,
+      conversationId: userMessage.conversationId,
+      parentId: userMessage.id,
+      children: [],
+      branchIndex: 0,
+      timestamp: new Date().toISOString(),
+    };
+
+    const finalUpdatedMessages = {
+      ...updatedMessages,
+      [userMessage.id]: {
+        ...updatedMessages[userMessage.id],
+        children: [aiMessage.id],
+      },
+      [aiMessage.id]: aiMessage,
+    };
+    setMessages(finalUpdatedMessages);
+
+    const finalPath = [...updatedPath, aiMessage.id];
+    setCurrentPath(finalPath);
+
+    // フォールバック応答もデータベースに保存
+    await saveMessages([userMessage, aiMessage], finalPath);
+  }
+};
+
 export function useChat(conversationId: string | null) {
   const { locale } = useLocale();
   const [messages, setMessages] = useState<Record<string, Message>>({});
@@ -265,60 +331,15 @@ export function useChat(conversationId: string | null) {
         // ストリーミングエラーの場合のクリーンアップ
         setStreamingMessageId(null);
 
-        // フォールバック応答（言語に応じてメッセージを変更）
-        const errorMessage =
-          locale === 'ja'
-            ? '申し訳ございませんが、現在応答を生成できません。後でもう一度お試しください。'
-            : 'Sorry, I cannot generate a response at the moment. Please try again later.';
-
-        // 既に作成されたAIメッセージがある場合は更新、なければ新規作成
-        const existingAiMessage = Object.values(messages).find(
-          (msg) => msg.parentId === userMessage.id && msg.role === 'assistant'
+        await handleErrorFallback(
+          userMessage,
+          updatedMessages,
+          updatedPath,
+          locale,
+          setMessages,
+          setCurrentPath,
+          saveMessages
         );
-
-        if (existingAiMessage) {
-          // 既存のAIメッセージを更新
-          setMessages((prev) => ({
-            ...prev,
-            [existingAiMessage.id]: {
-              ...existingAiMessage,
-              content: errorMessage,
-            },
-          }));
-
-          await saveMessages(
-            [userMessage, { ...existingAiMessage, content: errorMessage }],
-            [...updatedPath, existingAiMessage.id]
-          );
-        } else {
-          // 新しいエラーメッセージを作成
-          const aiMessage: Message = {
-            id: generateId('msg'),
-            role: 'assistant',
-            content: errorMessage,
-            conversationId,
-            parentId: userMessage.id,
-            children: [],
-            branchIndex: 0,
-            timestamp: new Date().toISOString(),
-          };
-
-          const finalUpdatedMessages = {
-            ...updatedMessages,
-            [userMessage.id]: {
-              ...updatedMessages[userMessage.id],
-              children: [aiMessage.id],
-            },
-            [aiMessage.id]: aiMessage,
-          };
-          setMessages(finalUpdatedMessages);
-
-          const finalPath = [...updatedPath, aiMessage.id];
-          setCurrentPath(finalPath);
-
-          // フォールバック応答もデータベースに保存
-          await saveMessages([userMessage, aiMessage], finalPath);
-        }
       } finally {
         setIsLoading(false);
       }
