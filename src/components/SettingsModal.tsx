@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import LanguageSelector from './LanguageSelector';
@@ -30,7 +30,7 @@ export default function SettingsModal({
   });
 
   // Load saved settings from localStorage
-  const loadSavedSettings = () => {
+  const loadSavedSettings = useCallback(() => {
     const saved = localStorage.getItem('chatAppSettings');
     if (saved) {
       try {
@@ -63,7 +63,7 @@ export default function SettingsModal({
       debugMode: false,
       sendBehavior: 'enter' as 'enter' | 'shift-enter',
     };
-  };
+  }, [locale, treeMode]);
 
   // Reset to saved settings when modal opens
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function SettingsModal({
       const savedSettings = loadSavedSettings();
       setLocalSettings(savedSettings);
     }
-  }, [isOpen, locale, treeMode]);
+  }, [isOpen, locale, treeMode, loadSavedSettings]);
 
   const handleSave = () => {
     onTreeModeChange(localSettings.treeViewMode);

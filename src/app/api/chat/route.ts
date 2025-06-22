@@ -117,11 +117,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const content =
-      fullContent ||
-      (locale === 'ja'
-        ? '申し訳ございませんが、応答を生成できませんでした。'
-        : 'Sorry, I could not generate a response.');
 
     // 会話のタイトルを自動更新（最初のメッセージの場合）
     if (conversationId) {
