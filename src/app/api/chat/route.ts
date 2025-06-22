@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
     );
 
     // ウェブ検索が有効な場合の設定
-    const completionConfig: any = {
+    const completionConfig: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming & {
+      tools?: Array<{ type: string }>;
+    } = {
       model: model,
       messages: [
         {
