@@ -807,14 +807,14 @@ body.no-scroll {
   user-select: none;
 }
 
-.web-search-checkbox input[type="checkbox"] {
+.web-search-checkbox input[type='checkbox'] {
   width: 16px;
   height: 16px;
   margin: 0;
   cursor: pointer;
 }
 
-.web-search-checkbox input[type="checkbox"]:disabled {
+.web-search-checkbox input[type='checkbox']:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }

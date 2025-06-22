@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     const useMaxCompletionTokens = /^(gpt-4o|gpt-4o-mini|o4-mini|o3-mini)/.test(
       model
     );
-    
+
     // ウェブ検索が有効な場合の設定
     const completionConfig: any = {
       model: model,
